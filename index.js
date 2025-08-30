@@ -33,6 +33,11 @@ const audioAssets = [
     id: 'sfx-gunshot', 
     src: 'https://github.com/abolfazl140122/test-jenai/raw/09793ef2205567f211dae4b31d6f3cc79e5d36e6/rifle-gunshot-99749.mp3', 
     loop: false 
+  },
+  {
+    id: 'sfx-hover',
+    src: 'https://github.com/abolfazl140122/test-jenai/raw/61b25b36b5ec9a32a8f7bb27a9b532818d80390b/glitch-01-231255.mp3',
+    loop: true
   }
 ];
 
@@ -401,6 +406,7 @@ const setupParticleCanvas = () => {
 const setupMenuButtonEffects = (appContainer) => {
     const menuButtons = document.querySelectorAll('.menu-button');
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%&";
+    const hoverSfx = document.getElementById('sfx-hover');
 
     menuButtons.forEach(button => {
         const span = button.querySelector('span');
@@ -412,6 +418,10 @@ const setupMenuButtonEffects = (appContainer) => {
         let interval;
 
         button.addEventListener('mouseenter', () => {
+            if (hoverSfx) {
+                hoverSfx.currentTime = 0;
+                hoverSfx.play().catch(e => console.error("Hover SFX failed to play:", e));
+            }
             let iteration = 0;
             clearInterval(interval);
             
@@ -436,6 +446,10 @@ const setupMenuButtonEffects = (appContainer) => {
         });
 
         button.addEventListener('mouseleave', () => {
+           if (hoverSfx) {
+               hoverSfx.pause();
+               hoverSfx.currentTime = 0;
+           }
            clearInterval(interval);
            span.innerText = originalText;
         });

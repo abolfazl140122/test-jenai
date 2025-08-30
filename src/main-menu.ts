@@ -112,6 +112,7 @@ const setupParticleCanvas = () => {
 const setupMenuButtonEffects = (appContainer: HTMLElement) => {
     const menuButtons = document.querySelectorAll('.menu-button');
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%&";
+    const hoverSfx = document.getElementById('sfx-hover') as HTMLAudioElement;
 
     menuButtons.forEach(button => {
         const span = button.querySelector('span');
@@ -123,6 +124,11 @@ const setupMenuButtonEffects = (appContainer: HTMLElement) => {
         let interval: number | undefined;
 
         button.addEventListener('mouseenter', () => {
+            if (hoverSfx) {
+                hoverSfx.currentTime = 0;
+                hoverSfx.play().catch(e => console.error("Hover SFX failed to play:", e));
+            }
+
             let iteration = 0;
             clearInterval(interval);
             
@@ -147,6 +153,10 @@ const setupMenuButtonEffects = (appContainer: HTMLElement) => {
         });
 
         button.addEventListener('mouseleave', () => {
+           if (hoverSfx) {
+               hoverSfx.pause();
+               hoverSfx.currentTime = 0;
+           }
            clearInterval(interval);
            span.innerText = originalText;
         });
