@@ -7,26 +7,36 @@
 // Fix: Removed local definitions of `throttle`, `initLoadingScreen`, and `initMainMenu`
 // and instead imported them from their respective modules to resolve redeclaration errors.
 // This file now serves as the main entry point for the application.
+import { initAudioPreloader } from './src/audio-preloader';
 import { initLoadingScreen } from './src/loading-screen';
 import { initMainMenu } from './src/main-menu';
 
 
 // --- APP INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
-  const app = document.getElementById('app') as HTMLElement;
-  if (!app) {
-    console.error('Main app container #app not found!');
-    return;
+  try {
+    // Wait for the audio to be preloaded and user to click "Engage"
+    await initAudioPreloader();
+
+    // The rest of the app initialization logic remains the same
+    const app = document.getElementById('app') as HTMLElement;
+    if (!app) {
+      console.error('Main app container #app not found!');
+      return;
+    }
+
+    // Run the cinematic loading screen and wait for it to complete
+    await initLoadingScreen();
+
+    // Once loading is done, transition to the main menu
+    app.style.display = 'flex';
+    setTimeout(() => {
+      app.classList.add('visible');
+      // Initialize all the interactive parts of the main menu
+      initMainMenu();
+    }, 50); // A short delay ensures the display:flex is applied before the transition starts.
+  } catch (error) {
+    console.error("Failed to initialize the application:", error);
+    document.body.innerHTML = `<div style="color: #ff4141; text-align: center; padding: 2rem;"><h1>Initialization Failed</h1><p>Could not load essential assets. Please refresh and try again.</p></div>`;
   }
-
-  // Run the cinematic loading screen and wait for it to complete
-  await initLoadingScreen();
-
-  // Once loading is done, transition to the main menu
-  app.style.display = 'flex';
-  setTimeout(() => {
-    app.classList.add('visible');
-    // Initialize all the interactive parts of the main menu
-    initMainMenu();
-  }, 50); // A short delay ensures the display:flex is applied before the transition starts.
 });
