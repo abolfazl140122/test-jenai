@@ -25,7 +25,7 @@ export const initAudioPreloader = (): Promise<void> => {
     }
 
     // NOTE: The audio file should be placed in a 'music' directory at the root of the project.
-    const audioSrc = 'music/scary-ambience-music-347437.mp3';
+    const audioSrc = 'Music/scary-ambience-music-347437.mp3';
     
     audioElement.loop = true;
 
