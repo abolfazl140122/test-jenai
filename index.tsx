@@ -21,11 +21,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  let progress = 0;
   let animationFrameId: number;
+  let startTime: number | null = null;
+  const loadingDuration = 4000; // 4 seconds for the entire loading sequence
 
-  const cinematicLoad = () => {
-    progress += 0.7; // Consistent progress for better cross-device performance
+  const cinematicLoad = (timestamp: number) => {
+    if (startTime === null) {
+      startTime = timestamp;
+    }
+    const elapsedTime = timestamp - startTime;
+    const progress = (elapsedTime / loadingDuration) * 100;
+    
     const displayProgress = Math.min(progress, 100);
     loadingBar.style.width = `${displayProgress}%`;
 
@@ -47,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Phase 3: Warning (80-100%)
-    if (displayProgress > 80) {
+    if (displayProgress > 80 && displayProgress < 100) {
       if (!vignette.classList.contains('warning')) {
         loadingText.textContent = "WARNING: BREACH DETECTED";
         vignette.classList.add('warning');
