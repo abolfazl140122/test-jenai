@@ -52,6 +52,7 @@ html, body {
   z-index: 100;
   background-color: #000;
   transition: opacity 0.8s ease-out 0.3s; /* Delay fade-out for shatter effect */
+  will-change: transform; /* Performance optimization for shaking */
 }
 #loading-screen.shaking {
   animation: camera-shake 0.4s infinite;
@@ -149,6 +150,7 @@ html, body {
           drop-shadow(0 0 5px rgba(255, 255, 255, 0.8)) 
           drop-shadow(0 0 15px rgba(255, 255, 255, 0.6));
   animation: fadeInLogo 3s ease-in-out forwards;
+  will-change: transform, clip-path; /* Performance optimization for glitching */
 }
 
 #logo.glitching {

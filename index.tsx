@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let animationFrameId: number;
 
   const cinematicLoad = () => {
-    progress += Math.random() * 0.8; // Slower, more deliberate progress
+    progress += 0.7; // Consistent progress for better cross-device performance
     const displayProgress = Math.min(progress, 100);
     loadingBar.style.width = `${displayProgress}%`;
 
