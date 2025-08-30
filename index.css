@@ -1114,6 +1114,79 @@ input[type=range]::-moz-range-thumb {
 }
 
 
+/* --- Language & RTL Support --- */
+.language-selector {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+.lang-button {
+  font-family: 'Orbitron', sans-serif;
+  background-color: transparent;
+  border: 1px solid #00ffff;
+  color: #00ffff;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+.lang-button:hover {
+  background-color: #00ffff;
+  color: #02041b;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+.lang-button.active {
+  background-color: #00ffff;
+  color: #02041b;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+
+body[data-lang="fa"] {
+  direction: rtl;
+  font-family: 'Vazirmatn', 'Montserrat', sans-serif;
+}
+body[data-lang="fa"] .menu-button,
+body[data-lang="fa"] .panel-title,
+body[data-lang="fa"] #game-title,
+body[data-lang="fa"] #game-title .subtitle,
+body[data-lang="fa"] .settings-group,
+body[data-lang="fa"] #motion-permission-dialog h2,
+body[data-lang="fa"] #audio-preloader-content h2 {
+  font-family: 'Vazirmatn', 'Orbitron', sans-serif;
+}
+body[data-lang="fa"] .mission-item {
+    border-left: none;
+    border-right: 3px solid #00ffff;
+}
+body[data-lang="fa"] .mission-item.locked {
+    border-right-color: #555;
+}
+body[data-lang="fa"] .mission-list-container {
+    padding-right: 0;
+    padding-left: 1rem;
+}
+body[data-lang="fa"] .menu-button::before,
+body[data-lang="fa"] .menu-button::after {
+  transform: skewX(-25deg) scaleY(0);
+}
+body[data-lang="fa"] .menu-button::before {
+  left: auto;
+  right: -10px;
+}
+body[data-lang="fa"] .menu-button::after {
+  right: auto;
+  left: -10px;
+}
+body[data-lang="fa"] .menu-button:hover::before,
+body[data-lang="fa"] .menu-button:hover::after {
+  transform: skewX(-25deg) scaleY(1);
+}
+
+
 /* ============================================== */
 /* ============= RESPONSIVE DESIGN ============== */
 /* ============================================== */

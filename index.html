@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="index.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Montserrat:wght@400;700&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- ============================================== -->
@@ -15,8 +15,8 @@
   <!-- ============================================== -->
   <div id="audio-preloader">
     <div id="audio-preloader-content">
-      <h2>CALIBRATING AURAL SENSORS...</h2>
-      <p>This experience requires audio. Please ensure your sound is enabled.</p>
+      <h2 data-i18n-key="audioPreloaderTitle">CALIBRATING AURAL SENSORS...</h2>
+      <p data-i18n-key="audioPreloaderDesc">This experience requires audio. Please ensure your sound is enabled.</p>
       <div id="audio-progress-container">
         <div id="audio-progress-bar"></div>
       </div>
@@ -68,14 +68,14 @@
     <div class="scanlines"></div>
     <div id="menu-ui">
       <h1 id="game-title">
-        BREACH PROTOCOL
-        <span class="subtitle">SYSTEM KERNEL // v2.5</span>
+        <span data-i18n-key="gameTitle">BREACH PROTOCOL</span>
+        <span class="subtitle" data-i18n-key="gameSubtitle">SYSTEM KERNEL // v2.5</span>
       </h1>
       <nav id="main-menu">
-        <a href="#" id="start-mission-btn" class="menu-button" style="--stagger-delay: 0.1s;"><span data-value="START MISSION">START MISSION</span></a>
-        <a href="#" id="load-data-btn" class="menu-button" style="--stagger-delay: 0.2s;"><span data-value="LOAD DATA">LOAD DATA</span></a>
-        <a href="#" id="settings-btn" class="menu-button" style="--stagger-delay: 0.3s;"><span data-value="SETTINGS">SETTINGS</span></a>
-        <a href="#" id="exit-btn" class="menu-button" style="--stagger-delay: 0.4s;"><span data-value="EXIT">EXIT</span></a>
+        <a href="#" id="start-mission-btn" class="menu-button" style="--stagger-delay: 0.1s;"><span data-i18n-key="startMission" data-value="START MISSION">START MISSION</span></a>
+        <a href="#" id="load-data-btn" class="menu-button" style="--stagger-delay: 0.2s;"><span data-i18n-key="loadData" data-value="LOAD DATA">LOAD DATA</span></a>
+        <a href="#" id="settings-btn" class="menu-button" style="--stagger-delay: 0.3s;"><span data-i18n-key="settings" data-value="SETTINGS">SETTINGS</span></a>
+        <a href="#" id="exit-btn" class="menu-button" style="--stagger-delay: 0.4s;"><span data-i18n-key="exit" data-value="EXIT">EXIT</span></a>
       </nav>
     </div>
 
@@ -86,9 +86,9 @@
     <!-- Settings Panel -->
     <div id="settings-panel" class="panel">
       <div class="panel-content">
-        <h2 class="panel-title">// SETTINGS</h2>
+        <h2 class="panel-title" data-i18n-key="settingsTitle">// SETTINGS</h2>
         <div class="settings-group">
-          <label for="master-volume">Master Volume</label>
+          <label for="master-volume" data-i18n-key="masterVolume">Master Volume</label>
           <div class="slider-container">
             <span>0</span>
             <input type="range" id="master-volume" min="0" max="100" value="80">
@@ -96,7 +96,7 @@
           </div>
         </div>
         <div class="settings-group">
-          <label for="music-volume">Music Volume</label>
+          <label for="music-volume" data-i18n-key="musicVolume">Music Volume</label>
           <div class="slider-container">
             <span>0</span>
             <input type="range" id="music-volume" min="0" max="100" value="60">
@@ -104,67 +104,74 @@
           </div>
         </div>
         <div class="settings-group">
-          <label for="sfx-volume">SFX Volume</label>
+          <label for="sfx-volume" data-i18n-key="sfxVolume">SFX Volume</label>
           <div class="slider-container">
             <span>0</span>
             <input type="range" id="sfx-volume" min="0" max="100" value="90">
             <span>100</span>
           </div>
         </div>
-        <button class="panel-button panel-close-button">CLOSE</button>
+         <div class="settings-group">
+          <label data-i18n-key="language">Language</label>
+          <div class="language-selector">
+            <button class="lang-button" data-lang="en">English</button>
+            <button class="lang-button" data-lang="fa">فارسی</button>
+          </div>
+        </div>
+        <button class="panel-button panel-close-button" data-i18n-key="close">CLOSE</button>
       </div>
     </div>
 
     <!-- Load Data Panel -->
     <div id="load-data-panel" class="panel">
       <div class="panel-content">
-        <h2 class="panel-title">// LOAD DATA</h2>
+        <h2 class="panel-title" data-i18n-key="loadDataTitle">// LOAD DATA</h2>
         <div class="load-slots-container">
           <div class="load-slot">
-            <span class="slot-name">SAVE SLOT 1</span>
-            <span class="slot-status">[EMPTY]</span>
+            <span class="slot-name" data-i18n-key="saveSlot1">SAVE SLOT 1</span>
+            <span class="slot-status" data-i18n-key="empty">[EMPTY]</span>
           </div>
           <div class="load-slot">
-            <span class="slot-name">SAVE SLOT 2</span>
-            <span class="slot-status">[EMPTY]</span>
+            <span class="slot-name" data-i18n-key="saveSlot2">SAVE SLOT 2</span>
+            <span class="slot-status" data-i18n-key="empty">[EMPTY]</span>
           </div>
           <div class="load-slot">
-            <span class="slot-name">SAVE SLOT 3</span>
-            <span class="slot-status">[EMPTY]</span>
+            <span class="slot-name" data-i18n-key="saveSlot3">SAVE SLOT 3</span>
+            <span class="slot-status" data-i18n-key="empty">[EMPTY]</span>
           </div>
         </div>
-        <button class="panel-button panel-close-button">BACK</button>
+        <button class="panel-button panel-close-button" data-i18n-key="back">BACK</button>
       </div>
     </div>
 
     <!-- Start Mission Panel -->
     <div id="start-mission-panel" class="panel">
       <div class="panel-content">
-        <h2 class="panel-title">// SELECT MISSION</h2>
+        <h2 class="panel-title" data-i18n-key="missionSelectTitle">// SELECT MISSION</h2>
         <div class="mission-list-container">
           <div class="mission-item">
-            <span class="mission-name">PROLOGUE: THE HEIST</span>
-            <span class="mission-desc">Infiltrate Arasaka Tower and secure the package.</span>
+            <span class="mission-name" data-i18n-key="prologueTitle">PROLOGUE: THE HEIST</span>
+            <span class="mission-desc" data-i18n-key="prologueDesc">Infiltrate Arasaka Tower and secure the package.</span>
           </div>
           <div class="mission-item locked">
-            <span class="mission-name">CHAPTER 1: GHOST IN THE MACHINE</span>
-            <span class="mission-desc">[LOCKED]</span>
+            <span class="mission-name" data-i18n-key="chapter1Title">CHAPTER 1: GHOST IN THE MACHINE</span>
+            <span class="mission-desc" data-i18n-key="chapter1Desc">[LOCKED]</span>
           </div>
           <div class="mission-item locked">
-            <span class="mission-name">CHAPTER 2: DATA HAVEN</span>
-            <span class="mission-desc">[LOCKED]</span>
+            <span class="mission-name" data-i18n-key="chapter2Title">CHAPTER 2: DATA HAVEN</span>
+            <span class="mission-desc" data-i18n-key="chapter2Desc">[LOCKED]</span>
           </div>
         </div>
-        <button class="panel-button panel-close-button">BACK</button>
+        <button class="panel-button panel-close-button" data-i18n-key="back">BACK</button>
       </div>
     </div>
 
     <!-- Motion permission dialog for iOS -->
     <div id="motion-permission-overlay" class="hidden">
       <div id="motion-permission-dialog">
-        <h2>Motion Control</h2>
-        <p>Enable motion controls for an enhanced experience.</p>
-        <button id="motion-permission-button">Enable</button>
+        <h2 data-i18n-key="motionTitle">Motion Control</h2>
+        <p data-i18n-key="motionDesc">Enable motion controls for an enhanced experience.</p>
+        <button id="motion-permission-button" data-i18n-key="motionEnable">Enable</button>
       </div>
     </div>
   </main>
