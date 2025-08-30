@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { audioManager } from './audio-manager';
+
 // A list of audio assets to be preloaded.
 const audioAssets = [
   { 
@@ -62,18 +64,15 @@ export const initAudioPreloader = (): Promise<void> => {
         progressText.textContent = '100%';
         
         preloaderContent.innerHTML = `
-          <h2>AURAL SENSORS CALIBRATED</h2>
-          <p>Engage protocol to begin.</p>
-          <button id="start-experience-button">ENGAGE</button>
+          <h2 data-i18n-key="audioCalibrated">AURAL SENSORS CALIBRATED</h2>
+          <p data-i18n-key="audioEngagePrompt">Engage protocol to begin.</p>
+          <button id="start-experience-button" data-i18n-key="audioEngageButton">ENGAGE</button>
         `;
 
         const startButton = document.getElementById('start-experience-button') as HTMLButtonElement;
-        const backgroundMusic = document.getElementById('background-music') as HTMLAudioElement;
-
+        
         startButton.addEventListener('click', () => {
-          if (backgroundMusic) {
-             backgroundMusic.play().catch(e => console.error("Background music play failed:", e));
-          }
+          audioManager.startMusic();
           
           preloader.style.opacity = '0';
           preloader.addEventListener('transitionend', () => {

@@ -4,17 +4,21 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// Fix: Removed local definitions of `throttle`, `initLoadingScreen`, and `initMainMenu`
-// and instead imported them from their respective modules to resolve redeclaration errors.
-// This file now serves as the main entry point for the application.
+// Main application entry point.
 import { initAudioPreloader } from './src/audio-preloader';
 import { initLoadingScreen } from './src/loading-screen';
 import { initMainMenu } from './src/main-menu';
+import { initI18n } from './src/i18n';
+import { audioManager } from './src/audio-manager';
 
 
 // --- APP INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
   try {
+    // Initialize internationalization and audio manager first
+    initI18n();
+    audioManager.init();
+
     const app = document.getElementById('app') as HTMLElement;
     if (!app) {
       console.error('Main app container #app not found!');

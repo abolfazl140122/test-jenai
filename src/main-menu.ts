@@ -200,47 +200,65 @@ const setupMenuButtonEffects = (appContainer: HTMLElement) => {
 
 
 /**
- * Sets up mouse or device orientation tracking.
+ * Sets up mouse, touch, or device orientation tracking for parallax effects.
  */
 const setupMotionTracking = (isDesktop: boolean, onUpdate: (x: number, y: number) => void) => {
   if (isDesktop) {
       window.addEventListener('mousemove', (e: MouseEvent) => {
         onUpdate(e.clientX, e.clientY);
       });
-  } else {
-      const startMotionTracking = () => {
-          const handleOrientation = (e: DeviceOrientationEvent) => {
-              if (e.gamma === null || e.beta === null) return;
-              const clampedGamma = Math.max(-30, Math.min(30, e.gamma));
-              const clampedBeta = Math.max(-30, Math.min(30, e.beta));
-              const x = (clampedGamma / 60 + 0.5) * window.innerWidth;
-              const y = (clampedBeta / 60 + 0.5) * window.innerHeight;
-              onUpdate(x, y);
-          };
-          window.addEventListener('deviceorientation', throttle(handleOrientation, 16));
+      return;
+  }
+
+  // For mobile/touch devices, use touchmove as a reliable default
+  window.addEventListener('touchmove', (e: TouchEvent) => {
+    // Prevent scrolling page while dragging
+    e.preventDefault();
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      onUpdate(touch.clientX, touch.clientY);
+    }
+  }, { passive: false });
+
+  // Try to use Device Orientation for a more immersive effect if available
+  const startMotionTracking = () => {
+      const handleOrientation = (e: DeviceOrientationEvent) => {
+          if (e.gamma === null || e.beta === null) return;
+          // Normalize gamma/beta values for screen coordinates
+          // Clamp values to a reasonable range to prevent extreme jumps
+          const clampedGamma = Math.max(-30, Math.min(30, e.gamma)); // left-to-right tilt
+          const clampedBeta = Math.max(-30, Math.min(30, e.beta));  // front-to-back tilt
+
+          // Map the tilt range [-30, 30] to the screen width/height [0, width/height]
+          const x = (clampedGamma + 30) / 60 * window.innerWidth;
+          const y = (clampedBeta + 30) / 60 * window.innerHeight;
+
+          onUpdate(x, y);
       };
+      window.addEventListener('deviceorientation', throttle(handleOrientation, 16));
+  };
 
-      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-          const motionPermissionOverlay = document.getElementById('motion-permission-overlay') as HTMLElement;
-          const motionPermissionButton = document.getElementById('motion-permission-button') as HTMLButtonElement;
+  if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      const motionPermissionOverlay = document.getElementById('motion-permission-overlay') as HTMLElement;
+      const motionPermissionButton = document.getElementById('motion-permission-button') as HTMLButtonElement;
 
-          if (motionPermissionOverlay && motionPermissionButton) {
-              motionPermissionOverlay.classList.remove('hidden');
-              motionPermissionButton.addEventListener('click', async () => {
-                  try {
-                      const permissionState = await (DeviceOrientationEvent as any).requestPermission();
-                      if (permissionState === 'granted') {
-                          startMotionTracking();
-                      }
-                  } catch (error) {
-                      console.error('Error requesting device orientation permission:', error);
-                  } finally {
-                      motionPermissionOverlay.classList.add('hidden');
+      if (motionPermissionOverlay && motionPermissionButton) {
+          motionPermissionOverlay.classList.remove('hidden');
+          motionPermissionButton.addEventListener('click', async () => {
+              try {
+                  const permissionState = await (DeviceOrientationEvent as any).requestPermission();
+                  if (permissionState === 'granted') {
+                      startMotionTracking();
                   }
-              }, { once: true });
-          }
-      } else {
-          startMotionTracking();
+              } catch (error) {
+                  console.error('Error requesting device orientation permission:', error);
+              } finally {
+                  motionPermissionOverlay.classList.add('hidden');
+              }
+          }, { once: true });
       }
+  } else {
+      // For Android or devices that don't require permission
+      startMotionTracking();
   }
 };
