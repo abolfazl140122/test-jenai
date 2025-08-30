@@ -397,10 +397,10 @@ html, body {
     background-image: 
         linear-gradient(rgba(0, 255, 255, 0.07) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0, 255, 255, 0.07) 1px, transparent 1px);
-    background-size: 50px 50px;
+    background-size: 30px 30px; /* Finer grid */
     z-index: 0;
     opacity: 0;
-    animation: fadeInGrid 5s ease-out forwards, pulseGrid 8s linear infinite, scrollGrid 30s linear infinite;
+    animation: fadeInGrid 5s ease-out forwards, pulseGrid 12s linear infinite, scrollGrid 60s linear infinite; /* Slower scroll */
 }
 
 #app.visible {
@@ -414,7 +414,7 @@ html, body {
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1; /* Sits between parallax and scanlines */
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -434,82 +434,15 @@ html, body {
     );
   animation: scanlines-scroll 20s linear infinite;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3; /* Above particles */
   opacity: 0.5;
-  transition: opacity 0.5s ease-out, animation-duration 0.5s ease-out;
-}
-
-/*
-------------------------------------------
-  GAME MENU - PARALLAX BACKGROUND
-------------------------------------------
-*/
-
-.parallax-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  filter: blur(2.5px) brightness(0.9);
-  transform: scale(1.05); /* Slightly zoom in to hide edges */
-  z-index: 0;
-  transition: filter 0.5s ease-out;
-}
-
-.parallax-container::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, transparent 40%, rgba(2, 4, 27, 0.8) 100%);
-}
-
-.parallax-layer {
-  position: absolute;
-  top: 0;
-  left: -50%; /* Start centered with a 200% width */
-  width: 200%; /* Wider to allow for mouse movement */
-  height: 100%;
-  background-repeat: repeat-x;
-  background-position: 0% 100%; /* Anchor to bottom */
-  will-change: transform; /* Performance optimization */
-}
-
-.layer-1 {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3e%3cpath fill='%231a1c3c' d='M0 1080V850 l100-40 150 20 200-60 250 40 300-30 400 50 500-20 v360z M800 1080V750 l200-80 200 80 v360z'/%3e%3c/svg%3e");
-  background-size: auto 100%;
-  opacity: 0.6;
-}
-
-.layer-2 {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3e%3cpath fill='%23111328' d='M0 1080V700 l50-40 50 10 80-60 100 40v330z M300 1080V600 l150-100 50 20 150 80v480z M700 1080V550 l80-50 80 50v530z M900 1080V650 l200-120 50 30 150 90v430z M1400 1080V720 l100 20 150-40 200 60v320z'/%3e%3c/svg%3e");
-  background-size: auto 100%;
-  opacity: 0.7;
-}
-
-.layer-3 {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3e%3cpath fill='%230b0c1c' d='M50 1080V650 l50-80 50 80v430z M60 660h20v-30h-20z M150 1080V500 l100-150 100 150v580z M200 550h20v-40h-20z M260 550h20v-40h-20z M400 1080V700h50v-50h-50V580l50-40 50 40v70h-50v50h50v280z M700 1080V400l20-30 20 30v100h20v-80l30-40 30 40v80h20V400l20-30 20 30v680z M1000 1080V600l150-80 150 80v480z M1050 700h20v-50h-20z M1250 700h20v-50h-20z M1400 1080V550h200v530z M1450 650h80v-50h-80z M1700 1080V750 l80-40 80 40v330z'/%3e%3c/svg%3e");
-  background-size: auto 95%;
-  opacity: 0.8;
-}
-
-.layer-4 {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3e%3cpath fill='%2305060e' d='M0 1080V950 h50v-30h10v30h50v-60h10v60h80V920h20v160z M300 1080V900h10v-20h-30v20h10v80h-20v-50h-10v50h50v-100h10v100z M400 1080V880h20v20h-10v160h50V900h10v180z M600 1080V940h10v-30h-20v30h-10v140h150V920h-20v-40h-10v40h-80v140h-10v-20h-10v20z M800 1080V960h20v120z M850 1080V950h50v130z M1000 1080V920h10v-30h-30v30h10v140h-20v-60h-10v60z M1100 1080V900h150v180z M1120 950h20v-30h-20zm50 0h20v-30h-20zm50 0h20v-30h-20z M1300 1080V950h20v130z M1400 1080V890h10v-20h-30v20h10v170h-20v-80h-10v80h70V890h10v-20h-30v20h10v170z M1600 1080V930h80v150z M1610 980h20v-30h-20zm40 0h20v-30h-20z M1750 1080V960h50v120z M1850 1080V940h30v140z M1900 1080V920h20v160z'/%3e%3c/svg%3e");
-  background-size: auto 100%;
+  transition: opacity 0.5s ease-out;
 }
 
 /* Environmental reaction to menu hover */
 #app.menu-hover .scanlines {
-  opacity: 0.8;
-  animation-duration: 8s; /* speed up scanlines */
+  opacity: 0.7;
 }
-#app.menu-hover .parallax-container {
-  filter: blur(3px) brightness(1.05); /* intensify background */
-}
-
 
 /*
 ------------------------------------------
@@ -539,7 +472,7 @@ html, body {
     0 0 15px rgba(0, 255, 255, 0.5),
     0 0 30px rgba(0, 255, 255, 0.3),
     0 0 50px rgba(0, 150, 150, 0.3);
-  animation: title-flicker-breathing 15s infinite linear, menu-item-fade-in 1s ease-out 0.5s forwards;
+  animation: title-breathing 8s infinite ease-in-out, menu-item-fade-in 1s ease-out 0.5s forwards;
   opacity: 0;
   padding: 0 1rem; /* Prevent clipping on smaller screens */
 }
@@ -564,96 +497,43 @@ html, body {
 
 .menu-button {
   font-family: 'Orbitron', sans-serif;
-  color: rgba(200, 240, 255, 0.6);
+  color: rgba(200, 240, 255, 0.7);
+  background: transparent;
   text-decoration: none;
   font-size: clamp(1rem, 3vw, 1.5rem);
   text-transform: uppercase;
   letter-spacing: 0.2rem;
-  padding: 0.5rem 2rem;
+  padding: 0.75rem 2.5rem;
   position: relative;
   transition: all 0.3s ease-out;
-  border: 1px solid transparent; /* Placeholder for alignment */
-  opacity: 0; /* for staggered animation */
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  opacity: 0;
   animation: menu-item-fade-in 0.8s ease-out forwards;
   animation-delay: calc(var(--stagger-delay, 0s) + 0.5s);
-  cursor: none; /* Force hide system cursor on buttons */
-  will-change: transform, color, text-shadow;
+  cursor: none;
+  will-change: color, text-shadow, background-color;
 }
 
 .menu-button span {
-  display: inline-block; /* Needed for transform and pseudo-elements */
+  display: inline-block;
   position: relative;
   transition: transform 0.2s ease;
-}
-.menu-button:hover span {
-  animation: glitch-text 0.4s;
-}
-
-/* Underline effect */
-.menu-button span::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #00ffff;
-  box-shadow: 0 0 8px #00ffff;
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.3s cubic-bezier(0.19, 1, 0.22, 1);
-}
-
-.menu-button:hover span::after {
-  transform: scaleX(1);
-}
-
-
-/* Side bar effect */
-.menu-button::before,
-.menu-button::after {
-  content: '';
-  position: absolute;
-  width: 15px;
-  height: 100%;
-  background-color: #00ffff;
-  box-shadow: 0 0 8px #00ffff, 0 0 12px #00ffff;
-  transform: skewX(25deg) scaleY(0);
-  transition: transform 0.3s cubic-bezier(0.165, 0.84, 0.44, 1),
-              background-color 0.1s ease, box-shadow 0.1s ease;
-}
-
-.menu-button::before {
-  top: 0;
-  left: -10px;
-  transform-origin: bottom;
-}
-
-.menu-button::after {
-  bottom: 0;
-  right: -10px;
-  transform-origin: top;
 }
 
 .menu-button:hover {
   color: #fff;
   text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff;
+  background-color: rgba(0, 255, 255, 0.1);
+  border-color: rgba(0, 255, 255, 0.5);
 }
 
-.menu-button:hover::before,
-.menu-button:hover::after {
-  transform: skewX(25deg) scaleY(1);
-}
-
-/* Active (click) state */
 .menu-button:active span {
   transform: scale(0.95);
 }
-.menu-button:active::before,
-.menu-button:active::after {
-  background-color: #fff;
-  box-shadow: 0 0 15px #fff, 0 0 25px #fff;
+.menu-button:active {
+  background-color: rgba(0, 255, 255, 0.2);
 }
+
 
 /*
 ------------------------------------------
@@ -747,32 +627,24 @@ html, body {
   }
 }
 
-@keyframes title-flicker-breathing {
-  0%, 19.9%, 22%, 69.9%, 72%, 100% {
-    opacity: 1;
+@keyframes title-breathing {
+  0% {
     transform: scale(1);
     text-shadow: 
       0 0 5px rgba(0, 255, 255, 0.5),
-      0 0 15px rgba(0, 255, 255, 0.5),
-      0 0 30px rgba(0, 255, 255, 0.3),
-      0 0 50px rgba(0, 150, 150, 0.3);
-  }
-  20%, 70% {
-    opacity: 0.7;
-    text-shadow: none;
-  }
-  21%, 71% {
-    opacity: 0.9;
-     text-shadow: 
-      0 0 5px rgba(0, 255, 255, 0.3);
+      0 0 15px rgba(0, 255, 255, 0.5);
   }
   50% {
     transform: scale(1.01);
     text-shadow: 
       0 0 8px rgba(0, 255, 255, 0.6),
-      0 0 20px rgba(0, 255, 255, 0.6),
-      0 0 40px rgba(0, 255, 255, 0.4),
-      0 0 60px rgba(0, 150, 150, 0.4);
+      0 0 20px rgba(0, 255, 255, 0.6);
+  }
+  100% {
+    transform: scale(1);
+    text-shadow: 
+      0 0 5px rgba(0, 255, 255, 0.5),
+      0 0 15px rgba(0, 255, 255, 0.5);
   }
 }
 
@@ -789,29 +661,6 @@ html, body {
 @keyframes scrollGrid {
     from { background-position: 0 0; }
     to { background-position: -50px -50px; }
-}
-
-@keyframes glitch-text {
-  0%, 100% {
-    clip-path: inset(0 0 0 0);
-    transform: translateX(0);
-  }
-  20% {
-    clip-path: inset(40% 0 40% 0);
-    transform: translateX(-5px);
-  }
-  40% {
-    clip-path: inset(20% 0 60% 0);
-    transform: translateX(5px);
-  }
-  60% {
-    clip-path: inset(70% 0 10% 0);
-    transform: translateX(-3px);
-  }
-  80% {
-    clip-path: inset(30% 0 50% 0);
-    transform: translateX(3px);
-  }
 }
 
 /* ============================================== */
@@ -831,10 +680,5 @@ html, body {
   .menu-button {
     font-size: clamp(1rem, 5vw, 1.3rem);
     padding: 0.75rem 1.5rem;
-  }
-  
-  .parallax-layer {
-      left: -25%;
-      width: 150%;
   }
 }

@@ -41,12 +41,6 @@
   <!-- ============== GAME MENU START =============== -->
   <!-- ============================================== -->
   <main id="app" style="display: none;">
-    <div class="parallax-container">
-      <div class="parallax-layer layer-1" data-depth="0.1"></div>
-      <div class="parallax-layer layer-2" data-depth="0.2"></div>
-      <div class="parallax-layer layer-3" data-depth="0.35"></div>
-      <div class="parallax-layer layer-4" data-depth="0.5"></div>
-    </div>
     <canvas id="particle-canvas"></canvas>
     <div class="scanlines"></div>
     <div id="menu-ui">
@@ -55,17 +49,17 @@
         <span class="subtitle">SYSTEM KERNEL // v2.5</span>
       </h1>
       <nav id="main-menu">
-        <a href="#" class="menu-button" style="--stagger-delay: 0.1s;"><span>START MISSION</span></a>
-        <a href="#" class="menu-button" style="--stagger-delay: 0.2s;"><span>LOAD DATA</span></a>
-        <a href="#" class="menu-button" style="--stagger-delay: 0.3s;"><span>SETTINGS</span></a>
-        <a href="#" class="menu-button" style="--stagger-delay: 0.4s;"><span>EXIT</span></a>
+        <a href="#" class="menu-button" style="--stagger-delay: 0.1s;"><span data-value="START MISSION">START MISSION</span></a>
+        <a href="#" class="menu-button" style="--stagger-delay: 0.2s;"><span data-value="LOAD DATA">LOAD DATA</span></a>
+        <a href="#" class="menu-button" style="--stagger-delay: 0.3s;"><span data-value="SETTINGS">SETTINGS</span></a>
+        <a href="#" class="menu-button" style="--stagger-delay: 0.4s;"><span data-value="EXIT">EXIT</span></a>
       </nav>
     </div>
     <!-- Motion permission dialog for iOS -->
     <div id="motion-permission-overlay" class="hidden">
       <div id="motion-permission-dialog">
         <h2>Motion Control</h2>
-        <p>Enable motion controls for an enhanced parallax experience.</p>
+        <p>Enable motion controls for an enhanced experience.</p>
         <button id="motion-permission-button">Enable</button>
       </div>
     </div>

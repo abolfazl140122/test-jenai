@@ -17,33 +17,22 @@ export const initMainMenu = () => {
   }
   
   const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const parallaxLayers = document.querySelectorAll('.parallax-layer') as NodeListOf<HTMLElement>;
 
   let inputX = window.innerWidth / 2;
   let inputY = window.innerHeight / 2;
   
   const trailUpdater = setupCursorTrail(isDesktop);
-  const particleUpdater = setupParticleCanvas(isDesktop);
-  setupMenuButtonHover(app);
+  const particleUpdater = setupParticleCanvas();
+  setupMenuButtonEffects(app);
   setupMotionTracking(isDesktop, (x, y) => {
       inputX = x;
       inputY = y;
   });
 
   const animateMenu = () => {
-    const parallaxX = (inputX / window.innerWidth - 0.5) * 2;
-    const parallaxY = (inputY / window.innerHeight - 0.5) * 2;
-    
     trailUpdater(inputX, inputY);
-    particleUpdater(parallaxX, parallaxY);
+    particleUpdater();
     
-    parallaxLayers.forEach(layer => {
-      const depth = parseFloat(layer.dataset.depth || '0');
-      const moveX = -parallaxX * ((isDesktop ? 50 : 20) * depth);
-      const moveY = -parallaxY * ((isDesktop ? 25 : 10) * depth);
-      layer.style.transform = `translate(${moveX}px, ${moveY}px)`;
-    });
-
     requestAnimationFrame(animateMenu);
   };
 
@@ -72,68 +61,101 @@ const setupCursorTrail = (isDesktop: boolean) => {
 };
 
 /**
- * Sets up the dynamic particle background canvas.
+ * Sets up the dynamic "digital rain" particle background.
  */
-const setupParticleCanvas = (isDesktop: boolean) => {
+const setupParticleCanvas = () => {
     const canvas = document.getElementById('particle-canvas') as HTMLCanvasElement;
     if (!canvas) return () => {};
     const ctx = canvas.getContext('2d');
     if (!ctx) return () => {};
 
-    let particles: {x: number, y: number, z: number, vx: number, vy: number, size: number}[] = [];
+    const characters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789';
+    const fontSize = 16;
+    let columns = 0;
+    let drops: number[] = [];
 
     const resizeCanvas = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        particles = [];
-        const particleCount = isDesktop ? 150 : 75;
-        for (let i = 0; i < particleCount; i++) {
-            particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                z: Math.random() * 0.5 + 0.5,
-                vx: (Math.random() - 0.5) * 0.2,
-                vy: -Math.random() * 0.5 - 0.2,
-                size: (Math.random() * 1) + 0.5,
-            });
+        columns = Math.floor(canvas.width / fontSize);
+        drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = 1;
         }
     };
     
     window.addEventListener('resize', throttle(resizeCanvas, 100));
     resizeCanvas();
 
-    return (parallaxX: number, parallaxY: number) => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(0, 255, 255, 0.7)';
-        
-        particles.forEach(p => {
-            p.x += p.vx;
-            p.y += p.vy;
+    return () => {
+        ctx.fillStyle = 'rgba(2, 4, 27, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            if (p.y < 0) { p.y = canvas.height; }
-            if (p.x < 0) { p.x = canvas.width; }
-            if (p.x > canvas.width) { p.x = 0; }
-            
-            const moveX = -parallaxX * (isDesktop ? 20 : 10) * p.z;
-            const moveY = -parallaxY * (isDesktop ? 10 : 5) * p.z;
-            
-            ctx.beginPath();
-            ctx.arc(p.x + moveX, p.y + moveY, p.size * p.z, 0, Math.PI * 2);
-            ctx.fill();
-        });
+        ctx.fillStyle = '#00ffff';
+        ctx.font = `${fontSize}px monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters.charAt(Math.floor(Math.random() * characters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
     };
 };
 
 /**
- * Adds hover listeners to menu buttons.
+ * Adds hover listeners and text scramble effect to menu buttons.
  */
-const setupMenuButtonHover = (appContainer: HTMLElement) => {
+const setupMenuButtonEffects = (appContainer: HTMLElement) => {
     const menuButtons = document.querySelectorAll('.menu-button');
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%&";
+
     menuButtons.forEach(button => {
+        const span = button.querySelector('span');
+        if (!span) return;
+
+        const originalText = span.dataset.value || span.innerText;
+        span.dataset.value = originalText;
+
+        let interval: number | undefined;
+
+        button.addEventListener('mouseenter', () => {
+            let iteration = 0;
+            clearInterval(interval);
+            
+            interval = window.setInterval(() => {
+                span.innerText = originalText
+                    .split('')
+                    .map((letter, index) => {
+                        if (index < iteration) {
+                            return originalText[index];
+                        }
+                        if (letter === ' ') return ' ';
+                        return letters[Math.floor(Math.random() * letters.length)];
+                    })
+                    .join('');
+
+                if (iteration >= originalText.length) {
+                    clearInterval(interval);
+                    span.innerText = originalText;
+                }
+                iteration += 1 / 2;
+            }, 30);
+        });
+
+        button.addEventListener('mouseleave', () => {
+           clearInterval(interval);
+           span.innerText = originalText;
+        });
+
         button.addEventListener('mouseenter', () => appContainer.classList.add('menu-hover'));
         button.addEventListener('mouseleave', () => appContainer.classList.remove('menu-hover'));
     });
 };
+
 
 /**
  * Sets up mouse or device orientation tracking.
