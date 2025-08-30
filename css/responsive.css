@@ -1,0 +1,33 @@
+/* ============================================== */
+/* ============= RESPONSIVE DESIGN ============== */
+/* ============================================== */
+@media (max-width: 768px) {
+  #game-title {
+    font-size: clamp(2rem, 10vw, 2.8rem);
+    letter-spacing: 0.2rem;
+    padding: 0 0.5rem;
+  }
+
+  #main-menu {
+    gap: 1.25rem;
+  }
+
+  .menu-button {
+    font-size: clamp(1rem, 5vw, 1.3rem);
+    padding: 0.75rem 1.5rem;
+  }
+
+  .parallax-layer {
+      left: -25%;
+      width: 150%;
+  }
+
+  .panel-content {
+    padding: 1.5rem;
+    width: 95%;
+  }
+
+  .panel-title {
+    font-size: 1.5rem;
+  }
+}

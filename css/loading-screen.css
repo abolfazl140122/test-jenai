@@ -14,8 +14,9 @@
   left: 0;
   z-index: 100;
   background-color: #000;
-  transition: opacity 0.8s ease-out 0.3s; /* Delay fade-out for shatter effect */
-  will-change: transform; /* Performance optimization for shaking */
+  opacity: 0; /* Start hidden for cinematic fade-in */
+  /* Transition will now be managed by JS for different in/out effects */
+  will-change: transform, opacity; /* Performance optimization for shaking and fading */
 }
 #loading-screen.shaking {
   animation: camera-shake 0.4s infinite;
@@ -206,127 +207,7 @@
 #loading-text.ready-breach {
   color: #ff4141;
   letter-spacing: 12px;
-  cursor: pointer;
+  cursor: none;
   text-shadow: 0 0 5px #ff1f1f, 0 0 15px #ff1f1f, 0 0 30px #d40000;
   animation: slam-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, pulse-ready 1.5s infinite 0.5s;
-}
-
-/* --- Keyframe Animations --- */
-@keyframes fadeInLogo {
-  from { opacity: 0; transform: scale(0.9); }
-  to { opacity: 1; transform: scale(1); }
-}
-
-@keyframes glitch {
-  0% { transform: translate(0); }
-  20% { transform: translate(-2px, 2px); clip-path: inset(90% 0 0 0); }
-  40% { transform: translate(2px, -2px); clip-path: inset(0 0 30% 0); }
-  60% { transform: translate(-2px, 2px); clip-path: inset(40% 0 40% 0); }
-  80% { transform: translate(2px, -2px); clip-path: inset(0 0 80% 0); }
-  100% { transform: translate(0); clip-path: inset(0 0 0 0); }
-}
-
-@keyframes text-flicker {
-  0%, 100% { opacity: 0.7; }
-  5% { opacity: 0.2; }
-  10% { opacity: 0.9; }
-  25% { opacity: 0.4; }
-  50% { opacity: 0.7; }
-  75% { opacity: 0.3; }
-}
-
-@keyframes rotate-lights {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes flash-red {
-  0%, 100% { transform: translate(-60%, -10%) scale(1.1); opacity: 1; }
-  50% { transform: translate(-60%, -10%) scale(1.4); opacity: 0.7; }
-}
-@keyframes flash-blue {
-  0%, 100% { transform: translate(60%, 10%) scale(1.1); opacity: 0.7; }
-  50% { transform: translate(60%, 10%) scale(1.4); opacity: 1; }
-}
-
-@keyframes shine {
-  from { left: -50%; }
-  to { left: 110%; }
-}
-
-@keyframes slam-in {
-  from { opacity: 0; letter-spacing: 5px; transform: scale(0.5); }
-  to { opacity: 1; letter-spacing: 12px; transform: scale(1); }
-}
-
-@keyframes pulse-ready {
-  0%, 100% { transform: scale(1); text-shadow: 0 0 5px #ff1f1f, 0 0 15px #ff1f1f; }
-  50% { transform: scale(1.05); text-shadow: 0 0 10px #ff1f1f, 0 0 30px #d40000; }
-}
-
-@keyframes red-pulse-border {
-  0%, 100% { box-shadow: inset 0 0 15vw 5vw rgba(0, 0, 0, 0.8), inset 0 0 2vw 0.5vw rgba(180, 0, 0, 0.3); }
-  50% { box-shadow: inset 0 0 15vw 5vw rgba(0, 0, 0, 0.8), inset 0 0 4vw 1vw rgba(200, 0, 0, 0.5); }
-}
-
-@keyframes blood-splatter-main {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0);
-  }
-  70% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1.1); /* Overshoot */
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes droplet-fly-out {
-  0% {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1) rotate(var(--rotation));
-  }
-  100% {
-    opacity: 0;
-    transform: translate(calc(-50% + var(--x)), calc(-50% + var(--y))) scale(0.2) rotate(calc(var(--rotation) * 2));
-  }
-}
-
-@keyframes camera-shake {
-  0%, 100% { transform: translate(0, 0) rotate(0); }
-  10% { transform: translate(-1px, -2px) rotate(-0.1deg); }
-  20% { transform: translate(1px, 2px) rotate(0.1deg); }
-  30% { transform: translate(-2px, 1px) rotate(0); }
-  40% { transform: translate(2px, -1px) rotate(0.1deg); }
-  50% { transform: translate(-1px, 2px) rotate(-0.1deg); }
-  60% { transform: translate(-2px, 1px) rotate(0); }
-  70% { transform: translate(2px, 1px) rotate(-0.1deg); }
-  80% { transform: translate(-1px, -1px) rotate(0.1deg); }
-  90% { transform: translate(1px, 2px) rotate(0); }
-}
-
-@keyframes camera-shake-stop {
-  0% { transform: translate(-1px, 2px) rotate(-0.1deg); }
-  25% { transform: translate(1px, -1px) rotate(0.1deg); }
-  50% { transform: translate(-0.5px, 1px) rotate(-0.05deg); }
-  75% { transform: translate(0.5px, -0.5px) rotate(0.05deg); }
-  100% { transform: translate(0, 0) rotate(0); }
-}
-
-@keyframes glitch-stop {
-  0% { transform: translate(-2px, 2px); clip-path: inset(90% 0 0 0); }
-  25% { transform: translate(1px, -1px); clip-path: inset(0 0 60% 0); }
-  50% { transform: translate(-1px, 1px); clip-path: inset(20% 0 20% 0); }
-  75% { transform: translate(0.5px, -0.5px); clip-path: inset(0 0 0 0); }
-  100% { transform: translate(0); clip-path: inset(0 0 0 0); }
-}
-
-@keyframes text-flicker-stop {
-  0% { opacity: 0.2; }
-  25% { opacity: 0.9; }
-  50% { opacity: 0.4; }
-  75% { opacity: 0.8; }
-  100% { opacity: 0.7; }
 }

@@ -1,0 +1,274 @@
+/* ============================================== */
+/* ================ PANELS STYLES =============== */
+/* ============================================== */
+
+.panel {
+  position: fixed; /* Use fixed to overlay everything */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(2, 4, 27, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.panel.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.panel-content {
+  width: 90%;
+  max-width: 600px;
+  background-color: #0b0c1c;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  padding: 2rem 3rem;
+  box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  animation: menu-item-fade-in 0.5s ease;
+  color: #e0faff;
+}
+
+.panel-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #00ffff;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
+}
+
+.panel-button {
+  font-family: 'Orbitron', sans-serif;
+  background-color: transparent;
+  border: 1px solid #00ffff;
+  color: #00ffff;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  cursor: none;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  align-self: center;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+  min-width: 150px;
+  text-align: center;
+}
+
+.panel-button:hover {
+  background-color: #00ffff;
+  color: #02041b;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+
+/* De-emphasize main menu when panel is open */
+#app.panel-open #menu-ui {
+    filter: blur(5px);
+    transform: scale(0.95);
+    pointer-events: none;
+}
+
+
+/* --- Settings Panel Specifics --- */
+.settings-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1rem;
+    font-size: 0.9rem;
+    color: rgba(200, 240, 255, 0.8);
+}
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.slider-container span {
+    font-family: 'Orbitron', sans-serif;
+    color: rgba(0, 255, 255, 0.7);
+}
+input[type=range] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(0, 255, 255, 0.2);
+  outline: none;
+  border: 1px solid rgba(0, 255, 255, 0.3);
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #00ffff;
+  cursor: none;
+  box-shadow: 0 0 10px #00ffff;
+  border: 2px solid #0b0c1c;
+}
+input[type=range]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #00ffff;
+  cursor: none;
+  box-shadow: 0 0 10px #00ffff;
+  border: 2px solid #0b0c1c;
+}
+
+/* --- Load Data Panel Specifics --- */
+.load-slots-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    padding: 1rem;
+}
+.load-slot {
+    padding: 0.75rem 1rem;
+    border: 1px solid transparent;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.1rem;
+    cursor: none;
+    transition: all 0.2s ease-in-out;
+}
+.load-slot:hover {
+    background-color: rgba(0, 255, 255, 0.1);
+    border-color: rgba(0, 255, 255, 0.5);
+    color: #fff;
+}
+.slot-name {
+    font-weight: bold;
+}
+.slot-status {
+    color: rgba(200, 240, 255, 0.6);
+}
+
+/* --- Mission Select Panel Specifics --- */
+.mission-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 40vh;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
+.mission-item {
+    padding: 1rem;
+    border-left: 3px solid #00ffff;
+    background-color: rgba(0, 255, 255, 0.05);
+    cursor: none;
+    transition: background-color 0.2s;
+}
+.mission-item:hover {
+    background-color: rgba(0, 255, 255, 0.15);
+}
+.mission-name {
+    display: block;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+.mission-desc {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    color: rgba(200, 240, 255, 0.7);
+}
+.mission-item.locked {
+    border-left-color: #555;
+    background-color: rgba(100, 100, 100, 0.1);
+    cursor: none;
+    color: #999;
+}
+.mission-item.locked .mission-desc {
+    color: #777;
+}
+
+
+/* --- Language & RTL Support --- */
+.language-selector {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+.lang-button {
+  font-family: 'Orbitron', sans-serif;
+  background-color: transparent;
+  border: 1px solid #00ffff;
+  color: #00ffff;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  cursor: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+.lang-button:hover {
+  background-color: #00ffff;
+  color: #02041b;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+.lang-button.active {
+  background-color: #00ffff;
+  color: #02041b;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.7);
+}
+
+body[data-lang="fa"] {
+  direction: rtl;
+  font-family: 'Vazirmatn', 'Montserrat', sans-serif;
+}
+body[data-lang="fa"] .menu-button,
+body[data-lang="fa"] .panel-title,
+body[data-lang="fa"] #game-title,
+body[data-lang="fa"] #game-title .subtitle,
+body[data-lang="fa"] .settings-group,
+body[data-lang="fa"] #motion-permission-dialog h2,
+body[data-lang="fa"] #audio-preloader-content h2 {
+  font-family: 'Vazirmatn', 'Orbitron', sans-serif;
+}
+body[data-lang="fa"] .mission-item {
+    border-left: none;
+    border-right: 3px solid #00ffff;
+}
+body[data-lang="fa"] .mission-item.locked {
+    border-right-color: #555;
+}
+body[data-lang="fa"] .mission-list-container {
+    padding-right: 0;
+    padding-left: 1rem;
+}
+body[data-lang="fa"] .menu-button::before,
+body[data-lang="fa"] .menu-button::after {
+  transform: skewX(-25deg) scaleY(0);
+}
+body[data-lang="fa"] .menu-button::before {
+  left: auto;
+  right: -10px;
+}
+body[data-lang="fa"] .menu-button::after {
+  right: auto;
+  left: -10px;
+}
+body[data-lang="fa"] .menu-button:hover::before,
+body[data-lang="fa"] .menu-button:hover::after {
+  transform: skewX(-25deg) scaleY(1);
+}
