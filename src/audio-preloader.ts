@@ -24,10 +24,19 @@ export const initAudioPreloader = (): Promise<void> => {
       return reject(new Error(errorMsg));
     }
 
-    // NOTE: The audio file should be placed in a 'music' directory at the root of the project.
-    const audioSrc = 'Music/scary-ambience-music-347437.mp3';
+    // FIX: Using a public, CORS-friendly URL to prevent loading issues.
+    const audioSrc = 'https://cdn.pixabay.com/audio/2022/11/17/audio_3536348259.mp3';
     
     audioElement.loop = true;
+
+    let loadingTimeout: number;
+
+    const cleanupListeners = () => {
+      clearTimeout(loadingTimeout);
+      audioElement.removeEventListener('progress', updateProgress);
+      audioElement.removeEventListener('canplaythrough', onCanPlayThrough);
+      audioElement.removeEventListener('error', onError);
+    };
 
     const updateProgress = () => {
       if (audioElement.duration > 0) {
@@ -48,12 +57,10 @@ export const initAudioPreloader = (): Promise<void> => {
     };
     
     const onCanPlayThrough = () => {
+        cleanupListeners();
         // Ensure progress is at 100%
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
-
-        // Clean up listeners
-        audioElement.removeEventListener('progress', updateProgress);
         
         // Present a start button to the user to comply with autoplay policies.
         preloaderContent.innerHTML = `
@@ -75,9 +82,13 @@ export const initAudioPreloader = (): Promise<void> => {
     };
     
     const onError = () => {
-      // Clean up listeners
-      audioElement.removeEventListener('progress', updateProgress);
-      audioElement.removeEventListener('canplaythrough', onCanPlayThrough);
+      cleanupListeners();
+
+      // FIX: Display a user-friendly error message in the UI.
+      preloaderContent.innerHTML = `
+        <h2 style="color: #ff4141;">ASSET LOAD FAILED</h2>
+        <p>Could not load essential audio assets.<br>Please check your connection and refresh.</p>
+      `;
       reject(new Error('A network error or file error occurred during the audio file request.'));
     };
 
@@ -85,7 +96,4 @@ export const initAudioPreloader = (): Promise<void> => {
     audioElement.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
     audioElement.addEventListener('error', onError, { once: true });
     
-    audioElement.src = audioSrc;
-    audioElement.load(); // Explicitly start loading.
-  });
-};
+    
