@@ -25,6 +25,12 @@ export const initLoadingScreen = (): Promise<void> => {
       return;
     }
 
+    // Set up the cinematic entrance
+    loadingScreen.style.transition = 'opacity 1.5s ease-in';
+    requestAnimationFrame(() => {
+        loadingScreen.style.opacity = '1';
+    });
+
     let animationFrameId: number;
     let startTime: number | null = null;
     const loadingDuration = 4000; // 4 seconds
@@ -65,6 +71,9 @@ export const initLoadingScreen = (): Promise<void> => {
           
           bloodOverlay.appendChild(droplet);
       }
+      
+      // Set the specific fade-out transition just before triggering it
+      loadingScreen.style.transition = 'opacity 0.8s ease-out 0.3s';
 
       setTimeout(() => {
         loadingScreen.style.opacity = '0';
@@ -148,7 +157,9 @@ export const initLoadingScreen = (): Promise<void> => {
       animationFrameId = requestAnimationFrame(cinematicLoad);
     };
     
-    // Start the experience
-    animationFrameId = requestAnimationFrame(cinematicLoad);
+    // Delay the start of the loading animation to match the fade-in
+    setTimeout(() => {
+      animationFrameId = requestAnimationFrame(cinematicLoad);
+    }, 500); // Start animation 500ms into the 1.5s fade-in
   });
 };
