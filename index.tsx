@@ -159,6 +159,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const initMainMenuInteractivity = () => {
     const trail = document.getElementById('cursor-trail') as HTMLElement;
     const parallaxLayers = document.querySelectorAll('.parallax-layer') as NodeListOf<HTMLElement>;
+    const motionPermissionOverlay = document.getElementById('motion-permission-overlay') as HTMLElement;
+    const motionPermissionButton = document.getElementById('motion-permission-button') as HTMLButtonElement;
+
 
     if (parallaxLayers.length === 0) {
       console.warn('Parallax layers not found.');
@@ -182,14 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const trailEase = 0.15; // Smoothing factor for the trail
 
-    if (isDesktop) {
-        // On desktop, simply track the mouse position
-        window.addEventListener('mousemove', (e: MouseEvent) => {
-          inputX = e.clientX;
-          inputY = e.clientY;
-        });
-    } else {
-        // On mobile, use device orientation to drive the parallax effect
+    const startMotionTracking = () => {
         window.addEventListener('deviceorientation', (e: DeviceOrientationEvent) => {
             if (e.gamma === null || e.beta === null) return;
             
@@ -203,6 +199,42 @@ document.addEventListener('DOMContentLoaded', () => {
             inputX = (clampedGamma / 60 + 0.5) * window.innerWidth;
             inputY = (clampedBeta / 60 + 0.5) * window.innerHeight;
         });
+    };
+
+    if (isDesktop) {
+        // On desktop, simply track the mouse position
+        window.addEventListener('mousemove', (e: MouseEvent) => {
+          inputX = e.clientX;
+          inputY = e.clientY;
+        });
+    } else {
+        // Handle Device Orientation API for mobile, including the iOS permission model.
+        // This is a non-standard API, so we must check for its existence.
+        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+            if (motionPermissionOverlay && motionPermissionButton) {
+                // Show the dialog
+                motionPermissionOverlay.classList.remove('hidden');
+
+                motionPermissionButton.addEventListener('click', async () => {
+                    try {
+                        const permissionState = await (DeviceOrientationEvent as any).requestPermission();
+                        if (permissionState === 'granted') {
+                            startMotionTracking();
+                        } else {
+                            console.warn('Permission for device orientation not granted.');
+                        }
+                    } catch (error) {
+                        console.error('Error requesting device orientation permission:', error);
+                    } finally {
+                        // Hide the dialog regardless of the outcome
+                        motionPermissionOverlay.classList.add('hidden');
+                    }
+                }, { once: true });
+            }
+        } else {
+            // For Android and other devices that don't need explicit permission
+            startMotionTracking();
+        }
     }
 
     // The main animation loop, running for both platforms
