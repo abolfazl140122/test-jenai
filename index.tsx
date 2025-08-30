@@ -7,7 +7,6 @@
 // Fix: Removed local definitions of `throttle`, `initLoadingScreen`, and `initMainMenu`
 // and instead imported them from their respective modules to resolve redeclaration errors.
 // This file now serves as the main entry point for the application.
-import { initAudioPreloader } from './src/audio-preloader';
 import { initLoadingScreen } from './src/loading-screen';
 import { initMainMenu } from './src/main-menu';
 
@@ -15,9 +14,6 @@ import { initMainMenu } from './src/main-menu';
 // --- APP INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    // Wait for the audio to be preloaded and user to click "Engage"
-    await initAudioPreloader();
-
     // The rest of the app initialization logic remains the same
     const app = document.getElementById('app') as HTMLElement;
     if (!app) {
