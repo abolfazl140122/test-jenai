@@ -325,7 +325,7 @@ const initMainMenu = () => {
   let inputY = window.innerHeight / 2;
   
   const trailUpdater = setupCursorTrail(isDesktop);
-  const particleUpdater = setupParticleCanvas();
+  const parallaxUpdater = setupParallaxBackground();
   setupMenuButtonEffects(app);
   setupMotionTracking(isDesktop, (x, y) => {
       inputX = x;
@@ -334,7 +334,7 @@ const initMainMenu = () => {
 
   const animateMenu = () => {
     trailUpdater(inputX, inputY);
-    particleUpdater();
+    parallaxUpdater(inputX, inputY);
     
     requestAnimationFrame(animateMenu);
   };
@@ -360,46 +360,29 @@ const setupCursorTrail = (isDesktop) => {
   };
 };
 
-const setupParticleCanvas = () => {
-    const canvas = document.getElementById('particle-canvas');
-    if (!canvas) return () => {};
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return () => {};
+const setupParallaxBackground = () => {
+    const layers = document.querySelectorAll('.parallax-layer');
+    if (!layers.length) return () => {};
 
-    const characters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789';
-    const fontSize = 16;
-    let columns = 0;
-    let drops = [];
+    // Strength of movement, farthest layer moves the least
+    const strengths = [0.05, 0.1, 0.2, 0.4]; 
+    let currentOffsets = Array(layers.length).fill(0).map(() => ({ x: 0 }));
+    const ease = 0.08;
 
-    const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        columns = Math.floor(canvas.width / fontSize);
-        drops = [];
-        for (let i = 0; i < columns; i++) {
-            drops[i] = 1;
-        }
-    };
-    
-    window.addEventListener('resize', throttle(resizeCanvas, 100));
-    resizeCanvas();
+    return (targetX, targetY) => {
+        // Calculate target offset based on mouse position from center (-0.5 to 0.5 range)
+        const xOffset = (targetX - window.innerWidth / 2) / window.innerWidth;
 
-    return () => {
-        ctx.fillStyle = 'rgba(2, 4, 27, 0.1)';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.fillStyle = '#00ffff';
-        ctx.font = `${fontSize}px monospace`;
-
-        for (let i = 0; i < drops.length; i++) {
-            const text = characters.charAt(Math.floor(Math.random() * characters.length));
-            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-
-            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
-                drops[i] = 0;
-            }
-            drops[i]++;
-        }
+        layers.forEach((layer, i) => {
+            // The range of motion for each layer
+            const moveRange = 5; // Total movement range in %
+            const targetOffsetX = -xOffset * moveRange * strengths[i];
+            
+            // Smoothly ease the current offset towards the target
+            currentOffsets[i].x += (targetOffsetX - currentOffsets[i].x) * ease;
+            
+            layer.style.transform = `translateX(${currentOffsets[i].x}%)`;
+        });
     };
 };
 
