@@ -283,11 +283,22 @@ html, body {
     background-size: 50px 50px;
     z-index: 0;
     opacity: 0;
-    animation: fadeInGrid 5s ease-out forwards, pulseGrid 8s linear infinite;
+    animation: fadeInGrid 5s ease-out forwards, pulseGrid 8s linear infinite, scrollGrid 30s linear infinite;
 }
 
 #app.visible {
   opacity: 1;
+}
+
+/* NEW: Particle Canvas */
+#particle-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* Sits between parallax and scanlines */
+  pointer-events: none;
 }
 
 .scanlines {
@@ -308,6 +319,7 @@ html, body {
   pointer-events: none;
   z-index: 2;
   opacity: 0.5;
+  transition: opacity 0.5s ease-out, animation-duration 0.5s ease-out;
 }
 
 /*
@@ -324,7 +336,8 @@ html, body {
   height: 100%;
   filter: blur(2.5px) brightness(0.9);
   transform: scale(1.05); /* Slightly zoom in to hide edges */
-  z-index: 1;
+  z-index: 0;
+  transition: filter 0.5s ease-out;
 }
 
 .parallax-container::after {
@@ -372,6 +385,16 @@ html, body {
   background-size: auto 100%;
 }
 
+/* NEW: Environmental reaction to menu hover */
+#app.menu-hover .scanlines {
+  opacity: 0.8;
+  animation-duration: 8s; /* speed up scanlines */
+}
+#app.menu-hover .parallax-container {
+  filter: blur(3px) brightness(1.05); /* intensify background */
+}
+
+
 /*
 ------------------------------------------
   GAME MENU - UI ELEMENTS
@@ -404,6 +427,18 @@ html, body {
   opacity: 0;
   padding: 0 1rem; /* Prevent clipping on smaller screens */
 }
+/* NEW: Subtitle Style */
+#game-title .subtitle {
+  display: block;
+  font-size: clamp(0.6rem, 2vw, 0.8rem);
+  letter-spacing: 0.2rem;
+  font-weight: 400;
+  color: rgba(0, 255, 255, 0.6);
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+  animation: text-flicker 4s infinite alternate 1s;
+  margin-top: 0.5rem;
+}
+
 
 #main-menu {
   display: flex;
@@ -754,6 +789,11 @@ html, body {
 @keyframes pulseGrid {
     0%, 100% { opacity: 0.3; }
     50% { opacity: 0.5; }
+}
+
+@keyframes scrollGrid {
+    from { background-position: 0 0; }
+    to { background-position: -50px -50px; }
 }
 
 @keyframes glitch-text {

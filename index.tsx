@@ -64,8 +64,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (displayProgress >= 100) {
       cancelAnimationFrame(animationFrameId);
 
-      // --- Start Gradual Stop ---
-      // Instead of removing classes abruptly, replace them with "stopping" animations
       if (loadingScreen.classList.contains('shaking')) {
           loadingScreen.classList.remove('shaking');
           loadingScreen.classList.add('shaking-stopping');
@@ -79,16 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
           loadingText.classList.add('glitching-stopping');
       }
 
-      // Wait for the "stopping" animations (1s) to finish before proceeding
       setTimeout(() => {
-        // Clean up stopping classes to be safe
         loadingScreen.classList.remove('shaking-stopping');
         logo.classList.remove('glitching-stopping');
         loadingText.classList.remove('glitching-stopping');
         
-        // --- Proceed with the final sequence ---
-        
-        // Cut the power to lights for dramatic effect
         glowContainer.style.opacity = '0';
         vignette.classList.remove('warning');
         
@@ -98,45 +91,37 @@ document.addEventListener('DOMContentLoaded', () => {
           loadingText.classList.add('ready-breach');
           loadingText.style.opacity = '1';
           loadingText.addEventListener('click', handleBreachClick, { once: true });
-        }, 500); // Wait for fade-out
+        }, 500); 
         
-      }, 1000); // This duration must match the stopping animation time
+      }, 1000); 
 
-      return; // Stop the loop
+      return;
     }
 
     animationFrameId = requestAnimationFrame(cinematicLoad);
   };
 
   const handleBreachClick = () => {
-    // Clear previous elements if any
     bloodOverlay.innerHTML = '';
-
-    // --- Create a more detailed blood splatter effect ---
-
-    // 1. Main Splatter
     const mainSplatter = document.createElement('div');
     mainSplatter.classList.add('blood-splatter');
     bloodOverlay.appendChild(mainSplatter);
 
-    // 2. Dynamic Droplets
-    const dropletCount = 25; // Increased for more detail
+    const dropletCount = 25;
     for (let i = 0; i < dropletCount; i++) {
         const droplet = document.createElement('div');
         droplet.classList.add('blood-droplet');
 
         const angle = Math.random() * Math.PI * 2;
-        // Distribute droplets more widely
         const distance = Math.random() * (Math.min(window.innerWidth, window.innerHeight) / 2);
         const x = Math.cos(angle) * distance * (1 + Math.random());
         const y = Math.sin(angle) * distance * (1 + Math.random());
         
-        const size = 3 + Math.random() * 10; // px
-        const rotation = Math.random() * 360; // deg
-        const delay = Math.random() * 0.15; // seconds for a staggered effect
-        const duration = 0.5 + Math.random() * 0.5; // seconds for varied speed
+        const size = 3 + Math.random() * 10;
+        const rotation = Math.random() * 360;
+        const delay = Math.random() * 0.15;
+        const duration = 0.5 + Math.random() * 0.5;
 
-        // Use inline styles to set CSS variables for animation
         droplet.style.setProperty('--x', `${x}px`);
         droplet.style.setProperty('--y', `${y}px`);
         droplet.style.setProperty('--size', `${size}px`);
@@ -147,36 +132,162 @@ document.addEventListener('DOMContentLoaded', () => {
         bloodOverlay.appendChild(droplet);
     }
 
-    // Wait for the shatter animation to complete before fading out
     setTimeout(() => {
       loadingScreen.style.opacity = '0';
     }, 400); 
 
     loadingScreen.addEventListener('transitionend', () => {
         loadingScreen.style.display = 'none';
-        app.style.display = 'flex'; // Make app part of the layout
-        setTimeout(() => { // Short delay to ensure transition fires
+        app.style.display = 'flex';
+        setTimeout(() => {
           app.classList.add('visible');
-          initMainMenuInteractivity(); // Initialize new menu effects
+          initMainMenuInteractivity();
         }, 50);
     }, { once: true });
   };
 
+  /**
+   * Initializes all interactive elements of the main menu.
+   */
   const initMainMenuInteractivity = () => {
-    const trail = document.getElementById('cursor-trail') as HTMLElement;
+    const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
     const parallaxLayers = document.querySelectorAll('.parallax-layer') as NodeListOf<HTMLElement>;
-    const motionPermissionOverlay = document.getElementById('motion-permission-overlay') as HTMLElement;
-    const motionPermissionButton = document.getElementById('motion-permission-button') as HTMLButtonElement;
 
+    // This will hold screen-like coordinates from either mouse or gyroscope
+    let inputX = window.innerWidth / 2;
+    let inputY = window.innerHeight / 2;
+    
+    // --- Setup different interactive modules ---
+    const trailUpdater = setupCursorTrail(isDesktop);
+    const particleUpdater = setupParticleCanvas(isDesktop);
+    setupMenuButtonHover(app);
+    setupMotionTracking(isDesktop, (x, y) => {
+        inputX = x;
+        inputY = y;
+    });
 
-    if (parallaxLayers.length === 0) {
-      console.warn('Parallax layers not found.');
-      return;
+    // The main animation loop for the menu
+    const animateMenu = () => {
+      // Normalize input coordinates to a [-1, 1] range for parallax calculations.
+      const parallaxX = (inputX / window.innerWidth - 0.5) * 2;
+      const parallaxY = (inputY / window.innerHeight - 0.5) * 2;
+      
+      trailUpdater(inputX, inputY);
+      particleUpdater(parallaxX, parallaxY);
+      
+      // Animate Parallax Layers
+      parallaxLayers.forEach(layer => {
+        const depth = parseFloat(layer.dataset.depth || '0');
+        const moveX = -parallaxX * ((isDesktop ? 50 : 20) * depth);
+        const moveY = -parallaxY * ((isDesktop ? 25 : 10) * depth);
+        layer.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      });
+
+      requestAnimationFrame(animateMenu);
+    };
+
+    animateMenu();
+  };
+  
+  /**
+   * Sets up the custom cursor trail for desktop users.
+   * @param isDesktop - Boolean indicating if the device is a desktop.
+   * @returns A function to update the trail's position.
+   */
+  const setupCursorTrail = (isDesktop: boolean) => {
+    const trail = document.getElementById('cursor-trail') as HTMLElement;
+    if (!isDesktop || !trail) {
+        if(trail) trail.style.display = 'none';
+        return () => {}; // Return no-op function if not on desktop
     }
     
-    const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let currentTrailX = window.innerWidth / 2;
+    let currentTrailY = window.innerHeight / 2;
+    const trailEase = 0.15;
 
-    // --- Utility function to throttle events for performance ---
+    return (targetX: number, targetY: number) => {
+        currentTrailX += (targetX - currentTrailX) * trailEase;
+        currentTrailY += (targetY - currentTrailY) * trailEase;
+        trail.style.transform = `translate(${currentTrailX}px, ${currentTrailY}px)`;
+    };
+  };
+
+  /**
+   * Sets up the dynamic particle background canvas.
+   * @param isDesktop - Boolean for tuning particle movement intensity.
+   * @returns A function to update particle positions based on parallax.
+   */
+  const setupParticleCanvas = (isDesktop: boolean) => {
+      const canvas = document.getElementById('particle-canvas') as HTMLCanvasElement;
+      if (!canvas) return () => {};
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return () => {};
+
+      let particles: {x: number, y: number, z: number, vx: number, vy: number, size: number}[] = [];
+
+      const resizeCanvas = () => {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          particles = [];
+          const particleCount = isDesktop ? 150 : 75;
+          for (let i = 0; i < particleCount; i++) {
+              particles.push({
+                  x: Math.random() * canvas.width,
+                  y: Math.random() * canvas.height,
+                  z: Math.random() * 0.5 + 0.5, // Depth (0.5 to 1.0)
+                  vx: (Math.random() - 0.5) * 0.2,
+                  vy: -Math.random() * 0.5 - 0.2,
+                  size: (Math.random() * 1) + 0.5,
+              });
+          }
+      };
+      
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      return (parallaxX: number, parallaxY: number) => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.fillStyle = 'rgba(0, 255, 255, 0.7)';
+          
+          particles.forEach(p => {
+              // Update position
+              p.x += p.vx;
+              p.y += p.vy;
+
+              // Boundary check (wrap around)
+              if (p.y < 0) { p.y = canvas.height; }
+              if (p.x < 0) { p.x = canvas.width; }
+              if (p.x > canvas.width) { p.x = 0; }
+              
+              const moveX = -parallaxX * (isDesktop ? 20 : 10) * p.z;
+              const moveY = -parallaxY * (isDesktop ? 10 : 5) * p.z;
+              
+              ctx.beginPath();
+              ctx.arc(p.x + moveX, p.y + moveY, p.size * p.z, 0, Math.PI * 2);
+              ctx.fill();
+          });
+      };
+  };
+
+  /**
+   * Adds hover listeners to menu buttons to trigger global environmental effects.
+   * @param appContainer - The main app container element.
+   */
+  const setupMenuButtonHover = (appContainer: HTMLElement) => {
+      const menuButtons = document.querySelectorAll('.menu-button');
+      menuButtons.forEach(button => {
+          button.addEventListener('mouseenter', () => appContainer.classList.add('menu-hover'));
+          button.addEventListener('mouseleave', () => appContainer.classList.remove('menu-hover'));
+      });
+  };
+
+  /**
+   * Sets up mouse or device orientation tracking.
+   * @param isDesktop - Is the device a desktop?
+   * @param onUpdate - Callback function with updated x and y coordinates.
+   */
+  const setupMotionTracking = (isDesktop: boolean, onUpdate: (x: number, y: number) => void) => {
+    // Utility to throttle events for performance
     const throttle = <T extends (...args: any[]) => any>(func: T, limit: number): T => {
       let inThrottle: boolean;
       return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
@@ -187,107 +298,47 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } as T;
     };
-
-    // Hide trail element on mobile via JS as a fallback to the CSS media query
-    if (!isDesktop && trail) {
-        trail.style.display = 'none';
-    }
-
-    // This will hold screen-like coordinates from either mouse or gyroscope
-    let inputX = window.innerWidth / 2;
-    let inputY = window.innerHeight / 2;
     
-    // Current animated positions for the cursor trail
-    let currentTrailX = inputX;
-    let currentTrailY = inputY;
-    
-    const trailEase = 0.15; // Smoothing factor for the trail
-
-    const startMotionTracking = () => {
-        const handleOrientation = (e: DeviceOrientationEvent) => {
-            if (e.gamma === null || e.beta === null) return;
-            
-            // Map gyroscope data to screen-like coordinates.
-            // We'll use a limited range (+/- 30 degrees) for a subtle, controlled effect.
-            const clampedGamma = Math.max(-30, Math.min(30, e.gamma)); // left-right tilt
-            const clampedBeta = Math.max(-30, Math.min(30, e.beta));   // front-back tilt
-
-            // Convert the clamped tilt range [-30, 30] to a screen coordinate range.
-            // The `+ 0.5` part centers the neutral (no tilt) position.
-            inputX = (clampedGamma / 60 + 0.5) * window.innerWidth;
-            inputY = (clampedBeta / 60 + 0.5) * window.innerHeight;
-        };
-
-        // Throttle the event handler to run at most once every 16ms (~60fps) for performance
-        window.addEventListener('deviceorientation', throttle(handleOrientation, 16));
-    };
-
     if (isDesktop) {
-        // On desktop, simply track the mouse position
         window.addEventListener('mousemove', (e: MouseEvent) => {
-          inputX = e.clientX;
-          inputY = e.clientY;
+          onUpdate(e.clientX, e.clientY);
         });
     } else {
-        // Handle Device Orientation API for mobile, including the iOS permission model.
-        // This is a non-standard API, so we must check for its existence.
-        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-            if (motionPermissionOverlay && motionPermissionButton) {
-                // Show the dialog
-                motionPermissionOverlay.classList.remove('hidden');
+        const startMotionTracking = () => {
+            const handleOrientation = (e: DeviceOrientationEvent) => {
+                if (e.gamma === null || e.beta === null) return;
+                const clampedGamma = Math.max(-30, Math.min(30, e.gamma));
+                const clampedBeta = Math.max(-30, Math.min(30, e.beta));
+                const x = (clampedGamma / 60 + 0.5) * window.innerWidth;
+                const y = (clampedBeta / 60 + 0.5) * window.innerHeight;
+                onUpdate(x, y);
+            };
+            window.addEventListener('deviceorientation', throttle(handleOrientation, 16));
+        };
 
+        if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+            const motionPermissionOverlay = document.getElementById('motion-permission-overlay') as HTMLElement;
+            const motionPermissionButton = document.getElementById('motion-permission-button') as HTMLButtonElement;
+
+            if (motionPermissionOverlay && motionPermissionButton) {
+                motionPermissionOverlay.classList.remove('hidden');
                 motionPermissionButton.addEventListener('click', async () => {
                     try {
                         const permissionState = await (DeviceOrientationEvent as any).requestPermission();
                         if (permissionState === 'granted') {
                             startMotionTracking();
-                        } else {
-                            console.warn('Permission for device orientation not granted.');
                         }
                     } catch (error) {
                         console.error('Error requesting device orientation permission:', error);
                     } finally {
-                        // Hide the dialog regardless of the outcome
                         motionPermissionOverlay.classList.add('hidden');
                     }
                 }, { once: true });
             }
         } else {
-            // For Android and other devices that don't need explicit permission
             startMotionTracking();
         }
     }
-
-    // The main animation loop, running for both platforms
-    const animate = () => {
-      // --- Animate Cursor Trail (Desktop Only) ---
-      if (isDesktop && trail) {
-        // Apply linear interpolation (lerp) for a smooth, lagging effect
-        currentTrailX += (inputX - currentTrailX) * trailEase;
-        currentTrailY += (inputY - currentTrailY) * trailEase;
-        trail.style.transform = `translate(${currentTrailX}px, ${currentTrailY}px)`;
-      }
-      
-      // --- Animate Parallax Layers (for both desktop and mobile) ---
-      // Normalize the input coordinates to a [-1, 1] range.
-      const parallaxX = (inputX / window.innerWidth - 0.5) * 2;
-      const parallaxY = (inputY / window.innerHeight - 0.5) * 2;
-
-      parallaxLayers.forEach(layer => {
-        const depth = parseFloat(layer.dataset.depth || '0');
-        // Use different multipliers for desktop vs. mobile to get the right feel
-        // Reduced mobile multipliers for better performance.
-        const moveX = -parallaxX * ((isDesktop ? 50 : 20) * depth);
-        const moveY = -parallaxY * ((isDesktop ? 25 : 10) * depth);
-        layer.style.transform = `translate(${moveX}px, ${moveY}px)`;
-      });
-
-      // Continue the animation loop
-      requestAnimationFrame(animate);
-    };
-
-    // Start the animation loop
-    requestAnimationFrame(animate);
   };
 
 
