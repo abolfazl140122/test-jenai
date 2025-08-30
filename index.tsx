@@ -176,6 +176,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
+    // --- Utility function to throttle events for performance ---
+    const throttle = <T extends (...args: any[]) => any>(func: T, limit: number): T => {
+      let inThrottle: boolean;
+      return function(this: ThisParameterType<T>, ...args: Parameters<T>) {
+        if (!inThrottle) {
+          func.apply(this, args);
+          inThrottle = true;
+          setTimeout(() => (inThrottle = false), limit);
+        }
+      } as T;
+    };
+
     // Hide trail element on mobile via JS as a fallback to the CSS media query
     if (!isDesktop && trail) {
         trail.style.display = 'none';
@@ -192,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const trailEase = 0.15; // Smoothing factor for the trail
 
     const startMotionTracking = () => {
-        window.addEventListener('deviceorientation', (e: DeviceOrientationEvent) => {
+        const handleOrientation = (e: DeviceOrientationEvent) => {
             if (e.gamma === null || e.beta === null) return;
             
             // Map gyroscope data to screen-like coordinates.
@@ -204,7 +216,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // The `+ 0.5` part centers the neutral (no tilt) position.
             inputX = (clampedGamma / 60 + 0.5) * window.innerWidth;
             inputY = (clampedBeta / 60 + 0.5) * window.innerHeight;
-        });
+        };
+
+        // Throttle the event handler to run at most once every 16ms (~60fps) for performance
+        window.addEventListener('deviceorientation', throttle(handleOrientation, 16));
     };
 
     if (isDesktop) {
@@ -261,8 +276,9 @@ document.addEventListener('DOMContentLoaded', () => {
       parallaxLayers.forEach(layer => {
         const depth = parseFloat(layer.dataset.depth || '0');
         // Use different multipliers for desktop vs. mobile to get the right feel
-        const moveX = -parallaxX * ((isDesktop ? 50 : 25) * depth);
-        const moveY = -parallaxY * ((isDesktop ? 25 : 15) * depth);
+        // Reduced mobile multipliers for better performance.
+        const moveX = -parallaxX * ((isDesktop ? 50 : 20) * depth);
+        const moveY = -parallaxY * ((isDesktop ? 25 : 10) * depth);
         layer.style.transform = `translate(${moveX}px, ${moveY}px)`;
       });
 
