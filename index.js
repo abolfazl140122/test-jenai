@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-// --- UTILS ---
+// --- UTILS --- (from src/utils.ts)
 /**
  * Throttles a function to prevent it from being called too frequently.
  * @param func The function to throttle.
@@ -22,8 +22,138 @@ const throttle = (func, limit) => {
   };
 };
 
+// --- AUDIO PRELOADER LOGIC --- (from src/audio-preloader.ts)
+const audioAssets = [
+  { 
+    id: 'background-music', 
+    src: 'https://raw.githubusercontent.com/abolfazl140122/test-jenai/ffb7502131ba540eeeb37822af07d01dc824bccf/scary-ambience-music-347437.mp3', 
+    loop: true 
+  },
+  { 
+    id: 'sfx-gunshot', 
+    src: 'https://github.com/abolfazl140122/test-jenai/raw/09793ef2205567f211dae4b31d6f3cc79e5d36e6/rifle-gunshot-99749.mp3', 
+    loop: false 
+  }
+];
 
-// --- LOADING SCREEN LOGIC ---
+const initAudioPreloader = () => {
+  return new Promise((resolve, reject) => {
+    const preloader = document.getElementById('audio-preloader');
+    const preloaderContent = document.getElementById('audio-preloader-content');
+    const progressBar = document.getElementById('audio-progress-bar');
+    const progressText = document.getElementById('audio-progress-text');
+
+    if (!preloader || !preloaderContent || !progressBar || !progressText) {
+      const errorMsg = 'Audio preloader UI elements not found!';
+      console.error(errorMsg);
+      return reject(new Error(errorMsg));
+    }
+    
+    let loadedCount = 0;
+    const assetsToLoad = audioAssets.length;
+    const progressPerAsset = {};
+
+    const updateOverallProgress = () => {
+      let totalProgress = 0;
+      Object.values(progressPerAsset).forEach(p => { totalProgress += p; });
+      
+      const overallPercent = totalProgress / assetsToLoad;
+
+      progressBar.style.width = `${overallPercent}%`;
+      progressText.textContent = `${Math.round(overallPercent)}%`;
+    };
+    
+    const onAllAssetsReady = () => {
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        
+        preloaderContent.innerHTML = `
+          <h2>AURAL SENSORS CALIBRATED</h2>
+          <p>Engage protocol to begin.</p>
+          <button id="start-experience-button">ENGAGE</button>
+        `;
+
+        const startButton = document.getElementById('start-experience-button');
+        const backgroundMusic = document.getElementById('background-music');
+
+        startButton.addEventListener('click', () => {
+          if (backgroundMusic) {
+             backgroundMusic.play().catch(e => console.error("Background music play failed:", e));
+          }
+          
+          preloader.style.opacity = '0';
+          preloader.addEventListener('transitionend', () => {
+            preloader.style.display = 'none';
+            resolve();
+          }, { once: true });
+        }, { once: true });
+    };
+    
+    const onAssetError = (id, event) => {
+      console.error(`Failed to load audio asset: ${id}`, event);
+      audioAssets.forEach(asset => {
+          const el = document.getElementById(asset.id);
+          if (el) el.src = ''; 
+      });
+      preloaderContent.innerHTML = `
+        <h2 style="color: #ff4141;">ASSET LOAD FAILED</h2>
+        <p>Could not load essential audio assets.<br>Please check your connection and refresh.</p>
+      `;
+      reject(new Error(`Failed to load audio asset: ${id}`));
+    };
+
+    audioAssets.forEach(asset => {
+        const audioElement = document.getElementById(asset.id);
+
+        if (!audioElement) {
+            return onAssetError(asset.id, new Event('Element not found'));
+        }
+
+        progressPerAsset[asset.id] = 0;
+        audioElement.loop = asset.loop;
+        
+        const updateAssetProgress = () => {
+            if (audioElement.duration > 0 && audioElement.buffered.length > 0) {
+                const bufferedEnd = audioElement.buffered.end(audioElement.buffered.length - 1);
+                const percentComplete = (bufferedEnd / audioElement.duration) * 100;
+                progressPerAsset[asset.id] = Math.min(percentComplete, 100);
+            }
+            updateOverallProgress();
+        };
+
+        const onCanPlayThrough = () => {
+            cleanupListenersForAsset();
+            progressPerAsset[asset.id] = 100;
+            updateOverallProgress();
+            loadedCount++;
+            if (loadedCount === assetsToLoad) {
+                onAllAssetsReady();
+            }
+        };
+
+        const onError = (e) => {
+            cleanupListenersForAsset();
+            onAssetError(asset.id, e);
+        };
+
+        const cleanupListenersForAsset = () => {
+            audioElement.removeEventListener('progress', updateAssetProgress);
+            audioElement.removeEventListener('canplaythrough', onCanPlayThrough);
+            audioElement.removeEventListener('error', onError);
+        };
+        
+        audioElement.addEventListener('progress', updateAssetProgress);
+        audioElement.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
+        audioElement.addEventListener('error', onError, { once: true });
+        
+        audioElement.src = asset.src;
+        audioElement.load();
+    });
+  });
+};
+
+
+// --- LOADING SCREEN LOGIC --- (from src/loading-screen.ts)
 /**
  * Initializes and manages the cinematic loading screen experience.
  * @returns A promise that resolves when the loading screen has finished its transition out.
@@ -37,8 +167,9 @@ const initLoadingScreen = () => {
     const glowContainer = document.getElementById('glow-container');
     const vignette = document.querySelector('.vignette');
     const bloodOverlay = document.getElementById('blood-overlay');
+    const gunshotSfx = document.getElementById('sfx-gunshot');
 
-    if (!loadingBar || !loadingText || !loadingScreen || !logo || !glowContainer || !vignette || !bloodOverlay) {
+    if (!loadingBar || !loadingText || !loadingScreen || !logo || !glowContainer || !vignette || !bloodOverlay || !gunshotSfx) {
       console.error('Core cinematic elements not found!');
       resolve(); // Resolve immediately if elements are missing
       return;
@@ -49,6 +180,12 @@ const initLoadingScreen = () => {
     const loadingDuration = 4000; // 4 seconds
 
     const handleBreachClick = () => {
+      // Play gunshot sound effect
+      if (gunshotSfx) {
+        gunshotSfx.currentTime = 0; // Rewind before playing
+        gunshotSfx.play().catch(e => console.error("Gunshot SFX failed to play:", e));
+      }
+
       bloodOverlay.innerHTML = '';
       const mainSplatter = document.createElement('div');
       mainSplatter.classList.add('blood-splatter');
@@ -161,13 +298,12 @@ const initLoadingScreen = () => {
       animationFrameId = requestAnimationFrame(cinematicLoad);
     };
     
-    // Start the experience
     animationFrameId = requestAnimationFrame(cinematicLoad);
   });
 };
 
 
-// --- MAIN MENU LOGIC ---
+// --- MAIN MENU LOGIC --- (from src/main-menu.ts)
 /**
  * Initializes all interactive elements of the main menu.
  */
@@ -179,187 +315,204 @@ const initMainMenu = () => {
   }
   
   const isDesktop = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
-  const parallaxLayers = document.querySelectorAll('.parallax-layer');
 
   let inputX = window.innerWidth / 2;
   let inputY = window.innerHeight / 2;
   
-  /**
-   * Sets up the custom cursor trail for desktop users.
-   */
-  const setupCursorTrail = (isDesktop) => {
-    const trail = document.getElementById('cursor-trail');
-    if (!isDesktop || !trail) {
-        if(trail) trail.style.display = 'none';
-        return () => {};
-    }
-    
-    let currentTrailX = window.innerWidth / 2;
-    let currentTrailY = window.innerHeight / 2;
-    const trailEase = 0.15;
-
-    return (targetX, targetY) => {
-        currentTrailX += (targetX - currentTrailX) * trailEase;
-        currentTrailY += (targetY - currentTrailY) * trailEase;
-        trail.style.transform = `translate(${currentTrailX}px, ${currentTrailY}px)`;
-    };
-  };
-
-  /**
-   * Sets up the dynamic particle background canvas.
-   */
-  const setupParticleCanvas = (isDesktop) => {
-      const canvas = document.getElementById('particle-canvas');
-      if (!canvas) return () => {};
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return () => {};
-
-      let particles = [];
-
-      const resizeCanvas = () => {
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
-          particles = [];
-          const particleCount = isDesktop ? 150 : 75;
-          for (let i = 0; i < particleCount; i++) {
-              particles.push({
-                  x: Math.random() * canvas.width,
-                  y: Math.random() * canvas.height,
-                  z: Math.random() * 0.5 + 0.5,
-                  vx: (Math.random() - 0.5) * 0.2,
-                  vy: -Math.random() * 0.5 - 0.2,
-                  size: (Math.random() * 1) + 0.5,
-              });
-          }
-      };
-      
-      window.addEventListener('resize', throttle(resizeCanvas, 100));
-      resizeCanvas();
-
-      return (parallaxX, parallaxY) => {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = 'rgba(0, 255, 255, 0.7)';
-          
-          particles.forEach(p => {
-              p.x += p.vx;
-              p.y += p.vy;
-
-              if (p.y < 0) { p.y = canvas.height; }
-              if (p.x < 0) { p.x = canvas.width; }
-              if (p.x > canvas.width) { p.x = 0; }
-              
-              const moveX = -parallaxX * (isDesktop ? 20 : 10) * p.z;
-              const moveY = -parallaxY * (isDesktop ? 10 : 5) * p.z;
-              
-              ctx.beginPath();
-              ctx.arc(p.x + moveX, p.y + moveY, p.size * p.z, 0, Math.PI * 2);
-              ctx.fill();
-          });
-      };
-  };
-
-  /**
-   * Adds hover listeners to menu buttons.
-   */
-  const setupMenuButtonHover = (appContainer) => {
-      const menuButtons = document.querySelectorAll('.menu-button');
-      menuButtons.forEach(button => {
-          button.addEventListener('mouseenter', () => appContainer.classList.add('menu-hover'));
-          button.addEventListener('mouseleave', () => appContainer.classList.remove('menu-hover'));
-      });
-  };
-
-  /**
-   * Sets up mouse or device orientation tracking.
-   */
-  const setupMotionTracking = (isDesktop, onUpdate) => {
-    if (isDesktop) {
-        window.addEventListener('mousemove', (e) => {
-          onUpdate(e.clientX, e.clientY);
-        });
-    } else {
-        const startMotionTracking = () => {
-            const handleOrientation = (e) => {
-                if (e.gamma === null || e.beta === null) return;
-                const clampedGamma = Math.max(-30, Math.min(30, e.gamma));
-                const clampedBeta = Math.max(-30, Math.min(30, e.beta));
-                const x = (clampedGamma / 60 + 0.5) * window.innerWidth;
-                const y = (clampedBeta / 60 + 0.5) * window.innerHeight;
-                onUpdate(x, y);
-            };
-            window.addEventListener('deviceorientation', throttle(handleOrientation, 16));
-        };
-
-        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-            const motionPermissionOverlay = document.getElementById('motion-permission-overlay');
-            const motionPermissionButton = document.getElementById('motion-permission-button');
-
-            if (motionPermissionOverlay && motionPermissionButton) {
-                motionPermissionOverlay.classList.remove('hidden');
-                motionPermissionButton.addEventListener('click', async () => {
-                    try {
-                        const permissionState = await DeviceOrientationEvent.requestPermission();
-                        if (permissionState === 'granted') {
-                            startMotionTracking();
-                        }
-                    } catch (error) {
-                        console.error('Error requesting device orientation permission:', error);
-                    } finally {
-                        motionPermissionOverlay.classList.add('hidden');
-                    }
-                }, { once: true });
-            }
-        } else {
-            startMotionTracking();
-        }
-    }
-  };
-
   const trailUpdater = setupCursorTrail(isDesktop);
-  const particleUpdater = setupParticleCanvas(isDesktop);
-  setupMenuButtonHover(app);
+  const particleUpdater = setupParticleCanvas();
+  setupMenuButtonEffects(app);
   setupMotionTracking(isDesktop, (x, y) => {
       inputX = x;
       inputY = y;
   });
 
   const animateMenu = () => {
-    const parallaxX = (inputX / window.innerWidth - 0.5) * 2;
-    const parallaxY = (inputY / window.innerHeight - 0.5) * 2;
-    
     trailUpdater(inputX, inputY);
-    particleUpdater(parallaxX, parallaxY);
+    particleUpdater();
     
-    parallaxLayers.forEach(layer => {
-      const depth = parseFloat(layer.dataset.depth || '0');
-      const moveX = -parallaxX * ((isDesktop ? 50 : 20) * depth);
-      const moveY = -parallaxY * ((isDesktop ? 25 : 10) * depth);
-      layer.style.transform = `translate(${moveX}px, ${moveY}px)`;
-    });
-
     requestAnimationFrame(animateMenu);
   };
 
   animateMenu();
 };
-
-
-// --- APP INITIALIZATION ---
-document.addEventListener('DOMContentLoaded', async () => {
-  const app = document.getElementById('app');
-  if (!app) {
-    console.error('Main app container #app not found!');
-    return;
+  
+const setupCursorTrail = (isDesktop) => {
+  const trail = document.getElementById('cursor-trail');
+  if (!isDesktop || !trail) {
+      if(trail) trail.style.display = 'none';
+      return () => {};
   }
+  
+  let currentTrailX = window.innerWidth / 2;
+  let currentTrailY = window.innerHeight / 2;
+  const trailEase = 0.15;
 
-  // Run the cinematic loading screen and wait for it to complete
-  await initLoadingScreen();
+  return (targetX, targetY) => {
+      currentTrailX += (targetX - currentTrailX) * trailEase;
+      currentTrailY += (targetY - currentTrailY) * trailEase;
+      trail.style.transform = `translate(${currentTrailX}px, ${currentTrailY}px)`;
+  };
+};
 
-  // Once loading is done, transition to the main menu
-  app.style.display = 'flex';
-  setTimeout(() => {
-    app.classList.add('visible');
-    // Initialize all the interactive parts of the main menu
-    initMainMenu();
-  }, 50); // A short delay ensures the display:flex is applied before the transition starts.
+const setupParticleCanvas = () => {
+    const canvas = document.getElementById('particle-canvas');
+    if (!canvas) return () => {};
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return () => {};
+
+    const characters = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン0123456789';
+    const fontSize = 16;
+    let columns = 0;
+    let drops = [];
+
+    const resizeCanvas = () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        columns = Math.floor(canvas.width / fontSize);
+        drops = [];
+        for (let i = 0; i < columns; i++) {
+            drops[i] = 1;
+        }
+    };
+    
+    window.addEventListener('resize', throttle(resizeCanvas, 100));
+    resizeCanvas();
+
+    return () => {
+        ctx.fillStyle = 'rgba(2, 4, 27, 0.1)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ffff';
+        ctx.font = `${fontSize}px monospace`;
+
+        for (let i = 0; i < drops.length; i++) {
+            const text = characters.charAt(Math.floor(Math.random() * characters.length));
+            ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+            if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                drops[i] = 0;
+            }
+            drops[i]++;
+        }
+    };
+};
+
+const setupMenuButtonEffects = (appContainer) => {
+    const menuButtons = document.querySelectorAll('.menu-button');
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%&";
+
+    menuButtons.forEach(button => {
+        const span = button.querySelector('span');
+        if (!span) return;
+
+        const originalText = span.dataset.value || span.innerText;
+        span.dataset.value = originalText;
+
+        let interval;
+
+        button.addEventListener('mouseenter', () => {
+            let iteration = 0;
+            clearInterval(interval);
+            
+            interval = window.setInterval(() => {
+                span.innerText = originalText
+                    .split('')
+                    .map((letter, index) => {
+                        if (index < iteration) {
+                            return originalText[index];
+                        }
+                        if (letter === ' ') return ' ';
+                        return letters[Math.floor(Math.random() * letters.length)];
+                    })
+                    .join('');
+
+                if (iteration >= originalText.length) {
+                    clearInterval(interval);
+                    span.innerText = originalText;
+                }
+                iteration += 1 / 2;
+            }, 30);
+        });
+
+        button.addEventListener('mouseleave', () => {
+           clearInterval(interval);
+           span.innerText = originalText;
+        });
+
+        button.addEventListener('mouseenter', () => appContainer.classList.add('menu-hover'));
+        button.addEventListener('mouseleave', () => appContainer.classList.remove('menu-hover'));
+    });
+};
+
+const setupMotionTracking = (isDesktop, onUpdate) => {
+  if (isDesktop) {
+      window.addEventListener('mousemove', (e) => {
+        onUpdate(e.clientX, e.clientY);
+      });
+  } else {
+      const startMotionTracking = () => {
+          const handleOrientation = (e) => {
+              if (e.gamma === null || e.beta === null) return;
+              const clampedGamma = Math.max(-30, Math.min(30, e.gamma));
+              const clampedBeta = Math.max(-30, Math.min(30, e.beta));
+              const x = (clampedGamma / 60 + 0.5) * window.innerWidth;
+              const y = (clampedBeta / 60 + 0.5) * window.innerHeight;
+              onUpdate(x, y);
+          };
+          window.addEventListener('deviceorientation', throttle(handleOrientation, 16));
+      };
+
+      if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+          const motionPermissionOverlay = document.getElementById('motion-permission-overlay');
+          const motionPermissionButton = document.getElementById('motion-permission-button');
+
+          if (motionPermissionOverlay && motionPermissionButton) {
+              motionPermissionOverlay.classList.remove('hidden');
+              motionPermissionButton.addEventListener('click', async () => {
+                  try {
+                      const permissionState = await DeviceOrientationEvent.requestPermission();
+                      if (permissionState === 'granted') {
+                          startMotionTracking();
+                      }
+                  } catch (error) {
+                      console.error('Error requesting device orientation permission:', error);
+                  } finally {
+                      motionPermissionOverlay.classList.add('hidden');
+                  }
+              }, { once: true });
+          }
+      } else {
+          startMotionTracking();
+      }
+  }
+};
+
+
+// --- APP INITIALIZATION --- (from src/index.tsx)
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const app = document.getElementById('app');
+    if (!app) {
+      console.error('Main app container #app not found!');
+      return;
+    }
+
+    // Wait for user to engage with audio preloader
+    await initAudioPreloader();
+
+    // Run the cinematic loading screen and wait for it to complete
+    await initLoadingScreen();
+
+    // Once loading is done, transition to the main menu
+    app.style.display = 'flex';
+    setTimeout(() => {
+      app.classList.add('visible');
+      // Initialize all the interactive parts of the main menu
+      initMainMenu();
+    }, 50);
+  } catch (error) {
+    console.error("Failed to initialize the application:", error);
+    document.body.innerHTML = `<div style="color: #ff4141; text-align: center; padding: 2rem;"><h1>Initialization Failed</h1><p>Could not load essential assets. Please refresh and try again.</p></div>`;
+  }
 });

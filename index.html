@@ -11,6 +11,23 @@
 </head>
 <body>
   <!-- ============================================== -->
+  <!-- ============ AUDIO PRELOADER START =========== -->
+  <!-- ============================================== -->
+  <div id="audio-preloader">
+    <div id="audio-preloader-content">
+      <h2>CALIBRATING AURAL SENSORS...</h2>
+      <p>This experience requires audio. Please ensure your sound is enabled.</p>
+      <div id="audio-progress-container">
+        <div id="audio-progress-bar"></div>
+      </div>
+      <div id="audio-progress-text">0%</div>
+    </div>
+  </div>
+  <!-- ============================================== -->
+  <!-- ============= AUDIO PRELOADER END ============ -->
+  <!-- ============================================== -->
+
+  <!-- ============================================== -->
   <!-- ============ LOADING SCREEN START ============ -->
   <!-- ============================================== -->
   <div id="loading-screen">
@@ -70,6 +87,7 @@
   
   <div id="cursor-trail"></div>
   <audio id="background-music" loop></audio>
+  <audio id="sfx-gunshot"></audio>
   <script type="module" src="index.js"></script>
 </body>
 </html>

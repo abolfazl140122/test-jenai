@@ -17,8 +17,9 @@ export const initLoadingScreen = (): Promise<void> => {
     const glowContainer = document.getElementById('glow-container') as HTMLDivElement;
     const vignette = document.querySelector('.vignette') as HTMLDivElement;
     const bloodOverlay = document.getElementById('blood-overlay') as HTMLDivElement;
+    const gunshotSfx = document.getElementById('sfx-gunshot') as HTMLAudioElement;
 
-    if (!loadingBar || !loadingText || !loadingScreen || !logo || !glowContainer || !vignette || !bloodOverlay) {
+    if (!loadingBar || !loadingText || !loadingScreen || !logo || !glowContainer || !vignette || !bloodOverlay || !gunshotSfx) {
       console.error('Core cinematic elements not found!');
       resolve(); // Resolve immediately if elements are missing
       return;
@@ -29,6 +30,12 @@ export const initLoadingScreen = (): Promise<void> => {
     const loadingDuration = 4000; // 4 seconds
 
     const handleBreachClick = () => {
+      // Play gunshot sound effect
+      if (gunshotSfx) {
+        gunshotSfx.currentTime = 0; // Rewind before playing
+        gunshotSfx.play().catch(e => console.error("Gunshot SFX failed to play:", e));
+      }
+
       bloodOverlay.innerHTML = '';
       const mainSplatter = document.createElement('div');
       mainSplatter.classList.add('blood-splatter');

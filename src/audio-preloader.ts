@@ -4,9 +4,24 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+// A list of audio assets to be preloaded.
+const audioAssets = [
+  { 
+    id: 'background-music', 
+    src: 'https://raw.githubusercontent.com/abolfazl140122/test-jenai/ffb7502131ba540eeeb37822af07d01dc824bccf/scary-ambience-music-347437.mp3', 
+    loop: true 
+  },
+  { 
+    id: 'sfx-gunshot', 
+    src: 'https://github.com/abolfazl140122/test-jenai/raw/09793ef2205567f211dae4b31d6f3cc79e5d36e6/rifle-gunshot-99749.mp3', 
+    loop: false 
+  }
+];
+
+
 /**
  * Initializes and manages the audio preloading screen.
- * Downloads the audio file while showing progress, then waits for
+ * Downloads multiple audio files while showing combined progress, then waits for
  * user interaction to start the music and the rest of the app.
  * @returns A promise that resolves when the user clicks the "engage" button.
  */
@@ -16,53 +31,31 @@ export const initAudioPreloader = (): Promise<void> => {
     const preloaderContent = document.getElementById('audio-preloader-content') as HTMLElement;
     const progressBar = document.getElementById('audio-progress-bar') as HTMLElement;
     const progressText = document.getElementById('audio-progress-text') as HTMLElement;
-    const audioElement = document.getElementById('background-music') as HTMLAudioElement;
 
-    if (!preloader || !preloaderContent || !progressBar || !progressText || !audioElement) {
-      const errorMsg = 'Audio preloader elements not found!';
+    if (!preloader || !preloaderContent || !progressBar || !progressText) {
+      const errorMsg = 'Audio preloader UI elements not found!';
       console.error(errorMsg);
       return reject(new Error(errorMsg));
     }
-
-    // FIX: Using a public, CORS-friendly URL to prevent loading issues.
-    const audioSrc = 'https://cdn.pixabay.com/audio/2022/11/17/audio_3536348259.mp3';
     
-    audioElement.loop = true;
+    let loadedCount = 0;
+    const assetsToLoad = audioAssets.length;
+    const progressPerAsset: Record<string, number> = {};
 
-    let loadingTimeout: number;
+    const updateOverallProgress = () => {
+      let totalProgress = 0;
+      Object.values(progressPerAsset).forEach(p => { totalProgress += p; });
+      
+      const overallPercent = totalProgress / assetsToLoad;
 
-    const cleanupListeners = () => {
-      clearTimeout(loadingTimeout);
-      audioElement.removeEventListener('progress', updateProgress);
-      audioElement.removeEventListener('canplaythrough', onCanPlayThrough);
-      audioElement.removeEventListener('error', onError);
-    };
-
-    const updateProgress = () => {
-      if (audioElement.duration > 0) {
-        let percentComplete = 0;
-        if (audioElement.buffered.length > 0) {
-            const bufferedEnd = audioElement.buffered.end(audioElement.buffered.length - 1);
-            percentComplete = (bufferedEnd / audioElement.duration) * 100;
-        }
-        
-        const currentWidth = parseFloat(progressBar.style.width) || 0;
-        const newWidth = Math.min(percentComplete, 100);
-
-        if (newWidth > currentWidth) {
-            progressBar.style.width = `${newWidth}%`;
-            progressText.textContent = `${Math.round(newWidth)}%`;
-        }
-      }
+      progressBar.style.width = `${overallPercent}%`;
+      progressText.textContent = `${Math.round(overallPercent)}%`;
     };
     
-    const onCanPlayThrough = () => {
-        cleanupListeners();
-        // Ensure progress is at 100%
+    const onAllAssetsReady = () => {
         progressBar.style.width = '100%';
         progressText.textContent = '100%';
         
-        // Present a start button to the user to comply with autoplay policies.
         preloaderContent.innerHTML = `
           <h2>AURAL SENSORS CALIBRATED</h2>
           <p>Engage protocol to begin.</p>
@@ -70,8 +63,12 @@ export const initAudioPreloader = (): Promise<void> => {
         `;
 
         const startButton = document.getElementById('start-experience-button') as HTMLButtonElement;
+        const backgroundMusic = document.getElementById('background-music') as HTMLAudioElement;
+
         startButton.addEventListener('click', () => {
-          audioElement.play().catch(e => console.error("Audio play failed:", e));
+          if (backgroundMusic) {
+             backgroundMusic.play().catch(e => console.error("Background music play failed:", e));
+          }
           
           preloader.style.opacity = '0';
           preloader.addEventListener('transitionend', () => {
@@ -81,19 +78,67 @@ export const initAudioPreloader = (): Promise<void> => {
         }, { once: true });
     };
     
-    const onError = () => {
-      cleanupListeners();
-
-      // FIX: Display a user-friendly error message in the UI.
+    const onAssetError = (id: string, event: Event) => {
+      console.error(`Failed to load audio asset: ${id}`, event);
+      // Stop all loading and show error
+      audioAssets.forEach(asset => {
+          const el = document.getElementById(asset.id) as HTMLAudioElement;
+          if (el) el.src = ''; // Stop any further loading
+      });
       preloaderContent.innerHTML = `
         <h2 style="color: #ff4141;">ASSET LOAD FAILED</h2>
         <p>Could not load essential audio assets.<br>Please check your connection and refresh.</p>
       `;
-      reject(new Error('A network error or file error occurred during the audio file request.'));
+      reject(new Error(`Failed to load audio asset: ${id}`));
     };
 
-    audioElement.addEventListener('progress', updateProgress);
-    audioElement.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
-    audioElement.addEventListener('error', onError, { once: true });
-    
-    
+
+    audioAssets.forEach(asset => {
+        const audioElement = document.getElementById(asset.id) as HTMLAudioElement;
+
+        if (!audioElement) {
+            return onAssetError(asset.id, new Event('Element not found'));
+        }
+
+        progressPerAsset[asset.id] = 0;
+        audioElement.loop = asset.loop;
+        
+        const updateAssetProgress = () => {
+            if (audioElement.duration > 0 && audioElement.buffered.length > 0) {
+                const bufferedEnd = audioElement.buffered.end(audioElement.buffered.length - 1);
+                const percentComplete = (bufferedEnd / audioElement.duration) * 100;
+                progressPerAsset[asset.id] = Math.min(percentComplete, 100);
+            }
+            updateOverallProgress();
+        };
+
+        const onCanPlayThrough = () => {
+            cleanupListenersForAsset();
+            progressPerAsset[asset.id] = 100;
+            updateOverallProgress();
+            loadedCount++;
+            if (loadedCount === assetsToLoad) {
+                onAllAssetsReady();
+            }
+        };
+
+        const onError = (e: Event) => {
+            cleanupListenersForAsset();
+            onAssetError(asset.id, e);
+        };
+
+        const cleanupListenersForAsset = () => {
+            audioElement.removeEventListener('progress', updateAssetProgress);
+            audioElement.removeEventListener('canplaythrough', onCanPlayThrough);
+            audioElement.removeEventListener('error', onError);
+        };
+        
+        audioElement.addEventListener('progress', updateAssetProgress);
+        audioElement.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
+        audioElement.addEventListener('error', onError, { once: true });
+        
+        audioElement.src = asset.src;
+        audioElement.load();
+    });
+  });
+};
