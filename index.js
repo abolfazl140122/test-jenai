@@ -321,6 +321,61 @@ const initLoadingScreen = () => {
 
 
 // --- MAIN MENU LOGIC --- (from src/main-menu.ts)
+const initSettingsPanel = () => {
+  const panel = document.getElementById('settings-panel');
+  const closeButton = panel?.querySelector('.panel-close-button');
+  const app = document.getElementById('app');
+  
+  if (!panel || !closeButton || !app) {
+    console.error('Settings panel elements not found!');
+    return;
+  }
+  
+  const closePanel = () => {
+    panel.classList.remove('visible');
+    app.classList.remove('panel-open');
+  };
+
+  closeButton.addEventListener('click', closePanel);
+};
+
+const initLoadDataPanel = () => {
+  const panel = document.getElementById('load-data-panel');
+  const closeButton = panel?.querySelector('.panel-close-button');
+  const app = document.getElementById('app');
+
+  if (!panel || !closeButton || !app) {
+    console.error('Load data panel elements not found!');
+    return;
+  }
+
+  const closePanel = () => {
+    panel.classList.remove('visible');
+    app.classList.remove('panel-open');
+  };
+
+  closeButton.addEventListener('click', closePanel);
+};
+
+const initStartMissionPanel = () => {
+  const panel = document.getElementById('start-mission-panel');
+  const closeButton = panel?.querySelector('.panel-close-button');
+  const app = document.getElementById('app');
+  
+  if (!panel || !closeButton || !app) {
+    console.error('Start mission panel elements not found!');
+    return;
+  }
+
+  const closePanel = () => {
+    panel.classList.remove('visible');
+    app.classList.remove('panel-open');
+  };
+
+  closeButton.addEventListener('click', closePanel);
+};
+
+
 /**
  * Initializes all interactive elements of the main menu.
  */
@@ -338,7 +393,15 @@ const initMainMenu = () => {
   
   const trailUpdater = setupCursorTrail(isDesktop);
   const parallaxUpdater = setupParallaxBackground();
+  
+  // Setup button functionality (clicks and hovers)
   setupMenuButtonEffects(app);
+  
+  // Initialize panel logic (e.g., close buttons)
+  initSettingsPanel();
+  initLoadDataPanel();
+  initStartMissionPanel();
+  
   setupMotionTracking(isDesktop, (x, y) => {
       inputX = x;
       inputY = y;
@@ -399,11 +462,48 @@ const setupParallaxBackground = () => {
 };
 
 const setupMenuButtonEffects = (appContainer) => {
-    const menuButtons = document.querySelectorAll('.menu-button');
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%&";
     const hoverSfx = document.getElementById('sfx-hover');
 
-    menuButtons.forEach(button => {
+    const startMissionBtn = document.getElementById('start-mission-btn');
+    const loadDataBtn = document.getElementById('load-data-btn');
+    const settingsBtn = document.getElementById('settings-btn');
+    const exitBtn = document.getElementById('exit-btn');
+
+    const settingsPanel = document.getElementById('settings-panel');
+    const loadDataPanel = document.getElementById('load-data-panel');
+    const startMissionPanel = document.getElementById('start-mission-panel');
+    
+    // --- Click Handlers ---
+    startMissionBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        startMissionPanel?.classList.add('visible');
+        appContainer.classList.add('panel-open');
+    });
+
+    loadDataBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        loadDataPanel?.classList.add('visible');
+        appContainer.classList.add('panel-open');
+    });
+
+    settingsBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        settingsPanel?.classList.add('visible');
+        appContainer.classList.add('panel-open');
+    });
+    
+    exitBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        appContainer.style.transition = 'opacity 0.5s ease';
+        appContainer.style.opacity = '0';
+        setTimeout(() => {
+            document.body.innerHTML = `<div style="color: #00ffff; text-align: center; padding: 2rem; height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; font-family: 'Orbitron', sans-serif;"><h1>CONNECTION TERMINATED.</h1><p style="font-family: 'Montserrat', sans-serif;">Thank you for playing BREACH PROTOCOL.</p></div>`;
+        }, 500);
+    });
+
+    // --- Hover Effects ---
+    document.querySelectorAll('.menu-button').forEach(button => {
         const span = button.querySelector('span');
         if (!span) return;
 
@@ -453,6 +553,7 @@ const setupMenuButtonEffects = (appContainer) => {
         button.addEventListener('mouseleave', () => appContainer.classList.remove('menu-hover'));
     });
 };
+
 
 const setupMotionTracking = (isDesktop, onUpdate) => {
   if (isDesktop) {

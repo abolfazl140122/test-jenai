@@ -72,12 +72,93 @@
         <span class="subtitle">SYSTEM KERNEL // v2.5</span>
       </h1>
       <nav id="main-menu">
-        <a href="#" class="menu-button" style="--stagger-delay: 0.1s;"><span data-value="START MISSION">START MISSION</span></a>
-        <a href="#" class="menu-button" style="--stagger-delay: 0.2s;"><span data-value="LOAD DATA">LOAD DATA</span></a>
-        <a href="#" class="menu-button" style="--stagger-delay: 0.3s;"><span data-value="SETTINGS">SETTINGS</span></a>
-        <a href="#" class="menu-button" style="--stagger-delay: 0.4s;"><span data-value="EXIT">EXIT</span></a>
+        <a href="#" id="start-mission-btn" class="menu-button" style="--stagger-delay: 0.1s;"><span data-value="START MISSION">START MISSION</span></a>
+        <a href="#" id="load-data-btn" class="menu-button" style="--stagger-delay: 0.2s;"><span data-value="LOAD DATA">LOAD DATA</span></a>
+        <a href="#" id="settings-btn" class="menu-button" style="--stagger-delay: 0.3s;"><span data-value="SETTINGS">SETTINGS</span></a>
+        <a href="#" id="exit-btn" class="menu-button" style="--stagger-delay: 0.4s;"><span data-value="EXIT">EXIT</span></a>
       </nav>
     </div>
+
+    <!-- ============================================== -->
+    <!-- ================== PANELS ==================== -->
+    <!-- ============================================== -->
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" class="panel">
+      <div class="panel-content">
+        <h2 class="panel-title">// SETTINGS</h2>
+        <div class="settings-group">
+          <label for="master-volume">Master Volume</label>
+          <div class="slider-container">
+            <span>0</span>
+            <input type="range" id="master-volume" min="0" max="100" value="80">
+            <span>100</span>
+          </div>
+        </div>
+        <div class="settings-group">
+          <label for="music-volume">Music Volume</label>
+          <div class="slider-container">
+            <span>0</span>
+            <input type="range" id="music-volume" min="0" max="100" value="60">
+            <span>100</span>
+          </div>
+        </div>
+        <div class="settings-group">
+          <label for="sfx-volume">SFX Volume</label>
+          <div class="slider-container">
+            <span>0</span>
+            <input type="range" id="sfx-volume" min="0" max="100" value="90">
+            <span>100</span>
+          </div>
+        </div>
+        <button class="panel-button panel-close-button">CLOSE</button>
+      </div>
+    </div>
+
+    <!-- Load Data Panel -->
+    <div id="load-data-panel" class="panel">
+      <div class="panel-content">
+        <h2 class="panel-title">// LOAD DATA</h2>
+        <div class="load-slots-container">
+          <div class="load-slot">
+            <span class="slot-name">SAVE SLOT 1</span>
+            <span class="slot-status">[EMPTY]</span>
+          </div>
+          <div class="load-slot">
+            <span class="slot-name">SAVE SLOT 2</span>
+            <span class="slot-status">[EMPTY]</span>
+          </div>
+          <div class="load-slot">
+            <span class="slot-name">SAVE SLOT 3</span>
+            <span class="slot-status">[EMPTY]</span>
+          </div>
+        </div>
+        <button class="panel-button panel-close-button">BACK</button>
+      </div>
+    </div>
+
+    <!-- Start Mission Panel -->
+    <div id="start-mission-panel" class="panel">
+      <div class="panel-content">
+        <h2 class="panel-title">// SELECT MISSION</h2>
+        <div class="mission-list-container">
+          <div class="mission-item">
+            <span class="mission-name">PROLOGUE: THE HEIST</span>
+            <span class="mission-desc">Infiltrate Arasaka Tower and secure the package.</span>
+          </div>
+          <div class="mission-item locked">
+            <span class="mission-name">CHAPTER 1: GHOST IN THE MACHINE</span>
+            <span class="mission-desc">[LOCKED]</span>
+          </div>
+          <div class="mission-item locked">
+            <span class="mission-name">CHAPTER 2: DATA HAVEN</span>
+            <span class="mission-desc">[LOCKED]</span>
+          </div>
+        </div>
+        <button class="panel-button panel-close-button">BACK</button>
+      </div>
+    </div>
+
     <!-- Motion permission dialog for iOS -->
     <div id="motion-permission-overlay" class="hidden">
       <div id="motion-permission-dialog">
