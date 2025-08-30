@@ -111,7 +111,7 @@ html, body {
   font-size: 1.2rem;
   text-transform: uppercase;
   letter-spacing: 0.2rem;
-  cursor: pointer;
+  cursor: none;
   transition: all 0.3s ease;
   margin-top: 1.5rem;
   text-shadow: 0 0 5px #00ffff;
@@ -335,7 +335,7 @@ html, body {
 #loading-text.ready-breach {
   color: #ff4141;
   letter-spacing: 12px;
-  cursor: pointer;
+  cursor: none;
   text-shadow: 0 0 5px #ff1f1f, 0 0 15px #ff1f1f, 0 0 30px #d40000;
   animation: slam-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, pulse-ready 1.5s infinite 0.5s;
 }
@@ -813,7 +813,7 @@ html, body {
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.1rem;
-  cursor: pointer;
+  cursor: none;
   transition: all 0.3s ease;
   margin-top: 1rem;
   box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
@@ -971,7 +971,7 @@ html, body {
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.1rem;
-  cursor: pointer;
+  cursor: none;
   transition: all 0.3s ease;
   margin-top: 1rem;
   align-self: center;
@@ -1029,7 +1029,7 @@ input[type=range]::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   background: #00ffff;
-  cursor: pointer;
+  cursor: none;
   box-shadow: 0 0 10px #00ffff;
   border: 2px solid #0b0c1c;
 }
@@ -1037,7 +1037,7 @@ input[type=range]::-moz-range-thumb {
   width: 20px;
   height: 20px;
   background: #00ffff;
-  cursor: pointer;
+  cursor: none;
   box-shadow: 0 0 10px #00ffff;
   border: 2px solid #0b0c1c;
 }
@@ -1057,7 +1057,7 @@ input[type=range]::-moz-range-thumb {
     justify-content: space-between;
     font-family: 'Montserrat', sans-serif;
     letter-spacing: 0.1rem;
-    cursor: pointer;
+    cursor: none;
     transition: all 0.2s ease-in-out;
 }
 .load-slot:hover {
@@ -1085,7 +1085,7 @@ input[type=range]::-moz-range-thumb {
     padding: 1rem;
     border-left: 3px solid #00ffff;
     background-color: rgba(0, 255, 255, 0.05);
-    cursor: pointer;
+    cursor: none;
     transition: background-color 0.2s;
 }
 .mission-item:hover {
@@ -1106,7 +1106,7 @@ input[type=range]::-moz-range-thumb {
 .mission-item.locked {
     border-left-color: #555;
     background-color: rgba(100, 100, 100, 0.1);
-    cursor: not-allowed;
+    cursor: none;
     color: #999;
 }
 .mission-item.locked .mission-desc {
@@ -1130,7 +1130,7 @@ input[type=range]::-moz-range-thumb {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.1rem;
-  cursor: pointer;
+  cursor: none;
   transition: all 0.3s ease;
   box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
 }

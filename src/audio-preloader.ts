@@ -19,7 +19,7 @@ const audioAssets = [
   {
     id: 'sfx-hover',
     src: 'https://github.com/abolfazl140122/test-jenai/raw/61b25b36b5ec9a32a8f7bb27a9b532818d80390b/glitch-01-231255.mp3',
-    loop: true
+    loop: false
   }
 ];
 
