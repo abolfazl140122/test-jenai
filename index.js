@@ -435,120 +435,250 @@ const initLoadingScreen = () => {
   });
 };
 
-// --- GAME LOGIC ---
-const GRAVITY = 0.5;
-const PLAYER_JUMP_FORCE = -15;
-const PLAYER_MOVE_SPEED = 5;
-const PLAYER_FRICTION = 0.8;
-const PLAYER_SIZE = 50;
+// ==============================================
+// ================ NEW GAME LOGIC ==============
+// ==============================================
 
+// --- GAME CONSTANTS ---
+const GRAVITY = 0.6;
+const PLAYER_JUMP_FORCE = -16;
+const PLAYER_MOVE_SPEED = 6;
+const PLAYER_FRICTION = 0.8;
+const WORLD_WIDTH = 4000;
+
+// --- GAME ASSETS ---
+const PLAYER_SPRITE_SHEET_URL = 'https://i.imgur.com/K3a5YV3.png';
+const playerSpriteSheet = new Image();
+playerSpriteSheet.src = PLAYER_SPRITE_SHEET_URL;
+const assetsLoaded = new Promise((resolve) => {
+    playerSpriteSheet.onload = () => {
+        console.log('Player sprite sheet loaded.');
+        resolve();
+    };
+    playerSpriteSheet.onerror = () => {
+        console.error('Failed to load player sprite sheet.');
+        resolve(); // Resolve anyway so the game doesn't hang
+    };
+});
+
+// --- INPUT HANDLER ---
 class InputHandler {
   constructor() {
     this.keys = new Set();
     this.init();
   }
   init() {
-    window.addEventListener('keydown', (e) => { this.keys.add(e.key.toLowerCase()); });
-    window.addEventListener('keyup', (e) => { this.keys.delete(e.key.toLowerCase()); });
+    window.addEventListener('keydown', (e) => this.keys.add(e.key));
+    window.addEventListener('keyup', (e) => this.keys.delete(e.key));
   }
 }
 
+// --- PLATFORM CLASS ---
+class Platform {
+  constructor(x, y, width, height) {
+    this.x = x;
+    this.y = y;
+    this.width = width;
+    this.height = height;
+  }
+  draw(ctx) {
+    ctx.fillStyle = '#00ffff';
+    ctx.shadowColor = '#00ffff';
+    ctx.shadowBlur = 10;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.fillStyle = '#aaffff';
+    ctx.shadowBlur = 0;
+    ctx.fillRect(this.x, this.y, this.width, 4);
+  }
+}
+
+// --- WORLD GENERATION ---
+const platforms = [];
+function generateWorld(worldWidth, canvasHeight) {
+  platforms.length = 0;
+  const groundLevel = canvasHeight - 80;
+  // Ground platform
+  platforms.push(new Platform(-200, groundLevel, worldWidth + 400, 80));
+  // Floating platforms
+  platforms.push(new Platform(400, groundLevel - 150, 250, 30));
+  platforms.push(new Platform(800, groundLevel - 250, 200, 30));
+  platforms.push(new Platform(1200, groundLevel - 180, 300, 30));
+  platforms.push(new Platform(1350, groundLevel - 350, 150, 30));
+  platforms.push(new Platform(1800, groundLevel - 100, 400, 30));
+  platforms.push(new Platform(2400, groundLevel - 220, 150, 30));
+  platforms.push(new Platform(2600, groundLevel - 350, 150, 30));
+  platforms.push(new Platform(2800, groundLevel - 480, 150, 30));
+  platforms.push(new Platform(3200, groundLevel - 150, 500, 30));
+}
+function drawWorld(ctx) {
+  platforms.forEach(p => p.draw(ctx));
+}
+
+// --- PLAYER CLASS ---
+const FRAME_WIDTH = 48;
+const FRAME_HEIGHT = 48;
+const animations = {
+    idle: { row: 0, frames: 4, speed: 10 },
+    run:  { row: 1, frames: 6, speed: 5 },
+    jump: { row: 2, frames: 1, speed: 1 },
+    fall: { row: 3, frames: 1, speed: 1 },
+};
 class Player {
   constructor(canvasWidth, canvasHeight) {
-    this.width = PLAYER_SIZE;
-    this.height = PLAYER_SIZE;
+    this.width = FRAME_WIDTH;
+    this.height = FRAME_HEIGHT;
     this.x = (canvasWidth - this.width) / 2;
-    this.y = canvasHeight - this.height - 100;
+    this.y = canvasHeight - this.height - 200;
     this.velocityX = 0;
     this.velocityY = 0;
-    this.isJumping = false;
-    this.canvasWidth = canvasWidth;
+    this.isJumping = true;
+    this.currentState = 'idle';
+    this.frameX = 0;
+    this.frameTimer = 0;
+    this.facingDirection = 'right';
   }
 
-  update(input, groundLevel) {
-    if (input.keys.has('arrowleft') || input.keys.has('a')) {
+  setState(newState) {
+    if (this.currentState !== newState) {
+        this.currentState = newState;
+        this.frameX = 0;
+        this.frameTimer = 0;
+    }
+  }
+
+  update(input, platforms) {
+    // Horizontal movement
+    if (input.keys.has('ArrowLeft') || input.keys.has('a')) {
       this.velocityX = -PLAYER_MOVE_SPEED;
-    } else if (input.keys.has('arrowright') || input.keys.has('d')) {
+      this.facingDirection = 'left';
+    } else if (input.keys.has('ArrowRight') || input.keys.has('d')) {
       this.velocityX = PLAYER_MOVE_SPEED;
+      this.facingDirection = 'right';
     } else {
       this.velocityX *= PLAYER_FRICTION;
     }
+    this.x += this.velocityX;
 
-    if ((input.keys.has('arrowup') || input.keys.has('w') || input.keys.has(' ')) && !this.isJumping) {
+    // Vertical movement & gravity
+    this.velocityY += GRAVITY;
+    this.y += this.velocityY;
+    
+    // Collision with platforms
+    let onPlatform = false;
+    for (const platform of platforms) {
+      if (this.x + this.width > platform.x && this.x < platform.x + platform.width) {
+        const previousBottom = (this.y - this.velocityY) + this.height;
+        if (this.velocityY >= 0 && previousBottom <= platform.y && (this.y + this.height) >= platform.y) {
+          this.y = platform.y - this.height;
+          this.velocityY = 0;
+          onPlatform = true;
+          break;
+        }
+      }
+    }
+    this.isJumping = !onPlatform;
+
+    // Jumping
+    if ((input.keys.has('ArrowUp') || input.keys.has('w') || input.keys.has(' ')) && onPlatform) {
       this.velocityY = PLAYER_JUMP_FORCE;
       this.isJumping = true;
     }
 
-    this.velocityY += GRAVITY;
-    this.x += this.velocityX;
-    this.y += this.velocityY;
+    // World bounds collision
+    if (this.x < 0) this.x = 0;
+    if (this.x + this.width > WORLD_WIDTH) this.x = WORLD_WIDTH - this.width;
 
-    if (this.y + this.height > groundLevel) {
-      this.y = groundLevel - this.height;
-      this.velocityY = 0;
-      this.isJumping = false;
+    // Update animation state
+    if (this.isJumping) {
+      this.setState(this.velocityY < 0 ? 'jump' : 'fall');
+    } else if (Math.abs(this.velocityX) > 0.1) {
+      this.setState('run');
+    } else {
+      this.setState('idle');
     }
 
-    if (this.x < 0) this.x = 0;
-    if (this.x + this.width > this.canvasWidth) this.x = this.canvasWidth - this.width;
+    // Update animation frame
+    const anim = animations[this.currentState];
+    this.frameTimer++;
+    if (this.frameTimer > anim.speed) {
+        this.frameTimer = 0;
+        this.frameX = (this.frameX + 1) % anim.frames;
+    }
   }
 
   draw(ctx) {
-    ctx.fillStyle = '#00ffff';
-    ctx.shadowColor = '#00ffff';
-    ctx.shadowBlur = 15;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-    ctx.shadowBlur = 0;
+    ctx.save();
+    let drawX = this.x;
+    if (this.facingDirection === 'left') {
+      ctx.scale(-1, 1);
+      drawX = -this.x - this.width;
+    }
+    const anim = animations[this.currentState];
+    ctx.drawImage(
+      playerSpriteSheet,
+      this.frameX * FRAME_WIDTH,
+      anim.row * FRAME_HEIGHT,
+      FRAME_WIDTH,
+      FRAME_HEIGHT,
+      drawX,
+      this.y,
+      this.width,
+      this.height
+    );
+    ctx.restore();
   }
 }
 
+// --- GAME ENGINE ---
 const gameEngine = {
   canvas: null,
   ctx: null,
+  gameView: null,
   player: null,
   inputHandler: null,
-  groundLevel: 0,
+  cameraX: 0,
+  CAMERA_LERP_FACTOR: 0.1,
 
   init: function() {
     this.canvas = document.getElementById('game-canvas');
-    if (!this.canvas) return console.error('Game canvas not found!');
+    this.gameView = document.getElementById('game-view');
+    if (!this.canvas || !this.gameView) return console.error('Game canvas or view not found!');
     this.ctx = this.canvas.getContext('2d');
     
-    window.addEventListener('resize', this.resizeCanvas.bind(this));
-    this.resizeCanvas();
-
-    this.player = new Player(this.canvas.width, this.canvas.height);
-    this.inputHandler = new InputHandler();
-
-    this.gameLoop();
+    assetsLoaded.then(() => {
+      window.addEventListener('resize', this.resizeCanvas.bind(this));
+      this.resizeCanvas();
+      this.inputHandler = new InputHandler();
+      this.gameLoop();
+    });
   },
 
   resizeCanvas: function() {
     this.canvas.width = window.innerWidth;
     this.canvas.height = window.innerHeight;
-    this.groundLevel = this.canvas.height - 80;
-    if (this.player) {
-      this.player.canvasWidth = this.canvas.width;
+    generateWorld(WORLD_WIDTH, this.canvas.height);
+    if (!this.player) {
+      this.player = new Player(this.canvas.width, this.canvas.height);
     }
   },
 
-  drawGround: function() {
-    this.ctx.strokeStyle = '#00ffff';
-    this.ctx.lineWidth = 4;
-    this.ctx.shadowColor = '#00ffff';
-    this.ctx.shadowBlur = 10;
-    this.ctx.beginPath();
-    this.ctx.moveTo(0, this.groundLevel);
-    this.ctx.lineTo(this.canvas.width, this.groundLevel);
-    this.ctx.stroke();
-    this.ctx.shadowBlur = 0;
-  },
-
   gameLoop: function() {
+    const targetCameraX = this.player.x - (this.canvas.width / 2) + (this.player.width / 2);
+    this.cameraX += (targetCameraX - this.cameraX) * this.CAMERA_LERP_FACTOR;
+    if (this.cameraX < 0) this.cameraX = 0;
+    if (this.cameraX > WORLD_WIDTH - this.canvas.width) this.cameraX = WORLD_WIDTH - this.canvas.width;
+    
+    this.gameView.style.setProperty('--camera-x', `${this.cameraX}`);
+
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.player.update(this.inputHandler, this.groundLevel);
-    this.drawGround();
+    this.ctx.save();
+    this.ctx.translate(-this.cameraX, 0);
+
+    this.player.update(this.inputHandler, platforms);
+    drawWorld(this.ctx);
     this.player.draw(this.ctx);
+
+    this.ctx.restore();
     requestAnimationFrame(this.gameLoop.bind(this));
   }
 };
@@ -803,6 +933,7 @@ const setupMotionTracking = (isDesktop, onUpdate) => {
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     initI18n();
+    audioManager.init(); // Initialize audio manager early
     const app = document.getElementById('app');
     if (!app) return console.error('Main app container #app not found!');
     await initAudioPreloader();
