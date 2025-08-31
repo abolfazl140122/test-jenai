@@ -116,7 +116,7 @@ export const initAudioPreloader = (): Promise<void> => {
             updateOverallProgress();
         };
 
-        const onCanPlayThrough = () => {
+        const onAssetReady = () => {
             cleanupListenersForAsset();
             progressPerAsset[asset.id] = 100;
             updateOverallProgress();
@@ -133,12 +133,12 @@ export const initAudioPreloader = (): Promise<void> => {
 
         const cleanupListenersForAsset = () => {
             audioElement.removeEventListener('progress', updateAssetProgress);
-            audioElement.removeEventListener('canplaythrough', onCanPlayThrough);
+            audioElement.removeEventListener('loadeddata', onAssetReady);
             audioElement.removeEventListener('error', onError);
         };
         
         audioElement.addEventListener('progress', updateAssetProgress);
-        audioElement.addEventListener('canplaythrough', onCanPlayThrough, { once: true });
+        audioElement.addEventListener('loadeddata', onAssetReady, { once: true });
         audioElement.addEventListener('error', onError, { once: true });
         
         audioElement.src = asset.src;
