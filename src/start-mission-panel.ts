@@ -3,13 +3,17 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+import { startGame } from './game/game-view';
 
 export const initStartMissionPanel = () => {
   const panel = document.getElementById('start-mission-panel') as HTMLElement;
-  const closeButton = panel?.querySelector('.panel-close-button') as HTMLButtonElement;
+  if (!panel) return;
+
+  const closeButton = panel.querySelector('.panel-close-button') as HTMLButtonElement;
   const app = document.getElementById('app') as HTMLElement;
+  const missionItems = panel.querySelectorAll('.mission-item');
   
-  if (!panel || !closeButton || !app) {
+  if (!closeButton || !app || missionItems.length === 0) {
     console.error('Start mission panel elements not found!');
     return;
   }
@@ -21,5 +25,18 @@ export const initStartMissionPanel = () => {
 
   closeButton.addEventListener('click', closePanel);
 
-  // Future: Add logic for selecting and starting a mission
+  // Add logic for selecting and starting a mission
+  const prologueMission = missionItems[0] as HTMLElement;
+  if (prologueMission && !prologueMission.classList.contains('locked')) {
+    prologueMission.addEventListener('click', () => {
+      // Fade out menu, then start game
+      app.style.transition = 'opacity 0.5s ease-out';
+      app.style.opacity = '0';
+      
+      setTimeout(() => {
+        app.style.display = 'none';
+        startGame();
+      }, 500);
+    });
+  }
 };
