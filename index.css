@@ -1077,8 +1077,6 @@ input[type=range]::-moz-range-thumb {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    max-height: 40vh;
-    overflow-y: auto;
     padding-right: 1rem;
 }
 .mission-item {

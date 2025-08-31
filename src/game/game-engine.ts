@@ -5,42 +5,55 @@
  */
 import { Player } from './player';
 import { InputHandler } from './input-handler';
+import { WORLD_WIDTH } from './constants';
+import { platforms, generateWorld, drawWorld } from './world';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
+let gameView: HTMLElement;
 let player: Player;
 let inputHandler: InputHandler;
-let groundLevel: number;
+
+let cameraX = 0;
+const CAMERA_LERP_FACTOR = 0.1; // For smooth camera movement
 
 function gameLoop() {
+  // Update camera to follow player smoothly
+  const targetCameraX = player.x - (canvas.width / 2) + (player.width / 2);
+  cameraX += (targetCameraX - cameraX) * CAMERA_LERP_FACTOR;
+
+  // Clamp camera to world bounds to prevent seeing outside the level
+  if (cameraX < 0) cameraX = 0;
+  if (cameraX > WORLD_WIDTH - canvas.width) cameraX = WORLD_WIDTH - canvas.width;
+  
+  // Update parallax background via CSS custom property
+  gameView.style.setProperty('--camera-x', `${cameraX}`);
+
+  // Clear canvas for new frame
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Update game state
-  player.update(inputHandler, groundLevel);
+  // --- Translate canvas for camera view ---
+  ctx.save();
+  ctx.translate(-cameraX, 0);
 
-  // Draw everything
-  drawGround();
+  // Update game state
+  player.update(inputHandler, platforms);
+
+  // Draw everything relative to the world
+  drawWorld(ctx);
   player.draw(ctx);
+
+  // --- Restore canvas context to its original state ---
+  ctx.restore();
 
   requestAnimationFrame(gameLoop);
 }
 
-function drawGround() {
-  ctx.strokeStyle = '#00ffff';
-  ctx.lineWidth = 4;
-  ctx.shadowColor = '#00ffff';
-  ctx.shadowBlur = 10;
-  ctx.beginPath();
-  ctx.moveTo(0, groundLevel);
-  ctx.lineTo(canvas.width, groundLevel);
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-}
-
 export function initGameEngine() {
   canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
-  if (!canvas) {
-    console.error('Game canvas not found!');
+  gameView = document.getElementById('game-view') as HTMLElement;
+  if (!canvas || !gameView) {
+    console.error('Game canvas or game view not found!');
     return;
   }
   ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -48,17 +61,15 @@ export function initGameEngine() {
   const resizeCanvas = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    groundLevel = canvas.height - 80; // Ground is 80px from the bottom
-    if (player) {
-      // re-instantiate player or update its canvas dimensions
-      // for simplicity, we don't handle player re-positioning on resize yet
+    generateWorld(WORLD_WIDTH, canvas.height);
+    if (!player) {
+      player = new Player(canvas.width, canvas.height);
     }
   };
   
   window.addEventListener('resize', resizeCanvas);
   resizeCanvas();
 
-  player = new Player(canvas.width, canvas.height);
   inputHandler = new InputHandler();
 
   gameLoop();

@@ -3,8 +3,9 @@
  * Copyright 2025 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
-import { GRAVITY, PLAYER_JUMP_FORCE, PLAYER_MOVE_SPEED, PLAYER_FRICTION, PLAYER_SIZE } from './constants';
+import { GRAVITY, PLAYER_JUMP_FORCE, PLAYER_MOVE_SPEED, PLAYER_FRICTION, PLAYER_SIZE, WORLD_WIDTH } from './constants';
 import { InputHandler } from './input-handler';
+import { Platform } from './platform';
 
 export class Player {
   public x: number;
@@ -19,14 +20,14 @@ export class Player {
     this.width = PLAYER_SIZE;
     this.height = PLAYER_SIZE;
     this.x = (this.canvasWidth - this.width) / 2;
-    this.y = this.canvasHeight - this.height - 100; // Start above ground
+    this.y = this.canvasHeight - this.height - 200; // Start higher up
     this.velocityX = 0;
     this.velocityY = 0;
-    this.isJumping = false;
+    this.isJumping = true; // Start in the air
   }
 
-  public update(input: InputHandler, groundLevel: number) {
-    // Handle horizontal movement
+  public update(input: InputHandler, platforms: Platform[]) {
+    // 1. Handle horizontal movement
     if (input.keys.has('ArrowLeft') || input.keys.has('a')) {
       this.velocityX = -PLAYER_MOVE_SPEED;
     } else if (input.keys.has('ArrowRight') || input.keys.has('d')) {
@@ -34,33 +35,42 @@ export class Player {
     } else {
       this.velocityX *= PLAYER_FRICTION; // Apply friction
     }
+    this.x += this.velocityX;
 
-    // Handle jumping
-    if ((input.keys.has('ArrowUp') || input.keys.has('w') || input.keys.has(' ')) && !this.isJumping) {
+    // 2. Handle vertical movement
+    this.velocityY += GRAVITY;
+    this.y += this.velocityY;
+    
+    // 3. Check for vertical collision (landing on platforms)
+    let onPlatform = false;
+    for (const platform of platforms) {
+      // Check if player is horizontally aligned with the platform
+      if (this.x + this.width > platform.x && this.x < platform.x + platform.width) {
+        // Check if player was above the platform in the previous frame and is now intersecting it
+        const previousBottom = (this.y - this.velocityY) + this.height;
+        if (this.velocityY >= 0 && previousBottom <= platform.y && (this.y + this.height) >= platform.y) {
+          this.y = platform.y - this.height;
+          this.velocityY = 0;
+          onPlatform = true;
+          break; // Found our ground, no need to check other platforms
+        }
+      }
+    }
+    
+    this.isJumping = !onPlatform;
+
+    // Handle jumping from a platform
+    if ((input.keys.has('ArrowUp') || input.keys.has('w') || input.keys.has(' ')) && onPlatform) {
       this.velocityY = PLAYER_JUMP_FORCE;
       this.isJumping = true;
     }
 
-    // Apply gravity
-    this.velocityY += GRAVITY;
-
-    // Update position
-    this.x += this.velocityX;
-    this.y += this.velocityY;
-
-    // Collision with ground
-    if (this.y + this.height > groundLevel) {
-      this.y = groundLevel - this.height;
-      this.velocityY = 0;
-      this.isJumping = false;
-    }
-
-    // Collision with canvas bounds
+    // Collision with world bounds
     if (this.x < 0) {
       this.x = 0;
     }
-    if (this.x + this.width > this.canvasWidth) {
-      this.x = this.canvasWidth - this.width;
+    if (this.x + this.width > WORLD_WIDTH) {
+      this.x = WORLD_WIDTH - this.width;
     }
   }
 
