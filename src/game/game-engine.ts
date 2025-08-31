@@ -7,6 +7,7 @@ import { Player } from './player';
 import { InputHandler } from './input-handler';
 import { WORLD_WIDTH } from './constants';
 import { platforms, generateWorld, drawWorld } from './world';
+import { assetsLoaded } from './assets';
 
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
@@ -57,20 +58,22 @@ export function initGameEngine() {
     return;
   }
   ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-
-  const resizeCanvas = () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    generateWorld(WORLD_WIDTH, canvas.height);
-    if (!player) {
-      player = new Player(canvas.width, canvas.height);
-    }
-  };
   
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
+  assetsLoaded.then(() => {
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      generateWorld(WORLD_WIDTH, canvas.height);
+      if (!player) {
+        player = new Player(canvas.width, canvas.height);
+      }
+    };
+    
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-  inputHandler = new InputHandler();
+    inputHandler = new InputHandler();
 
-  gameLoop();
+    gameLoop();
+  });
 }
