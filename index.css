@@ -915,6 +915,10 @@ html, body {
 /* ================ PANELS STYLES =============== */
 /* ============================================== */
 
+.hidden {
+  display: none;
+}
+
 .panel {
   position: fixed; /* Use fixed to overlay everything */
   top: 0;

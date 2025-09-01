@@ -41,6 +41,8 @@ const translations: Record<string, Record<string, string>> = {
     'motionTitle': 'Motion Control',
     'motionDesc': 'Enable motion controls for an enhanced experience.',
     'motionEnable': 'Enable',
+    'iranMode': 'Iran Mode',
+    'prologueDescIranMode': 'Getting acquainted with your fears.',
   },
   fa: {
     'audioPreloaderTitle': 'در حال کالیبره کردن سنسورهای صوتی...',
@@ -76,6 +78,8 @@ const translations: Record<string, Record<string, string>> = {
     'motionTitle': 'کنترل حرکتی',
     'motionDesc': 'برای تجربه بهتر، کنترل‌های حرکتی را فعال کنید.',
     'motionEnable': 'فعال کردن',
+    'iranMode': 'حالت ایران',
+    'prologueDescIranMode': 'آشنایی با ترس های خود',
   }
 };
 
