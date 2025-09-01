@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import { startGame } from './game/game-view';
+import { stopMainMenu } from '../main-menu';
 
 export const initStartMissionPanel = () => {
   const panel = document.getElementById('start-mission-panel') as HTMLElement;
@@ -43,6 +44,8 @@ export const initStartMissionPanel = () => {
     app.style.transition = 'opacity 0.5s ease-out';
     app.style.opacity = '0';
     
+    stopMainMenu(); // Stop the menu animation loop
+
     setTimeout(() => {
       app.style.display = 'none';
       startGame();

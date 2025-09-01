@@ -31,5 +31,11 @@ html, body {
     transform: translate(-50%, -50%);
     box-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
     will-change: transform;
+    transition: background-color 0.5s, box-shadow 0.5s;
   }
+}
+
+#cursor-trail.fallen {
+  background-color: #ff4141;
+  box-shadow: 0 0 10px #ff4141, 0 0 20px #ff4141, 0 0 30px #d40000;
 }

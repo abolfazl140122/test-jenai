@@ -9,6 +9,7 @@ import { initSettingsPanel } from './settings-panel';
 import { initLoadDataPanel } from './load-data-panel';
 import { initStartMissionPanel } from './start-mission-panel';
 
+let menuAnimationId: number;
 
 /**
  * Initializes all interactive elements of the main menu.
@@ -45,10 +46,17 @@ export const initMainMenu = () => {
     trailUpdater(inputX, inputY);
     parallaxUpdater(inputX, inputY);
     
-    requestAnimationFrame(animateMenu);
+    menuAnimationId = requestAnimationFrame(animateMenu);
   };
 
   animateMenu();
+};
+
+/**
+ * Stops the main menu animation loop.
+ */
+export const stopMainMenu = () => {
+  cancelAnimationFrame(menuAnimationId);
 };
   
 /**

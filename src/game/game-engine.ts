@@ -5,7 +5,7 @@
  */
 import { Player } from './player';
 import { InputHandler } from './input-handler';
-import { WORLD_WIDTH } from './constants';
+import { GRAVITY, WORLD_WIDTH } from './constants';
 import { platforms, generateWorld, drawWorld } from './world';
 import { assetsLoaded } from './assets';
 
@@ -17,6 +17,106 @@ let inputHandler: InputHandler;
 
 let cameraX = 0;
 const CAMERA_LERP_FACTOR = 0.1; // For smooth camera movement
+
+// --- CURSOR TRAIL LOGIC ---
+let trailElement: HTMLElement;
+const cursorState = {
+  worldX: 0,
+  worldY: 0,
+  vy: 0,
+  mode: 'normal' as 'normal' | 'falling' | 'following',
+};
+const mouseScreenPos = {
+  x: window.innerWidth / 2,
+  y: window.innerHeight / 2,
+};
+const handleMouseMove = (e: MouseEvent) => {
+  mouseScreenPos.x = e.clientX;
+  mouseScreenPos.y = e.clientY;
+};
+
+function initCursorTrail() {
+  trailElement = document.getElementById('cursor-trail') as HTMLElement;
+  if (!trailElement) {
+    console.error('Cursor trail element not found!');
+    return;
+  }
+  
+  trailElement.style.display = 'block';
+  
+  window.addEventListener('mousemove', handleMouseMove);
+  
+  // Trigger the fall after 8 seconds
+  setTimeout(() => {
+    if (cursorState.mode === 'normal') {
+      cursorState.mode = 'falling';
+      trailElement.classList.add('fallen');
+      window.removeEventListener('mousemove', handleMouseMove);
+    }
+  }, 8000);
+}
+
+function updateCursorTrail() {
+  if (!trailElement) return;
+
+  switch (cursorState.mode) {
+    case 'normal': {
+      const targetWorldX = mouseScreenPos.x + cameraX;
+      const targetWorldY = mouseScreenPos.y;
+      cursorState.worldX += (targetWorldX - cursorState.worldX) * 0.2;
+      cursorState.worldY += (targetWorldY - cursorState.worldY) * 0.2;
+      break;
+    }
+    case 'falling': {
+      cursorState.vy += GRAVITY;
+      cursorState.worldY += cursorState.vy;
+
+      for (const platform of platforms) {
+        if (
+          cursorState.worldX > platform.x &&
+          cursorState.worldX < platform.x + platform.width &&
+          cursorState.worldY >= platform.y - 5 && // Check if it's at or below platform top
+          (cursorState.worldY - cursorState.vy) < platform.y -5
+        ) {
+          cursorState.worldY = platform.y - 5;
+          cursorState.vy = 0;
+          cursorState.mode = 'following';
+          break;
+        }
+      }
+      break;
+    }
+    case 'following': {
+      const targetWorldX = player.x + player.width / 2;
+      cursorState.worldX += (targetWorldX - cursorState.worldX) * 0.05;
+
+      cursorState.vy += GRAVITY;
+      cursorState.worldY += cursorState.vy;
+
+      for (const platform of platforms) {
+        const previousY = cursorState.worldY - cursorState.vy;
+        if (
+          cursorState.worldX > platform.x &&
+          cursorState.worldX < platform.x + platform.width &&
+          previousY <= platform.y - 5 &&
+          cursorState.worldY >= platform.y - 5
+        ) {
+          cursorState.worldY = platform.y - 5;
+          cursorState.vy = 0;
+          break;
+        }
+      }
+      break;
+    }
+  }
+
+  const screenX = cursorState.worldX - cameraX;
+  const screenY = cursorState.worldY;
+
+  trailElement.style.transform = `translate(${screenX}px, ${screenY}px)`;
+}
+// --- END CURSOR TRAIL LOGIC ---
+
 
 function gameLoop() {
   // Update camera to follow player smoothly
@@ -39,6 +139,7 @@ function gameLoop() {
 
   // Update game state
   player.update(inputHandler, platforms);
+  updateCursorTrail();
 
   // Draw everything relative to the world
   drawWorld(ctx);
@@ -73,6 +174,7 @@ export function initGameEngine() {
     resizeCanvas();
 
     inputHandler = new InputHandler();
+    initCursorTrail();
 
     gameLoop();
   });
