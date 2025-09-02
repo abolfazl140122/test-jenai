@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -278,7 +279,8 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     return () => clearInterval(interval);
   }, [introFinished]);
 
-  const handleStartClick = () => {
+  const handleStartClick = (e) => {
+    e.preventDefault();
     if (isLoaded) {
       setStartClicked(true);
       // Notify parent component that loading is complete
