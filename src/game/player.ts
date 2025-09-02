@@ -6,18 +6,12 @@
 import { GRAVITY, PLAYER_JUMP_FORCE, PLAYER_MOVE_SPEED, PLAYER_FRICTION, WORLD_WIDTH } from './constants';
 import { InputHandler } from './input-handler';
 import { Platform } from './platform';
-import { playerSpriteSheet } from './assets';
 
-const FRAME_WIDTH = 48;
-const FRAME_HEIGHT = 48;
+const PLAYER_WIDTH = 40;
+const PLAYER_HEIGHT = 60;
 
-// Animation configurations: { row on spritesheet, number of frames, ticks per frame }
-const animations = {
-    idle: { row: 0, frames: 4, speed: 10 },
-    run:  { row: 1, frames: 6, speed: 5 },
-    jump: { row: 2, frames: 1, speed: 1 }, // Just the first frame of the jump animation
-    fall: { row: 3, frames: 1, speed: 1 }, // Just the first frame of the fall animation
-};
+// Animation state keys
+type PlayerState = 'idle' | 'run' | 'jump' | 'fall';
 
 export class Player {
   public x: number;
@@ -29,14 +23,13 @@ export class Player {
   private isJumping: boolean;
 
   // Animation state
-  private currentState: keyof typeof animations = 'idle';
-  private frameX = 0;
-  private frameTimer = 0;
+  private currentState: PlayerState = 'idle';
+  private animationTimer = 0;
   private facingDirection: 'right' | 'left' = 'right';
 
   constructor(private canvasWidth: number, private canvasHeight: number) {
-    this.width = FRAME_WIDTH;
-    this.height = FRAME_HEIGHT;
+    this.width = PLAYER_WIDTH;
+    this.height = PLAYER_HEIGHT;
     this.x = (this.canvasWidth - this.width) / 2;
     this.y = this.canvasHeight - this.height - 200;
     this.velocityX = 0;
@@ -44,11 +37,9 @@ export class Player {
     this.isJumping = true;
   }
 
-  private setState(newState: keyof typeof animations) {
+  private setState(newState: PlayerState) {
     if (this.currentState !== newState) {
         this.currentState = newState;
-        this.frameX = 0;
-        this.frameTimer = 0;
     }
   }
 
@@ -103,40 +94,149 @@ export class Player {
       this.setState('idle');
     }
 
-    // Update animation frame
-    const anim = animations[this.currentState];
-    this.frameTimer++;
-    if (this.frameTimer > anim.speed) {
-        this.frameTimer = 0;
-        this.frameX = (this.frameX + 1) % anim.frames;
-    }
+    // Update animation timer
+    this.animationTimer++;
   }
 
   public draw(ctx: CanvasRenderingContext2D) {
     ctx.save();
     
-    let drawX = this.x;
+    const centerX = this.x + this.width / 2;
+    const centerY = this.y + this.height / 2;
+
     // Flip canvas horizontally if facing left
     if (this.facingDirection === 'left') {
+      ctx.translate(centerX, centerY);
       ctx.scale(-1, 1);
-      // We need to draw at a mirrored coordinate
-      drawX = -this.x - this.width;
+      ctx.translate(-centerX, -centerY);
     }
     
-    const anim = animations[this.currentState];
+    // --- Draw Player ---
+    ctx.strokeStyle = '#00ffff';
+    ctx.lineWidth = 2;
+    ctx.shadowColor = '#00ffff';
+    ctx.shadowBlur = 10;
+    
+    // Body
+    const bodyGradient = ctx.createLinearGradient(this.x, this.y, this.x, this.y + this.height);
+    bodyGradient.addColorStop(0, '#00ffff');
+    bodyGradient.addColorStop(1, '#008f8f');
+    ctx.fillStyle = bodyGradient;
 
-    ctx.drawImage(
-      playerSpriteSheet,
-      this.frameX * FRAME_WIDTH,   // sx (source x)
-      anim.row * FRAME_HEIGHT,    // sy (source y)
-      FRAME_WIDTH,                // sWidth (source width)
-      FRAME_HEIGHT,               // sHeight (source height)
-      drawX,                      // dx (destination x)
-      this.y,                      // dy (destination y)
-      this.width,                 // dWidth (destination width)
-      this.height                 // dHeight (destination height)
-    );
+    const bodyYOffset = this.currentState === 'idle' ? Math.sin(this.animationTimer * 0.05) * 2 : 0;
+    const bodyTilt = this.currentState === 'run' ? Math.sin(this.animationTimer * 0.4) * 0.08 : 0;
+    
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(bodyTilt);
+    ctx.translate(-centerX, -centerY);
+    this.drawRoundedRect(ctx, this.x, this.y + bodyYOffset, this.width, this.height, 10);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = 2;
+    
+    // Eyes
+    const eyeY = this.y + this.height * 0.35 + bodyYOffset;
+    const eyeX1 = this.x + this.width * 0.3;
+    const eyeX2 = this.x + this.width * 0.7;
+    const eyeRadiusX = 5;
+    let eyeRadiusY = 8;
+    
+    if (this.currentState === 'idle' && this.animationTimer % 200 < 5) {
+      eyeRadiusY = 1;
+    }
+    if (this.currentState === 'jump' || this.currentState === 'fall') {
+      eyeRadiusY = 4;
+    }
+    
+    ctx.fillStyle = '#FFF';
+    ctx.beginPath();
+    ctx.ellipse(eyeX1, eyeY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(eyeX2, eyeY, eyeRadiusX, eyeRadiusY, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+
+    // Pupils
+    ctx.fillStyle = '#000';
+    const pupilXOffset = Math.max(-1, Math.min(1, this.velocityX)); // Pupil follows movement
+    ctx.beginPath();
+    ctx.arc(eyeX1 + pupilXOffset, eyeY, 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(eyeX2 + pupilXOffset, eyeY, 2, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Mouth
+    const mouthY = this.y + this.height * 0.65 + bodyYOffset;
+    ctx.beginPath();
+    ctx.moveTo(this.x + this.width * 0.35, mouthY);
+    if(this.currentState === 'jump') {
+        ctx.arc(this.x + this.width * 0.5, mouthY, 5, 0, Math.PI, false);
+    } else {
+        ctx.quadraticCurveTo(this.x + this.width * 0.5, mouthY + 5, this.x + this.width * 0.65, mouthY);
+    }
+    ctx.stroke();
+    
+    // Legs
+    const legWidth = 10;
+    const legHeight = 16;
+    const legY = this.y + this.height - 5;
+    
+    let leg1Angle = 0;
+    let leg2Angle = 0;
+
+    if (this.currentState === 'run') {
+        leg1Angle = Math.sin(this.animationTimer * 0.4) * 0.8;
+        leg2Angle = -Math.sin(this.animationTimer * 0.4) * 0.8;
+    } else if (this.currentState === 'jump' || this.currentState === 'fall') {
+        leg1Angle = 0.3;
+        leg2Angle = -0.3;
+    }
+
+    ctx.fillStyle = bodyGradient;
+    ctx.strokeStyle = '#00ffff';
+    ctx.lineWidth = 2;
+    ctx.shadowBlur = 5;
+
+    // Leg 1
+    ctx.save();
+    ctx.translate(this.x + this.width * 0.3, legY);
+    ctx.rotate(leg1Angle);
+    this.drawRoundedRect(ctx, -legWidth/2, 0, legWidth, legHeight, 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+    
+    // Leg 2
+    ctx.save();
+    ctx.translate(this.x + this.width * 0.7, legY);
+    ctx.rotate(leg2Angle);
+    this.drawRoundedRect(ctx, -legWidth/2, 0, legWidth, legHeight, 4);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
 
     ctx.restore();
+  }
+  
+  private drawRoundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + width - radius, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+    ctx.lineTo(x + width, y + height - radius);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+    ctx.lineTo(x + radius, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+    ctx.closePath();
   }
 }
