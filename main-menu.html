@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Main Menu - The Abyss</title>
+    <meta name="description" content="Main menu for the horror game." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        /* Global Styles */
+        html, body, #root {
+          margin: 0;
+          padding: 0;
+          width: 100%;
+          height: 100%;
+          overflow: hidden;
+          font-family: 'Creepster', cursive;
+          background: radial-gradient(ellipse at center, #2e0000 0%, #000 75%);
+          color: #ff0000;
+          animation: backgroundPulse 7s infinite ease-in-out;
+        }
+
+        /* Keyframes */
+        @keyframes pulse {
+          0% { transform: scale(1); filter: drop-shadow(0 0 5px #ff0000); }
+          50% { transform: scale(1.03); filter: drop-shadow(0 0 15px #ff0000); }
+          100% { transform: scale(1); filter: drop-shadow(0 0 5px #ff0000); }
+        }
+        @keyframes float {
+          0% { transform: translateY(0px); }
+          50% { transform: translateY(-10px); }
+          100% { transform: translateY(0px); }
+        }
+        @keyframes flicker {
+          0%, 18%, 22%, 25%, 53%, 57%, 100% {
+            text-shadow:
+              0 0 5px #fff, 0 0 10px #fff, 0 0 15px #fff,
+              0 0 20px #ff0000, 0 0 35px #ff0000, 0 0 40px #ff0000,
+              0 0 50px #ff0000, 0 0 75px #ff0000;
+            opacity: 1;
+          }
+          20%, 24%, 55% { text-shadow: none; opacity: 0.7; }
+        }
+        @keyframes backgroundSwirl {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        @keyframes tapGlow {
+            0%, 100% { text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff0000; }
+            50% { text-shadow: 0 0 20px #ff4d4d, 0 0 40px #ff0000, 0 0 50px #b40000; }
+        }
+        @keyframes screenShake {
+          0%, 100% { transform: translate(0, 0); }
+          10%, 30%, 50%, 70%, 90% { transform: translate(-2px, 2px); }
+          20%, 40%, 60%, 80% { transform: translate(2px, -2px); }
+        }
+        @keyframes logoSlam {
+            0% { transform: scale(25); opacity: 0; }
+            80% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes revealFlash {
+            from { 
+                background: radial-gradient(circle, rgba(255,0,0,0.9) 0%, rgba(0,0,0,0) 20%);
+                opacity: 1;
+            }
+            to { 
+                background: radial-gradient(circle, rgba(100,0,0,0.4) 0%, rgba(0,0,0,0) 60%, rgba(0,0,0,1) 80%),
+                            radial-gradient(circle, rgba(50,0,0,0.5) 0%, rgba(0,0,0,0) 70%);
+                opacity: 1;
+            }
+        }
+        @keyframes barGlitchIn {
+            0% { opacity: 0; transform: scaleX(0); }
+            60% { opacity: 1; transform: scaleX(1.1); }
+            100% { opacity: 1; transform: scaleX(1); }
+        }
+        @keyframes backgroundPulse {
+          0% { box-shadow: inset 0 0 80px 40px #000; }
+          50% { box-shadow: inset 0 0 120px 60px rgba(100, 0, 0, 0.3); }
+          100% { box-shadow: inset 0 0 80px 40px #000; }
+        }
+        @keyframes grain {
+          0%, 100% { transform: translate(0, 0); } 10% { transform: translate(-1%, -1%); } 20% { transform: translate(1%, 1%); } 30% { transform: translate(-2%, 2%); } 40% { transform: translate(2%, -2%); } 50% { transform: translate(-1%, 2%); } 60% { transform: translate(2%, 1%); } 70% { transform: translate(1%, -2%); } 80% { transform: translate(-2%, -1%); } 90% { transform: translate(1%, 2%); }
+        }
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-5px); } 40%, 80% { transform: translateX(5px); }
+        }
+        @keyframes textFlicker {
+            0%, 100% { text-shadow: 0 0 5px #ff0000; color: #ff0000; }
+            50% { text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff0000; color: #ff4d4d; }
+        }
+        @keyframes inputGlow {
+            0%, 100% { box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
+            50% { box-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff0000, 0 0 30px #b40000; }
+        }
+        @keyframes neonGlow {
+          0%, 100% { text-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; color: #ff0000; }
+          50% { text-shadow: 0 0 10px #ff4d4d, 0 0 20px #ff0000, 0 0 30px #ff0000; color: #ff4d4d; }
+        }
+        @keyframes buttonClick {
+          0% { transform: scale(1); }
+          50% { transform: scale(0.95); box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
+          100% { transform: scale(1); }
+        }
+        @keyframes menuSlideIn {
+          from { transform: translateX(100%); opacity: 0; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Main Menu Styles */
+        .main-menu-container {
+          display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100%; text-align: center; padding: 20px; box-sizing: border-box;
+        }
+        .title {
+          font-size: clamp(3rem, 10vw, 5rem);
+          margin-bottom: 20px;
+          animation: neonGlow 2.5s infinite ease-in-out;
+        }
+        .welcome-text {
+          font-size: 1.2rem;
+          margin-bottom: 40px;
+          animation: textFlicker 5s linear infinite;
+        }
+        .menu-list {
+          display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 300px; animation: menuSlideIn 1s ease-out forwards;
+        }
+        .menu-button {
+          background-color: rgba(0, 0, 0, 0.7); color: #ff0000; border: 2px solid #ff0000; padding: 15px 0; font-family: 'Creepster', cursive; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        .menu-button:hover {
+          transform: scale(1.05); box-shadow: 0 0 20px #ff4d4d, 0 0 40px #ff0000;
+        }
+        .menu-button:active { animation: buttonClick 0.5s ease-out; }
+        .menu-button.active {
+          animation: buttonHover 0.7s infinite ease-in-out; background-color: #ff0000; color: #000;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="text/babel">
+const { useState, useEffect } = React;
+
+// Component for the main game menu
+const MainMenu = () => {
+  const [activeButton, setActiveButton] = useState(null);
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+      const savedName = localStorage.getItem('userName');
+      if (savedName) {
+          setUserName(savedName);
+      } else {
+          // If no name is found, redirect back to the registration page
+          window.location.href = 'sabt-name.html';
+      }
+  }, []);
+
+  const handleButtonClick = (buttonName) => {
+    setActiveButton(buttonName);
+    console.log(`${buttonName} button clicked!`);
+    setTimeout(() => setActiveButton(null), 500);
+  };
+
+  return (
+    <div className="main-menu-container">
+      <h1 className="title">
+        THE ABYSS
+      </h1>
+      {userName && <p className="welcome-text">The Abyss awaits, {userName}</p>}
+      <div className="menu-list">
+        <button
+          className={`menu-button ${activeButton === 'start' ? 'active' : ''}`}
+          onClick={() => handleButtonClick('start')}
+        >
+          Start
+        </button>
+        <button
+          className={`menu-button ${activeButton === 'options' ? 'active' : ''}`}
+          onClick={() => handleButtonClick('options')}
+        >
+          Options
+        </button>
+        <button
+          className={`menu-button ${activeButton === 'credits' ? 'active' : ''}`}
+          onClick={() => handleButtonClick('credits')}
+        >
+          Credits
+        </button>
+        <button
+          className={`menu-button ${activeButton === 'exit' ? 'active' : ''}`}
+          onClick={() => handleButtonClick('exit')}
+        >
+          Exit
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<MainMenu />);
+    </script>
+  </body>
+</html>
