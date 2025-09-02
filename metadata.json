@@ -1,4 +1,5 @@
 {
-  "name": "test jenai",
-  "description": "A cinematic loading screen for a horizontal mobile game, featuring a glowing logo and animated progress bar."
+  "name": "Scary Game Loading Screen",
+  "description": "A scary, atmospheric loading screen for a mobile game, featuring a creepy pulsating logo and a glowing progress bar.",
+  "requestFramePermissions": []
 }
