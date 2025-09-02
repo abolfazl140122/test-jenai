@@ -1,162 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
-// Component for the initial loading screen
-const LoadingScreen = ({ onLoadingComplete }) => {
-  const [progress, setProgress] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [startClicked, setStartClicked] = useState(false);
-  const [introFinished, setIntroFinished] = useState(false);
-
-  useEffect(() => {
-    const introTimer = setTimeout(() => {
-      setIntroFinished(true);
-    }, 1500);
-    return () => clearTimeout(introTimer);
-  }, []);
-
-  useEffect(() => {
-    if (!introFinished) return;
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsLoaded(true);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 60);
-    return () => clearInterval(interval);
-  }, [introFinished]);
-
-  const handleStartClick = () => {
-    if (isLoaded) {
-      setStartClicked(true);
-      // Notify parent component that loading is complete
-      setTimeout(() => onLoadingComplete(), 500);
-    }
-  };
-
-  const logoUrl = 'https://up.20script.ir/file/e71f-gemini-2-5-flash-image-preview-nano-banana-میخوام-دست-هایشان-پی.png';
-
-  return (
-    <div 
-      className={`loading-container ${introFinished ? 'intro-finished' : ''} ${startClicked ? 'shake' : ''}`} 
-      role="application" 
-      aria-busy={!isLoaded} 
-      aria-label="Game is loading"
-      onClick={handleStartClick}
-    >
-      <img src={logoUrl} alt="Game Logo" className="logo" />
-      <div className="progress-bar-container" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-        <div className="progress-bar" style={{ width: `${progress}%` }}></div>
-      </div>
-      <div 
-        className={`loading-text ${isLoaded ? 'tap-to-start' : 'loading'}`} 
-        aria-live="polite"
-      >
-        {isLoaded ? 'TAP TO START' : 'LOADING...'}
-      </div>
-    </div>
-  );
-};
-
-// Component for user name registration
-const SabtName = ({ onNameSubmit }) => {
-  const [userName, setUserName] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isShaking, setIsShaking] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (userName.trim() === '') {
-      setIsShaking(true);
-      setTimeout(() => setIsShaking(false), 800);
-      return;
-    }
-    setIsSubmitted(true);
-    // Submit the name and proceed
-    setTimeout(() => onNameSubmit(userName), 1000); 
-  };
-
-  return (
-    <div className="sabt-name-container">
-      <div className="form-card">
-        {!isSubmitted ? (
-          <form onSubmit={handleSubmit}>
-            <h1>Enter your name</h1>
-            <p>The shadows are waiting...</p>
-            <div className={`form-group ${isShaking ? 'shake' : ''}`}>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Your Name Here"
-                aria-label="Enter your name"
-                required
-              />
-            </div>
-            <button type="submit" className="button-glow">
-              Submit
-            </button>
-          </form>
-        ) : (
-          <div>
-            <h1 className="success-message">Welcome, {userName}.</h1>
-            <p>The ritual has begun...</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Component for the main game menu
-const MainMenu = () => {
-  const [activeButton, setActiveButton] = useState(null);
-
-  const handleButtonClick = (buttonName) => {
-    setActiveButton(buttonName);
-    console.log(`${buttonName} button clicked!`);
-    setTimeout(() => setActiveButton(null), 500);
-  };
-
-  return (
-    <div className="main-menu-container">
-      <h1 className="title">
-        THE ABYSS
-      </h1>
-      <div className="menu-list">
-        <button
-          className={`menu-button ${activeButton === 'start' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('start')}
-        >
-          Start
-        </button>
-        <button
-          className={`menu-button ${activeButton === 'options' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('options')}
-        >
-          Options
-        </button>
-        <button
-          className={`menu-button ${activeButton === 'credits' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('credits')}
-        >
-          Credits
-        </button>
-        <button
-          className={`menu-button ${activeButton === 'exit' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('exit')}
-        >
-          Exit
-        </button>
-      </div>
-    </div>
-  );
-};
-
 // Main App component to handle routing
 const App = () => {
   const [currentPage, setCurrentPage] = useState('loading');
@@ -173,6 +17,162 @@ const App = () => {
   const handleNameSubmit = (name) => {
     localStorage.setItem('userName', name);
     setCurrentPage('main_menu');
+  };
+
+  // Component for the initial loading screen
+  const LoadingScreen = ({ onLoadingComplete }) => {
+    const [progress, setProgress] = useState(0);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [startClicked, setStartClicked] = useState(false);
+    const [introFinished, setIntroFinished] = useState(false);
+
+    useEffect(() => {
+      const introTimer = setTimeout(() => {
+        setIntroFinished(true);
+      }, 1500);
+      return () => clearTimeout(introTimer);
+    }, []);
+
+    useEffect(() => {
+      if (!introFinished) return;
+      const interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 100) {
+            clearInterval(interval);
+            setIsLoaded(true);
+            return 100;
+          }
+          return prev + 1;
+        });
+      }, 60);
+      return () => clearInterval(interval);
+    }, [introFinished]);
+
+    const handleStartClick = () => {
+      if (isLoaded) {
+        setStartClicked(true);
+        // Notify parent component that loading is complete
+        setTimeout(() => onLoadingComplete(), 500);
+      }
+    };
+
+    const logoUrl = 'https://up.20script.ir/file/e71f-gemini-2-5-flash-image-preview-nano-banana-میخوام-دست-هایشان-پی.png';
+
+    return (
+      <div 
+        className={`loading-container ${introFinished ? 'intro-finished' : ''} ${startClicked ? 'shake' : ''}`} 
+        role="application" 
+        aria-busy={!isLoaded} 
+        aria-label="Game is loading"
+        onClick={handleStartClick}
+      >
+        <img src={logoUrl} alt="Game Logo" className="logo" />
+        <div className="progress-bar-container" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+        </div>
+        <div 
+          className={`loading-text ${isLoaded ? 'tap-to-start' : 'loading'}`} 
+          aria-live="polite"
+        >
+          {isLoaded ? 'TAP TO START' : 'LOADING...'}
+        </div>
+      </div>
+    );
+  };
+
+  // Component for user name registration
+  const SabtName = ({ onNameSubmit }) => {
+    const [userName, setUserName] = useState('');
+    const [isSubmitted, setIsSubmitted] = useState(false);
+    const [isShaking, setIsShaking] = useState(false);
+
+    const handleSubmit = (e) => {
+      e.preventDefault();
+      if (userName.trim() === '') {
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 800);
+        return;
+      }
+      setIsSubmitted(true);
+      // Submit the name and proceed
+      setTimeout(() => onNameSubmit(userName), 1000); 
+    };
+
+    return (
+      <div className="sabt-name-container">
+        <div className="form-card">
+          {!isSubmitted ? (
+            <form onSubmit={handleSubmit}>
+              <h1>Enter your name</h1>
+              <p>The shadows are waiting...</p>
+              <div className={`form-group ${isShaking ? 'shake' : ''}`}>
+                <input
+                  type="text"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  placeholder="Your Name Here"
+                  aria-label="Enter your name"
+                  required
+                />
+              </div>
+              <button type="submit" className="button-glow">
+                Submit
+              </button>
+            </form>
+          ) : (
+            <div>
+              <h1 className="success-message">Welcome, {userName}.</h1>
+              <p>The ritual has begun...</p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // Component for the main game menu
+  const MainMenu = () => {
+    const [activeButton, setActiveButton] = useState(null);
+
+    const handleButtonClick = (buttonName) => {
+      setActiveButton(buttonName);
+      console.log(`${buttonName} button clicked!`);
+      setTimeout(() => setActiveButton(null), 500);
+    };
+
+    return (
+      <div className="main-menu-container">
+        <h1 className="title">
+          THE ABYSS
+        </h1>
+        <div className="menu-list">
+          <button
+            className={`menu-button ${activeButton === 'start' ? 'active' : ''}`}
+            onClick={() => handleButtonClick('start')}
+          >
+            Start
+          </button>
+          <button
+            className={`menu-button ${activeButton === 'options' ? 'active' : ''}`}
+            onClick={() => handleButtonClick('options')}
+          >
+            Options
+          </button>
+          <button
+            className={`menu-button ${activeButton === 'credits' ? 'active' : ''}`}
+            onClick={() => handleButtonClick('credits')}
+          >
+            Credits
+          </button>
+          <button
+            className={`menu-button ${activeButton === 'exit' ? 'active' : ''}`}
+            onClick={() => handleButtonClick('exit')}
+          >
+            Exit
+          </button>
+        </div>
+      </div>
+    );
   };
 
   const renderPage = () => {
@@ -293,15 +293,7 @@ const App = () => {
 
         /* Grain Overlay */
         .grain-overlay::after {
-            content: '';
-            position: absolute;
-            top: -10%; left: -10%; width: 120%; height: 120%;
-            box-shadow: inset 0 0 10vw 5vw #000;
-            z-index: -1;
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><filter id="n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.5"/></svg>');
-            background-size: 100px;
-            opacity: 0.1;
-            animation: grain 0.4s steps(1, end) infinite;
+            content: ''; position: absolute; top: -10%; left: -10%; width: 120%; height: 120%; box-shadow: inset 0 0 10vw 5vw #000; z-index: -1; background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><filter id="n" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.5"/></svg>'); background-size: 100px; opacity: 0.1; animation: grain 0.4s steps(1, end) infinite;
         }
 
         /* Loading Screen Styles */
