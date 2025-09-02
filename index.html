@@ -27,10 +27,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
     
-    <!-- Load React and ReactDOM from CDN -->
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         /* Global Styles */
         html, body, #root {
@@ -131,6 +127,10 @@
         @keyframes menuSlideIn {
           from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
+        }
+         @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.95); }
+          to { opacity: 1; transform: scale(1); }
         }
 
         /* Grain Overlay */
@@ -243,218 +243,111 @@
         .menu-button.active {
           animation: buttonHover 0.7s infinite ease-in-out; background-color: #ff0000; color: #000;
         }
+
+        /* Generic Page Styles for new screens */
+        .page-container {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+          padding: 20px;
+          box-sizing: border-box;
+          animation: fadeIn 1s ease-out forwards;
+          opacity: 0;
+        }
+        .page-title {
+          font-size: clamp(3rem, 10vw, 4rem);
+          margin-bottom: 40px;
+          animation: neonGlow 3s infinite ease-in-out;
+        }
+        .page-content {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px 40px;
+            border: 1px solid #ff0000;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        .page-content p {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            animation: textFlicker 5s linear infinite;
+        }
+        .back-button {
+          margin-top: 40px;
+          background-color: transparent;
+          color: #ff0000;
+          border: 2px solid #ff0000;
+          padding: 10px 25px;
+          font-family: 'Creepster', cursive;
+          font-size: 1.5rem;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+        .back-button:hover {
+          background-color: #ff0000;
+          color: #000;
+          box-shadow: 0 0 20px #ff4d4d, 0 0 40px #ff0000;
+        }
+
+        /* Level Select Styles */
+        .level-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 25px;
+          width: 100%;
+          max-width: 600px;
+        }
+        .level-card {
+          aspect-ratio: 1 / 1;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: rgba(100, 0, 0, 0.2);
+          border: 2px solid #ff0000;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-size: 3rem;
+          box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
+          animation: inputGlow 4s infinite ease-in-out;
+        }
+        .level-card:not(.locked):hover {
+          transform: scale(1.1);
+          background: rgba(255, 0, 0, 0.4);
+          box-shadow: 0 0 20px #ff4d4d, 0 0 40px #ff0000;
+        }
+        .level-card.locked {
+          background: rgba(50, 50, 50, 0.2);
+          border-color: #555;
+          color: #555;
+          cursor: not-allowed;
+          filter: grayscale(1);
+          animation: none;
+        }
+        .lock-icon {
+            font-size: 4rem;
+        }
     </style>
-  </head>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1"
+  }
+}
+</script>
+</head>
   <body>
     <div id="root"></div>
-    <script type="text/babel">
-const { useState, useEffect } = React;
-
-// Component for the initial loading screen
-const LoadingScreen = ({ onLoadingComplete }) => {
-  const [progress, setProgress] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [startClicked, setStartClicked] = useState(false);
-  const [introFinished, setIntroFinished] = useState(false);
-
-  useEffect(() => {
-    const introTimer = setTimeout(() => {
-      setIntroFinished(true);
-    }, 1500);
-    return () => clearTimeout(introTimer);
-  }, []);
-
-  useEffect(() => {
-    if (!introFinished) return;
-    const interval = setInterval(() => {
-      setProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsLoaded(true);
-          return 100;
-        }
-        return prev + 1;
-      });
-    }, 60);
-    return () => clearInterval(interval);
-  }, [introFinished]);
-
-  const handleStartClick = (e) => {
-    e.preventDefault();
-    if (isLoaded) {
-      setStartClicked(true);
-      // Notify parent component that loading is complete
-      setTimeout(() => onLoadingComplete(), 500);
-    }
-  };
-
-  const logoUrl = 'https://up.20script.ir/file/e71f-gemini-2-5-flash-image-preview-nano-banana-میخوام-دست-هایشان-پی.png';
-
-  return (
-    <div 
-      className={`loading-container ${introFinished ? 'intro-finished' : ''} ${startClicked ? 'shake' : ''}`} 
-      role="application" 
-      aria-busy={!isLoaded} 
-      aria-label="Game is loading"
-      onClick={handleStartClick}
-    >
-      <img src={logoUrl} alt="Game Logo" className="logo" />
-      <div className="progress-bar-container" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-        <div className="progress-bar" style={{ width: `${progress}%` }}></div>
-      </div>
-      <div 
-        className={`loading-text ${isLoaded ? 'tap-to-start' : 'loading'}`} 
-        aria-live="polite"
-      >
-        {isLoaded ? 'TAP TO START' : 'LOADING...'}
-      </div>
-    </div>
-  );
-};
-
-// Component for user name registration
-const SabtName = ({ onNameSubmit }) => {
-  const [userName, setUserName] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isShaking, setIsShaking] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (userName.trim() === '') {
-      setIsShaking(true);
-      setTimeout(() => setIsShaking(false), 800);
-      return;
-    }
-    setIsSubmitted(true);
-    // Submit the name after a short delay
-    setTimeout(() => onNameSubmit(userName), 1000); 
-  };
-
-  return (
-    <div className="sabt-name-container">
-      <div className="form-card">
-        {!isSubmitted ? (
-          <form onSubmit={handleSubmit}>
-            <h1>Enter your name</h1>
-            <p>The shadows are waiting...</p>
-            <div className={`form-group ${isShaking ? 'shake' : ''}`}>
-              <input
-                type="text"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                placeholder="Your Name Here"
-                aria-label="Enter your name"
-                required
-              />
-            </div>
-            <button type="submit" className="button-glow">
-              Submit
-            </button>
-          </form>
-        ) : (
-          <div>
-            <h1 className="success-message">Welcome, {userName}.</h1>
-            <p>The ritual has begun...</p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-};
-
-// Component for the main game menu
-const MainMenu = () => {
-  const [activeButton, setActiveButton] = useState(null);
-  const [userName, setUserName] = useState('');
-
-  useEffect(() => {
-      const savedName = localStorage.getItem('userName');
-      if (savedName) {
-          setUserName(savedName);
-      }
-  }, []);
-
-  const handleButtonClick = (buttonName) => {
-    setActiveButton(buttonName);
-    console.log(`${buttonName} button clicked!`);
-    setTimeout(() => setActiveButton(null), 500);
-  };
-
-  return (
-    <div className="main-menu-container">
-      <h1 className="title">
-        THE ABYSS
-      </h1>
-      {userName && <p className="welcome-text">The Abyss awaits, {userName}</p>}
-      <div className="menu-list">
-        <button
-          className={`menu-button ${activeButton === 'start' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('start')}
-        >
-          Start
-        </button>
-        <button
-          className={`menu-button ${activeButton === 'options' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('options')}
-        >
-          Options
-        </button>
-        <button
-          className={`menu-button ${activeButton === 'credits' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('credits')}
-        >
-          Credits
-        </button>
-        <button
-          className={`menu-button ${activeButton === 'exit' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('exit')}
-        >
-          Exit
-        </button>
-      </div>
-    </div>
-  );
-};
-
-
-const App = () => {
-  const [gameState, setGameState] = useState('loading'); // 'loading', 'sabt-name', 'main-menu'
-
-  const handleLoadingComplete = () => {
-    const savedName = localStorage.getItem('userName');
-    if (savedName) {
-      setGameState('main-menu');
-    } else {
-      setGameState('sabt-name');
-    }
-  };
-  
-  const handleNameSubmit = (name) => {
-    localStorage.setItem('userName', name);
-    // Wait for success message to show before changing screen
-    setTimeout(() => {
-        setGameState('main-menu');
-    }, 1500);
-  };
-
-  const renderState = () => {
-    switch(gameState) {
-      case 'loading':
-        return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
-      case 'sabt-name':
-        return <SabtName onNameSubmit={handleNameSubmit} />;
-      case 'main-menu':
-        return <MainMenu />;
-      default:
-        return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
-    }
-  };
-
-  return renderState();
-};
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
-    </script>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
