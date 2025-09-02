@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -142,7 +141,8 @@ const App = () => {
           height: 100%;
           overflow: hidden;
           font-family: 'Creepster', cursive;
-          background: radial-gradient(ellipse at center, #1a1a1a 0%, #000 75%);
+          /* Updated background to a red-black theme */
+          background: radial-gradient(ellipse at center, #2e0000 0%, #000 75%);
           animation: backgroundPulse 7s infinite ease-in-out;
         }
 
@@ -154,7 +154,7 @@ const App = () => {
           align-items: center;
           width: 100%;
           height: 100%;
-          background: transparent; /* Changed from #000 to transparent */
+          background: transparent;
           color: #ff0000;
           text-align: center;
           user-select: none;
