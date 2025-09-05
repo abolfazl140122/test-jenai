@@ -205,7 +205,7 @@ const CreditsScreen = ({ onBack }) => {
 const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
     const levels = [
         { id: 1, name: 'The Awakening' },
-        { id: 2, name: 'Echoing Halls' },
+        { id: 2, name: 'قواعد بازی' },
         { id: 3, name: 'The Cellar' },
         { id: 4, name: 'Crimson Library' },
         { id: 5, name: 'The Ritual' },
@@ -217,6 +217,8 @@ const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
         
         if (level.id === 1) {
             onNavigate('level-one');
+        } else if (level.id === 2) {
+            onNavigate('level-two');
         } else {
             console.log(`Clicked on level: ${level.name}`);
         }
@@ -348,9 +350,119 @@ const LevelOneScreen = ({ onBack, onWin }) => {
     );
 };
 
+// Level Two Screen
+const LevelTwoScreen = ({ onBack, onWin }) => {
+    const [scenarioIndex, setScenarioIndex] = useState(0);
+    const [systemMessage, setSystemMessage] = useState('');
+    const [isFinished, setIsFinished] = useState(false);
+    const [endState, setEndState] = useState(null); // 'fired', 'whistleblower', 'bad-win', 'good-win'
+    const [containerKey, setContainerKey] = useState(Date.now());
+
+    const scenarios = [
+        {
+            text: 'به خاطر عملکرد خوبت، مدیرعامل به تو پیشنهاد ترفیع می‌دهد. تنها شرط این است که همکارت که به این شغل نیاز دارد را اخراج کنی.',
+            options: [
+                { id: 'A', text: '«قبول می‌کنم. پیشرفت مهم‌تر است.»' },
+                { id: 'B', text: '«رد می‌کنم. وجدانم را نمی‌فروشم.»' }
+            ]
+        },
+        {
+            text: 'تو به اسنادی دست پیدا می‌کنی که نشان می‌دهد شرکت به مردم دروغ می‌گوید. می‌توانی آن‌ها را فاش کنی.',
+            options: [
+                { id: 'A', text: '«اسناد را نابود می‌کنم. امنیتم در خطر است.»' },
+                { id: 'B', text: '«حقیقت را فاش می‌کنم. مردم باید بدانند.»' }
+            ]
+        },
+        {
+            text: 'تو قواعد بازی را یاد گرفتی. حالا دو راه پیش روی توست.',
+            options: [
+                { id: 'A', text: '«مسیر موفقیت: یک درب طلایی که روی آن نوشته شده "آینده درخشان".»' },
+                { id: 'B', text: '«مسیر آزادی: یک کوچه تاریک و باریک بدون هیچ تابلویی.»' }
+            ]
+        }
+    ];
+
+    const handleChoice = (choiceId) => {
+        if (scenarioIndex === 0) {
+            if (choiceId === 'A') {
+                setSystemMessage('«هوشمندانه بود. بقا از آنِ سازگاران است.»');
+                setScenarioIndex(1);
+            } else { // 'B'
+                setSystemMessage('«احساسات جلوی پیشرفت را می‌گیرد. تو اخراج شدی.»');
+                setIsFinished(true);
+                setEndState('fired');
+            }
+        } else if (scenarioIndex === 1) {
+            if (choiceId === 'A') {
+                setSystemMessage('«عاقلانه است. گاهی حقیقت باید دفن شود تا سیستم پابرجا بماند.»');
+                setScenarioIndex(2);
+            } else { // 'B'
+                setIsFinished(true);
+                setEndState('whistleblower');
+            }
+        } else if (scenarioIndex === 2) {
+            if (choiceId === 'A') {
+                setSystemMessage('«تو بازی را بردی، اما در زمین آن‌ها. به قفس طلایی خوش آمدی.»');
+                setIsFinished(true);
+                setEndState('bad-win');
+            } else { // 'B'
+                setSystemMessage('«تو انتخاب کردی که بازی نکنی. این بزرگترین برد است.»');
+                setIsFinished(true);
+                setEndState('good-win');
+                setTimeout(() => onWin(), 2000);
+            }
+        }
+        setContainerKey(Date.now());
+    };
+
+    const resetLevel = () => {
+        setScenarioIndex(0);
+        setSystemMessage('');
+        setIsFinished(false);
+        setEndState(null);
+        setContainerKey(Date.now());
+    };
+
+    if (endState === 'whistleblower') {
+        return (
+            <div className="blackout-screen">
+                <p>«بعضی حقیقت‌ها آنقدر بزرگ هستند که گوینده را می‌بلعند. بازی برای تو تمام شد.»</p>
+                <button className="button-glow" onClick={resetLevel} style={{marginTop: '40px'}}>شروع مجدد</button>
+            </div>
+        )
+    }
+
+    return (
+        <div className="level-two-screen page-container">
+            <div className="scenario-container" key={containerKey}>
+                {isFinished ? (
+                    <div className="result-container">
+                        <p className="system-voice">{systemMessage}</p>
+                        {endState === 'fired' && <button className="button-glow" onClick={resetLevel}>شروع مجدد مرحله</button>}
+                        {endState === 'bad-win' && <button className="button-glow" onClick={onBack}>بازگشت به منو</button>}
+                    </div>
+                ) : (
+                    <>
+                        <p className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        {systemMessage && <p className="system-voice">{systemMessage}</p>}
+                        <div className="choices-container">
+                            {scenarios[scenarioIndex].options.map(option => (
+                                <button key={option.id} className="choice-button" onClick={() => handleChoice(option.id)}>
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+            {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
+        </div>
+    );
+};
+
 
 const App = () => {
-  const [gameState, setGameState] = useState('loading'); // 'loading', 'sabt-name', 'main-menu', 'level-select', 'options', 'credits', 'level-one'
+  const [gameState, setGameState] = useState('loading'); // 'loading', 'sabt-name', 'main-menu', 'level-select', 'options', 'credits', 'level-one', 'level-two'
   const [unlockedLevels, setUnlockedLevels] = useState(() => {
     try {
         const saved = localStorage.getItem('unlockedLevels');
@@ -390,6 +502,14 @@ const App = () => {
     });
     setGameState('level-select');
   };
+  
+  const handleLevelTwoWin = () => {
+    setUnlockedLevels(prev => {
+        const newLevels = new Set([...prev, 1, 2, 3]);
+        return Array.from(newLevels).sort((a,b) => a-b);
+    });
+    setGameState('level-select');
+  };
 
   const renderState = () => {
     switch(gameState) {
@@ -413,6 +533,11 @@ const App = () => {
           return <LevelOneScreen 
                     onBack={() => setGameState('level-select')}
                     onWin={handleLevelOneWin}
+                />;
+      case 'level-two':
+          return <LevelTwoScreen 
+                    onBack={() => setGameState('level-select')}
+                    onWin={handleLevelTwoWin}
                 />;
       default:
         return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
