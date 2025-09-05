@@ -202,47 +202,169 @@ const CreditsScreen = ({ onBack }) => {
 };
 
 // Level Select Screen
-const LevelSelectScreen = ({ onBack }) => {
+const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
     const levels = [
-        { id: 1, name: 'The Awakening', locked: false },
-        { id: 2, name: 'Echoing Halls', locked: true },
-        { id: 3, name: 'The Cellar', locked: true },
-        { id: 4, name: 'Crimson Library', locked: true },
-        { id: 5, name: 'The Ritual', locked: true },
-        { id: 6, name: 'Final Descent', locked: true },
+        { id: 1, name: 'The Awakening' },
+        { id: 2, name: 'Echoing Halls' },
+        { id: 3, name: 'The Cellar' },
+        { id: 4, name: 'Crimson Library' },
+        { id: 5, name: 'The Ritual' },
+        { id: 6, name: 'Final Descent' },
     ];
 
     const handleLevelClick = (level) => {
-        if (level.locked) return;
-        console.log(`Clicked on level: ${level.name}`);
-        // No action for now as requested
+        if (!unlockedLevels.includes(level.id)) return;
+        
+        if (level.id === 1) {
+            onNavigate('level-one');
+        } else {
+            console.log(`Clicked on level: ${level.name}`);
+        }
     }
 
     return (
         <div className="level-select-container page-container">
             <h1 className="page-title">Stages</h1>
             <div className="level-grid">
-                {levels.map(level => (
-                    <div 
-                        key={level.id} 
-                        className={`level-card ${level.locked ? 'locked' : ''}`}
-                        onClick={() => handleLevelClick(level)}
-                        aria-label={level.locked ? `${level.name} (Locked)` : level.name}
-                        role="button"
-                        tabIndex={level.locked ? -1 : 0}
-                    >
-                        {level.locked ? <span className="lock-icon" aria-hidden="true">🔒</span> : level.id}
-                    </div>
-                ))}
+                {levels.map(level => {
+                    const isLocked = !unlockedLevels.includes(level.id);
+                    return (
+                        <div 
+                            key={level.id} 
+                            className={`level-card ${isLocked ? 'locked' : ''}`}
+                            onClick={() => handleLevelClick(level)}
+                            aria-label={isLocked ? `${level.name} (Locked)` : level.name}
+                            role="button"
+                            tabIndex={isLocked ? -1 : 0}
+                        >
+                            {isLocked ? (
+                                <span className="lock-icon" aria-hidden="true">🔒</span> 
+                            ) : (
+                                <>
+                                    <div className="level-number">{level.id}</div>
+                                    <div className="level-name">{level.name}</div>
+                                </>
+                            )}
+                        </div>
+                    );
+                })}
             </div>
             <button className="back-button" onClick={onBack}>Back</button>
         </div>
     );
 };
 
+// Level One Screen
+const LevelOneScreen = ({ onBack, onWin }) => {
+    const scenarios = [
+        {
+            text: "صبح شده. دو تیتر خبر روی صفحه گوشی‌ات می‌بینی. کدام را باز می‌کنی؟",
+            options: [
+                { id: 'A', text: "جشنواره بزرگ تخفیف آخر هفته! همه چیز نصف قیمت!" },
+                { id: 'B', text: "آلودگی هوای شهر در وضعیت هشدار باقی ماند" }
+            ]
+        },
+        {
+            text: "در راهرو، همکارت بسته‌ای شیرینی تعارف می‌کند. چه می‌کنی؟",
+            options: [
+                { id: 'A', text: "یکی برمی‌دارم و تشکر می‌کنم. روزم را می‌سازد." },
+                { id: 'B', text: "رد می‌کنم و به او یادآوری می‌کنم که قند برای سلامتی مضر است." }
+            ]
+        },
+        {
+            text: "شب در خانه، صدای گریه‌ی ضعیفی از آپارتمان همسایه می‌شنوی. چه می‌کنی؟",
+            options: [
+                { id: 'A', text: "صدای تلویزیون را بلندتر می‌کنم تا نشنوم." },
+                { id: 'B', text: "می‌روم در بزنم و بپرسم آیا همه چیز مرتب است." }
+            ]
+        }
+    ];
+
+    const [scenarioIndex, setScenarioIndex] = useState(0);
+    const [choices, setChoices] = useState([]);
+    const [isFinished, setIsFinished] = useState(false);
+    const [result, setResult] = useState(null); // 'win' or 'lose'
+    const [containerKey, setContainerKey] = useState(0);
+
+    const handleChoice = (choiceId) => {
+        const newChoices = [...choices, choiceId];
+        setChoices(newChoices);
+
+        if (scenarioIndex < scenarios.length - 1) {
+            setScenarioIndex(scenarioIndex + 1);
+            setContainerKey(prev => prev + 1);
+        } else {
+            const bCount = newChoices.filter(c => c === 'B').length;
+            const finalResult = bCount >= 2 ? 'win' : 'lose';
+            setResult(finalResult);
+            setIsFinished(true);
+            setContainerKey(prev => prev + 1);
+
+            if (finalResult === 'win') {
+                setTimeout(() => {
+                    onWin();
+                }, 2500);
+            }
+        }
+    };
+
+    const resetLevel = () => {
+        setScenarioIndex(0);
+        setChoices([]);
+        setIsFinished(false);
+        setResult(null);
+        setContainerKey(prev => prev + 1);
+    };
+    
+    return (
+        <div className="level-one-screen page-container">
+            <div className="scenario-container" key={containerKey}>
+                {isFinished ? (
+                    <div className="result-container">
+                        {result === 'win' ? (
+                            <h2 className="success-message">تو درد را انتخاب کردی، چون به دنبال حقیقت بودی. این اولین قدم بیداری است.</h2>
+                        ) : (
+                            <>
+                                <p>تو راحتی را انتخاب کردی. قفس‌هایی هستند که از طلا ساخته شده‌اند.</p>
+                                <button className="button-glow" onClick={resetLevel}>تلاش مجدد</button>
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    <>
+                        <p className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        <div className="choices-container">
+                            {scenarios[scenarioIndex].options.map(option => (
+                                <button key={option.id} className="choice-button" onClick={() => handleChoice(option.id)}>
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+            {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
+        </div>
+    );
+};
+
 
 const App = () => {
-  const [gameState, setGameState] = useState('loading'); // 'loading', 'sabt-name', 'main-menu', 'level-select', 'options', 'credits'
+  const [gameState, setGameState] = useState('loading'); // 'loading', 'sabt-name', 'main-menu', 'level-select', 'options', 'credits', 'level-one'
+  const [unlockedLevels, setUnlockedLevels] = useState(() => {
+    try {
+        const saved = localStorage.getItem('unlockedLevels');
+        const parsed = saved ? JSON.parse(saved) : [1];
+        return Array.isArray(parsed) && parsed.every(item => typeof item === 'number') ? parsed : [1];
+    } catch (e) {
+        console.error("Failed to parse unlocked levels from localStorage", e);
+        return [1];
+    }
+  });
+
+  useEffect(() => {
+      localStorage.setItem('unlockedLevels', JSON.stringify(unlockedLevels));
+  }, [unlockedLevels]);
 
   const handleLoadingComplete = () => {
     const savedName = localStorage.getItem('userName');
@@ -261,6 +383,14 @@ const App = () => {
     }, 1500);
   };
 
+  const handleLevelOneWin = () => {
+    setUnlockedLevels(prev => {
+        const newLevels = new Set([...prev, 1, 2]);
+        return Array.from(newLevels).sort((a,b) => a-b);
+    });
+    setGameState('level-select');
+  };
+
   const renderState = () => {
     switch(gameState) {
       case 'loading':
@@ -270,11 +400,20 @@ const App = () => {
       case 'main-menu':
         return <MainMenu onNavigate={setGameState} />;
       case 'level-select':
-        return <LevelSelectScreen onBack={() => setGameState('main-menu')} />;
+        return <LevelSelectScreen 
+                    onBack={() => setGameState('main-menu')} 
+                    onNavigate={setGameState}
+                    unlockedLevels={unlockedLevels}
+                />;
       case 'options':
         return <OptionsScreen onBack={() => setGameState('main-menu')} />;
       case 'credits':
         return <CreditsScreen onBack={() => setGameState('main-menu')} />;
+      case 'level-one':
+          return <LevelOneScreen 
+                    onBack={() => setGameState('level-select')}
+                    onWin={handleLevelOneWin}
+                />;
       default:
         return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
     }
