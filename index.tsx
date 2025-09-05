@@ -205,7 +205,7 @@ const CreditsScreen = ({ onBack }) => {
 const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
     const levels = [
         { id: 1, name: 'The Awakening' },
-        { id: 2, name: 'قواعد بازی' },
+        { id: 2, name: 'The Rules' },
         { id: 3, name: 'The Cellar' },
         { id: 4, name: 'Crimson Library' },
         { id: 5, name: 'The Ritual' },
@@ -260,7 +260,7 @@ const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
 const LevelOneScreen = ({ onBack, onWin }) => {
     const scenarios = useMemo(() => [
         {
-            text: "صدای نوتیفیکیشن گوشی. کدام را باز می‌کни؟",
+            text: "صدای نوتیفیکیشن گوشی. کدام را باز می‌کنی؟",
             options: [
                 { id: 'A', text: "ویدیوی جدید از زندگی لوکس یک سلبریتی", score: -1, consequence: "...و ذهنت برای چند دقیقه آرام گرفت." },
                 { id: 'B', text: "تحلیل کارشناسان: بحران آب جدی‌تر از همیشه است", score: 1, consequence: "...و سنگینی کوچکی روی سینه‌ات حس کردی." }
@@ -303,6 +303,7 @@ const LevelOneScreen = ({ onBack, onWin }) => {
     const [resultMessage, setResultMessage] = useState('');
     const [isFading, setIsFading] = useState(false);
     const [currentOptions, setCurrentOptions] = useState([]);
+    const [selectedId, setSelectedId] = useState(null);
 
     useEffect(() => {
         // Shuffle options for the current scenario
@@ -311,6 +312,8 @@ const LevelOneScreen = ({ onBack, onWin }) => {
 
 
     const handleChoice = (option) => {
+        if (selectedId) return; // Prevent multiple choices
+        setSelectedId(option.id);
         setAwakeningScore(prev => prev + option.score);
         setConsequenceText(option.consequence);
 
@@ -322,6 +325,7 @@ const LevelOneScreen = ({ onBack, onWin }) => {
             if (scenarioIndex < scenarios.length - 1) {
                 setScenarioIndex(scenarioIndex + 1);
                 setIsFading(false);
+                setSelectedId(null);
             } else {
                 // End of level
                 const finalScore = awakeningScore + option.score;
@@ -352,7 +356,12 @@ const LevelOneScreen = ({ onBack, onWin }) => {
                         <p className="scenario-text">{scenarios[scenarioIndex].text}</p>
                         <div className="choices-container">
                             {currentOptions.map(option => (
-                                <button key={option.id} className="choice-button" onClick={() => handleChoice(option)}>
+                                <button 
+                                    key={option.id} 
+                                    className={`choice-button ${selectedId === option.id ? 'selected' : ''}`} 
+                                    onClick={() => handleChoice(option)}
+                                    disabled={selectedId !== null}
+                                >
                                     {option.text}
                                 </button>
                             ))}
@@ -413,6 +422,7 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
     const [endState, setEndState] = useState(null);
     const [isFading, setIsFading] = useState(false);
     const [currentOptions, setCurrentOptions] = useState([]);
+    const [selectedId, setSelectedId] = useState(null);
     
     useEffect(() => {
         if(!isFinished) {
@@ -421,6 +431,8 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
     }, [scenarioIndex, scenarios, isFinished]);
 
     const handleChoice = (option) => {
+        if (selectedId) return;
+        setSelectedId(option.id);
         setAwakeningScore(prev => prev + option.score);
         setSystemMessage({ text: option.consequence, isGlitchy: !!option.glitch });
 
@@ -431,6 +443,7 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
                 if (scenarioIndex < scenarios.length - 1) {
                     setScenarioIndex(prev => prev + 1);
                     setIsFading(false);
+                    setSelectedId(null);
                 }
             } else if (option.type === 'dead_end' || option.type === 'trap') {
                 setIsFinished(true);
@@ -461,6 +474,7 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
         setIsFinished(false);
         setEndState(null);
         setIsFading(false);
+        setSelectedId(null);
     };
 
     const SystemVoice = ({ message }) => {
@@ -485,7 +499,12 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
                         <SystemVoice message={systemMessage} />
                         <div className="choices-container">
                             {currentOptions.map(option => (
-                                <button key={option.id} className="choice-button" onClick={() => handleChoice(option)}>
+                                <button 
+                                    key={option.id} 
+                                    className={`choice-button ${selectedId === option.id ? 'selected' : ''}`} 
+                                    onClick={() => handleChoice(option)}
+                                    disabled={selectedId !== null}
+                                >
                                     {option.text}
                                 </button>
                             ))}

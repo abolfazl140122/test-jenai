@@ -124,9 +124,15 @@
           50% { transform: scale(0.95); box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
           100% { transform: scale(1); }
         }
-        @keyframes menuSlideIn {
-          from { transform: translateX(100%); opacity: 0; }
-          to { transform: translateX(0); opacity: 1; }
+        @keyframes staggeredFadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
          @keyframes fadeIn {
           from { opacity: 0; transform: scale(0.95); }
@@ -218,13 +224,13 @@
         .form-group { margin-bottom: 20px; }
         .form-group.shake { animation: shake 0.5s; }
         .form-card input {
-          box-sizing: border-box; width: 100%; padding: 10px; background-color: transparent; border: 2px solid #b40000; border-radius: 8px; color: #ff0000; font-size: 1.2rem; text-align: center; font-family: 'Creepster', cursive; transition: all 0.3s ease; animation: inputGlow 2.5s infinite ease-in-out;
+          box-sizing: border-box; width: 100%; padding: 10px; background-color: transparent; border: 2px solid #b40000; border-radius: 8px; color: #ff0000; font-size: 1.2rem; text-align: center; font-family: 'Creepster', cursive; transition: all 0.3s ease-in-out; animation: inputGlow 2.5s infinite ease-in-out;
         }
         .form-card input:focus {
           outline: none; border-color: #ff4d4d; box-shadow: 0 0 15px #ff4d4d;
         }
         .button-glow {
-          position: relative; padding: 10px 20px; background: linear-gradient(45deg, #b40000, #ff0000); border: none; border-radius: 8px; color: #fff; font-family: 'Creepster', cursive; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+          position: relative; padding: 10px 20px; background: linear-gradient(45deg, #b40000, #ff0000); border: none; border-radius: 8px; color: #fff; font-family: 'Creepster', cursive; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease-in-out; box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
         }
         .button-glow:hover {
           background: linear-gradient(45deg, #ff0000, #b40000); box-shadow: 0 0 15px #ff4d4d, 0 0 30px #ff0000; transform: translateY(-2px);
@@ -249,11 +255,18 @@
           animation: textFlicker 5s linear infinite;
         }
         .menu-list {
-          display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 300px; animation: menuSlideIn 1s ease-out forwards;
+          display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 300px;
         }
         .menu-button {
-          background-color: rgba(0, 0, 0, 0.7); color: #ff0000; border: 2px solid #ff0000; padding: 15px 0; font-family: 'Creepster', cursive; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0.7); color: #ff0000; border: 2px solid #ff0000; padding: 15px 0; font-family: 'Creepster', cursive; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.25s ease-in-out; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+          opacity: 0;
+          animation: staggeredFadeInUp 0.6s ease-out forwards;
         }
+        .menu-list .menu-button:nth-child(1) { animation-delay: 0.2s; }
+        .menu-list .menu-button:nth-child(2) { animation-delay: 0.3s; }
+        .menu-list .menu-button:nth-child(3) { animation-delay: 0.4s; }
+        .menu-list .menu-button:nth-child(4) { animation-delay: 0.5s; }
+
         .menu-button:hover {
           transform: scale(1.05); box-shadow: 0 0 20px #ff4d4d, 0 0 40px #ff0000;
         }
@@ -306,7 +319,7 @@
           text-transform: uppercase;
           letter-spacing: 0.1em;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.25s ease-in-out;
           box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
         }
         .back-button:hover {
@@ -333,7 +346,7 @@
           border: 2px solid #ff0000;
           border-radius: 10px;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.25s ease-in-out;
           box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
           animation: inputGlow 4s infinite ease-in-out;
           padding: 10px;
@@ -412,15 +425,26 @@
             font-family: 'Creepster', cursive;
             font-size: clamp(1.1rem, 3vw, 1.3rem);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             text-shadow: 0 0 5px #b40000;
         }
-        .choice-button:hover {
+        .choice-button:hover:not(:disabled) {
             background: rgba(255, 0, 0, 0.2);
             border-color: #ff0000;
             color: #fff;
             transform: scale(1.02);
             box-shadow: 0 0 15px #ff4d4d;
+        }
+        .choice-button.selected {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: #ff4d4d;
+            color: #fff;
+            transform: scale(1.03);
+            box-shadow: 0 0 20px #ff4d4d;
+        }
+        .choice-button:disabled {
+            cursor: default;
+            opacity: 0.7;
         }
         .result-container p, .result-container h2 {
             font-size: 1.5rem;
@@ -724,7 +748,7 @@
         const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
             const levels = [
                 { id: 1, name: 'The Awakening' },
-                { id: 2, name: 'قواعد بازی' },
+                { id: 2, name: 'The Rules' },
                 { id: 3, name: 'The Cellar' },
                 { id: 4, name: 'Crimson Library' },
                 { id: 5, name: 'The Ritual' },
@@ -779,7 +803,7 @@
         const LevelOneScreen = ({ onBack, onWin }) => {
             const scenarios = useMemo(() => [
                 {
-                    text: "صدای نوتیفیکیشن گوشی. کدام را باز می‌کни؟",
+                    text: "صدای نوتیفیکیشن گوشی. کدام را باز می‌کنی؟",
                     options: [
                         { id: 'A', text: "ویدیوی جدید از زندگی لوکس یک سلبریتی", score: -1, consequence: "...و ذهنت برای چند دقیقه آرام گرفت." },
                         { id: 'B', text: "تحلیل کارشناسان: بحران آب جدی‌تر از همیشه است", score: 1, consequence: "...و سنگینی کوچکی روی سینه‌ات حس کردی." }
@@ -822,6 +846,7 @@
             const [resultMessage, setResultMessage] = useState('');
             const [isFading, setIsFading] = useState(false);
             const [currentOptions, setCurrentOptions] = useState([]);
+            const [selectedId, setSelectedId] = useState(null);
 
             useEffect(() => {
                 // Shuffle options for the current scenario
@@ -830,6 +855,8 @@
 
 
             const handleChoice = (option) => {
+                if (selectedId) return; // Prevent multiple choices
+                setSelectedId(option.id);
                 setAwakeningScore(prev => prev + option.score);
                 setConsequenceText(option.consequence);
 
@@ -841,6 +868,7 @@
                     if (scenarioIndex < scenarios.length - 1) {
                         setScenarioIndex(scenarioIndex + 1);
                         setIsFading(false);
+                        setSelectedId(null);
                     } else {
                         // End of level
                         const finalScore = awakeningScore + option.score;
@@ -871,7 +899,12 @@
                                 <p className="scenario-text">{scenarios[scenarioIndex].text}</p>
                                 <div className="choices-container">
                                     {currentOptions.map(option => (
-                                        <button key={option.id} className="choice-button" onClick={() => handleChoice(option)}>
+                                        <button 
+                                            key={option.id} 
+                                            className={`choice-button ${selectedId === option.id ? 'selected' : ''}`} 
+                                            onClick={() => handleChoice(option)}
+                                            disabled={selectedId !== null}
+                                        >
                                             {option.text}
                                         </button>
                                     ))}
@@ -932,6 +965,7 @@
             const [endState, setEndState] = useState(null);
             const [isFading, setIsFading] = useState(false);
             const [currentOptions, setCurrentOptions] = useState([]);
+            const [selectedId, setSelectedId] = useState(null);
             
             useEffect(() => {
                 if(!isFinished) {
@@ -940,6 +974,8 @@
             }, [scenarioIndex, scenarios, isFinished]);
 
             const handleChoice = (option) => {
+                if (selectedId) return;
+                setSelectedId(option.id);
                 setAwakeningScore(prev => prev + option.score);
                 setSystemMessage({ text: option.consequence, isGlitchy: !!option.glitch });
 
@@ -950,6 +986,7 @@
                         if (scenarioIndex < scenarios.length - 1) {
                             setScenarioIndex(prev => prev + 1);
                             setIsFading(false);
+                            setSelectedId(null);
                         }
                     } else if (option.type === 'dead_end' || option.type === 'trap') {
                         setIsFinished(true);
@@ -980,6 +1017,7 @@
                 setIsFinished(false);
                 setEndState(null);
                 setIsFading(false);
+                setSelectedId(null);
             };
 
             const SystemVoice = ({ message }) => {
@@ -1004,7 +1042,12 @@
                                 <SystemVoice message={systemMessage} />
                                 <div className="choices-container">
                                     {currentOptions.map(option => (
-                                        <button key={option.id} className="choice-button" onClick={() => handleChoice(option)}>
+                                        <button 
+                                            key={option.id} 
+                                            className={`choice-button ${selectedId === option.id ? 'selected' : ''}`} 
+                                            onClick={() => handleChoice(option)}
+                                            disabled={selectedId !== null}
+                                        >
                                             {option.text}
                                         </button>
                                     ))}
