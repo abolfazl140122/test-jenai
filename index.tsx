@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 
 // Component for the initial loading screen
@@ -258,196 +258,234 @@ const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
 
 // Level One Screen
 const LevelOneScreen = ({ onBack, onWin }) => {
-    const scenarios = [
+    const scenarios = useMemo(() => [
         {
-            text: "صبح شده. دو تیتر خبر روی صفحه گوشی‌ات می‌بینی. کدام را باز می‌کنی؟",
+            text: "صدای نوتیفیکیشن گوشی. کدام را باز می‌کни؟",
             options: [
-                { id: 'A', text: "جشنواره بزرگ تخفیف آخر هفته! همه چیز نصف قیمت!" },
-                { id: 'B', text: "آلودگی هوای شهر در وضعیت هشدار باقی ماند" }
+                { id: 'A', text: "ویدیوی جدید از زندگی لوکس یک سلبریتی", score: -1, consequence: "...و ذهنت برای چند دقیقه آرام گرفت." },
+                { id: 'B', text: "تحلیل کارشناسان: بحران آب جدی‌تر از همیشه است", score: 1, consequence: "...و سنگینی کوچکی روی سینه‌ات حس کردی." }
             ]
         },
         {
-            text: "در راهرو، همکارت بسته‌ای شیرینی تعارف می‌کند. چه می‌کنی؟",
+            text: "در جمع دوستان، بحثی در مورد مشکلات اقتصادی شکل می‌گیرد.",
             options: [
-                { id: 'A', text: "یکی برمی‌دارم و تشکر می‌کنم. روزم را می‌سازد." },
-                { id: 'B', text: "رد می‌کنم و به او یادآوری می‌کنم که قند برای سلامتی مضر است." }
+                { id: 'A', text: "سریع بحث را عوض می‌کنم. حوصله بحث جدی ندارم.", score: -1, consequence: "...و سکوت سنگین فضا شکست." },
+                { id: 'B', text: "وارد بحث می‌شوم و نظرم را می‌گویم، حتی اگر جو را خراب کند.", score: 1, consequence: "...و برای لحظه‌ای، همه چیز واقعی‌تر شد." }
             ]
         },
         {
-            text: "شب در خانه، صدای گریه‌ی ضعیفی از آپارتمان همسایه می‌شنوی. چه می‌کنی؟",
+            text: "می‌خواهی فیلمی ببینی. دو انتخاب داری:",
             options: [
-                { id: 'A', text: "صدای تلویزیون را بلندتر می‌کنم تا نشنوم." },
-                { id: 'B', text: "می‌روم در بزنم و بپرسم آیا همه چیز مرتب است." }
+                { id: 'A', text: "یک کمدی سطحی برای اینکه فقط بخندی.", score: -1, consequence: "...و برای دو ساعت، همه‌چیز را فراموش کردی." },
+                { id: 'B', text: "یک مستند سنگین در مورد تاریخ سانسور.", score: 1, consequence: "...و سوالات جدیدی در ذهنت شکل گرفت." }
+            ]
+        },
+         {
+            text: "یک ایمیل از طرف خیریه‌ای دریافت می‌کنی که برای کودکان کار نیاز به کمک فوری دارد.",
+            options: [
+                { id: 'A', text: "ایمیل را پاک می‌کنم. این مشکلات تمام‌شدنی نیست.", score: -1, consequence: "...و بار کوچکی از روی دوشت برداشته شد." },
+                { id: 'B', text: "حتی اگر مبلغ کمی باشد، کمک می‌کنم.", score: 1, consequence: "...و چیزی درونت گرم شد." }
+            ]
+        },
+        {
+            text: "فرصتی برای شرکت در یک وبینار رایگان پیدا کرده‌ای.",
+            options: [
+                { id: 'A', text: "موضوع: چطور در یک هفته به درآمد میلیونی برسیم.", score: -1, consequence: "...و رویای یک شبه پولدار شدن شیرین بود." },
+                { id: 'B', text: "موضوع: سواد رسانه‌ای و تشخیص اخبار جعلی.", score: 1, consequence: "...و احساس کردی کمی قدرتمندتر شده‌ای." }
             ]
         }
-    ];
+    ], []);
 
     const [scenarioIndex, setScenarioIndex] = useState(0);
-    const [choices, setChoices] = useState([]);
+    const [awakeningScore, setAwakeningScore] = useState(0);
+    const [consequenceText, setConsequenceText] = useState('');
     const [isFinished, setIsFinished] = useState(false);
-    const [result, setResult] = useState(null); // 'win' or 'lose'
-    const [containerKey, setContainerKey] = useState(0);
+    const [resultMessage, setResultMessage] = useState('');
+    const [isFading, setIsFading] = useState(false);
+    const [currentOptions, setCurrentOptions] = useState([]);
 
-    const handleChoice = (choiceId) => {
-        const newChoices = [...choices, choiceId];
-        setChoices(newChoices);
+    useEffect(() => {
+        // Shuffle options for the current scenario
+        setCurrentOptions([...scenarios[scenarioIndex].options].sort(() => Math.random() - 0.5));
+    }, [scenarioIndex, scenarios]);
 
-        if (scenarioIndex < scenarios.length - 1) {
-            setScenarioIndex(scenarioIndex + 1);
-            setContainerKey(prev => prev + 1);
-        } else {
-            const bCount = newChoices.filter(c => c === 'B').length;
-            const finalResult = bCount >= 2 ? 'win' : 'lose';
-            setResult(finalResult);
-            setIsFinished(true);
-            setContainerKey(prev => prev + 1);
 
-            if (finalResult === 'win') {
-                setTimeout(() => {
-                    onWin();
-                }, 2500);
+    const handleChoice = (option) => {
+        setAwakeningScore(prev => prev + option.score);
+        setConsequenceText(option.consequence);
+
+        setTimeout(() => setConsequenceText(''), 2500);
+
+        setIsFading(true);
+
+        setTimeout(() => {
+            if (scenarioIndex < scenarios.length - 1) {
+                setScenarioIndex(scenarioIndex + 1);
+                setIsFading(false);
+            } else {
+                // End of level
+                const finalScore = awakeningScore + option.score;
+                if (finalScore > 2) {
+                    setResultMessage("تو به دنبال نوری، حتی اگر چشم را بزند. مسیر بعدی برایت باز شد.");
+                    setTimeout(() => onWin(), 3000);
+                } else if (finalScore >= 0) {
+                    setResultMessage("تو در مرز بین خواب و بیداری قدم می‌زنی. اما هنوز آماده نیستی.");
+                     setTimeout(() => onBack(), 3000);
+                } else {
+                    setResultMessage("خواب راحتی است. شاید بهتر باشد بیدار نشوی.");
+                    setTimeout(() => onBack(), 3000);
+                }
+                setIsFinished(true);
             }
-        }
-    };
-
-    const resetLevel = () => {
-        setScenarioIndex(0);
-        setChoices([]);
-        setIsFinished(false);
-        setResult(null);
-        setContainerKey(prev => prev + 1);
+        }, 500);
     };
     
     return (
         <div className="level-one-screen page-container">
-            <div className="scenario-container" key={containerKey}>
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
                 {isFinished ? (
                     <div className="result-container">
-                        {result === 'win' ? (
-                            <h2 className="success-message">تو درد را انتخاب کردی، چون به دنبال حقیقت بودی. این اولین قدم بیداری است.</h2>
-                        ) : (
-                            <>
-                                <p>تو راحتی را انتخاب کردی. قفس‌هایی هستند که از طلا ساخته شده‌اند.</p>
-                                <button className="button-glow" onClick={resetLevel}>تلاش مجدد</button>
-                            </>
-                        )}
+                        <p>{resultMessage}</p>
                     </div>
                 ) : (
                     <>
                         <p className="scenario-text">{scenarios[scenarioIndex].text}</p>
                         <div className="choices-container">
-                            {scenarios[scenarioIndex].options.map(option => (
-                                <button key={option.id} className="choice-button" onClick={() => handleChoice(option.id)}>
+                            {currentOptions.map(option => (
+                                <button key={option.id} className="choice-button" onClick={() => handleChoice(option)}>
                                     {option.text}
                                 </button>
                             ))}
                         </div>
+                        <p className={`consequence-text ${consequenceText ? 'visible' : ''}`}>{consequenceText || ' '}</p>
                     </>
                 )}
             </div>
-            {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
+             {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
         </div>
     );
 };
 
 // Level Two Screen
 const LevelTwoScreen = ({ onBack, onWin }) => {
+    const scenarios = useMemo(() => [
+        { // Scenario 1
+            text: 'در محل کار، همه مجبورند لباسی یک‌شکل بپوشند که دوستش نداری.',
+            options: [
+                { id: 'A', text: '«قبول می‌کنم. اتحاد ظاهری برای سیستم مهم است.»', type: 'continue', score: 1, consequence: '«سازگاری، اولین قانون بقا است.»' },
+                { id: 'B', text: '«مقاومت می‌کنم. هویت من فروشی نیست.»', type: 'dead_end', score: 0, consequence: '«سیستم، فردیت را تحمل نمی‌کند. تو حذف شدی.»' }
+            ]
+        },
+        { // Scenario 2
+            text: 'کتابی پیدا می‌کنی که روایتی متفاوت از تاریخ رسمی کشورت را بیان می‌کند.',
+            options: [
+                { id: 'A', text: '«کتاب را می‌سوزانم. یک روایت واحد، امن‌تر است.»', type: 'continue', score: -1, consequence: '«اطلاعات کنترل‌شده، جامعه‌ای کنترل‌شده می‌سازد.»' },
+                { id: 'B', text: '«کتاب را می‌خوانم و به دیگران هم می‌دهم.»', type: 'continue', score: 1, consequence: '«خطرناک است. دانش، قـ...در..ت.. است.»', glitch: true }
+            ]
+        },
+        { // Scenario 3
+            text: 'سیستم به تو می‌گوید برای نجات جان ۵ نفر، باید جان ۱ نفر بی‌گناه را بگیری.',
+            options: [
+                { id: 'A', text: '«منطق حکم می‌کند ۱ نفر را قربانی کنم.»', type: 'trap', score: 0, consequence: '«تو منطق سیستم را پذیرفتی. تو تبدیل به بخشی از آن شدی. بازی تمام شد.»' },
+                { id: 'B', text: '«من در این بازی کثیف شرکت نمی‌کنم.»', type: 'continue', score: 1, consequence: '«انتخابِ انتخاب نکردن، قدرتمندانه‌ترین انتخاب است.»' }
+            ]
+        },
+        { // Scenario 4
+            text: 'تو هنرمندی. سیستم به تو پیشنهاد حمایت مالی کامل می‌دهد، به شرطی که فقط آثاری تولید کنی که آن‌ها تایید می‌کنند.',
+            options: [
+                { id: 'A', text: '«قبول می‌کنم. هنر بدون حمایت مالی می‌میرد.»', type: 'continue', score: -1, consequence: '«روح تو به بالاترین قیمت فروخته شد.»' },
+                { id: 'B', text: '«در فقر کار می‌کنم، اما آزاد می‌مانم.»', type: 'continue', score: 1, consequence: '«هنر واقعی در قفس نمی‌گنجد.»' }
+            ]
+        },
+        { // Scenario 5
+            text: 'تو به انتهای سیستم رسیده‌ای. دو در وجود دارد.',
+            options: [
+                { id: 'A', text: '«درِ طلایی: "جایگاه تو در راس سیستم محفوظ است".»', type: 'bad_end', score: 0, consequence: '«به قفس طلایی خوش آمدی.»' },
+                { id: 'B', text: '«یک حفره کوچک و تاریک در دیوار که به ناکجاآباد می‌رسد.»', type: 'good_end', score: 0, consequence: '...' }
+            ]
+        }
+    ], []);
+
     const [scenarioIndex, setScenarioIndex] = useState(0);
-    const [systemMessage, setSystemMessage] = useState('');
+    const [awakeningScore, setAwakeningScore] = useState(0);
+    const [systemMessage, setSystemMessage] = useState({ text: '', isGlitchy: false });
     const [isFinished, setIsFinished] = useState(false);
-    const [endState, setEndState] = useState(null); // 'fired', 'whistleblower', 'bad-win', 'good-win'
-    const [containerKey, setContainerKey] = useState(Date.now());
-
-    const scenarios = [
-        {
-            text: 'به خاطر عملکرد خوبت، مدیرعامل به تو پیشنهاد ترفیع می‌دهد. تنها شرط این است که همکارت که به این شغل نیاز دارد را اخراج کنی.',
-            options: [
-                { id: 'A', text: '«قبول می‌کنم. پیشرفت مهم‌تر است.»' },
-                { id: 'B', text: '«رد می‌کنم. وجدانم را نمی‌فروشم.»' }
-            ]
-        },
-        {
-            text: 'تو به اسنادی دست پیدا می‌کنی که نشان می‌دهد شرکت به مردم دروغ می‌گوید. می‌توانی آن‌ها را فاش کنی.',
-            options: [
-                { id: 'A', text: '«اسناد را نابود می‌کنم. امنیتم در خطر است.»' },
-                { id: 'B', text: '«حقیقت را فاش می‌کنم. مردم باید بدانند.»' }
-            ]
-        },
-        {
-            text: 'تو قواعد بازی را یاد گرفتی. حالا دو راه پیش روی توست.',
-            options: [
-                { id: 'A', text: '«مسیر موفقیت: یک درب طلایی که روی آن نوشته شده "آینده درخشان".»' },
-                { id: 'B', text: '«مسیر آزادی: یک کوچه تاریک و باریک بدون هیچ تابلویی.»' }
-            ]
+    const [endState, setEndState] = useState(null);
+    const [isFading, setIsFading] = useState(false);
+    const [currentOptions, setCurrentOptions] = useState([]);
+    
+    useEffect(() => {
+        if(!isFinished) {
+            setCurrentOptions([...scenarios[scenarioIndex].options].sort(() => Math.random() - 0.5));
         }
-    ];
+    }, [scenarioIndex, scenarios, isFinished]);
 
-    const handleChoice = (choiceId) => {
-        if (scenarioIndex === 0) {
-            if (choiceId === 'A') {
-                setSystemMessage('«هوشمندانه بود. بقا از آنِ سازگاران است.»');
-                setScenarioIndex(1);
-            } else { // 'B'
-                setSystemMessage('«احساسات جلوی پیشرفت را می‌گیرد. تو اخراج شدی.»');
+    const handleChoice = (option) => {
+        setAwakeningScore(prev => prev + option.score);
+        setSystemMessage({ text: option.consequence, isGlitchy: !!option.glitch });
+
+        setIsFading(true);
+        
+        setTimeout(() => {
+            if (option.type === 'continue') {
+                if (scenarioIndex < scenarios.length - 1) {
+                    setScenarioIndex(prev => prev + 1);
+                    setIsFading(false);
+                }
+            } else if (option.type === 'dead_end' || option.type === 'trap') {
                 setIsFinished(true);
-                setEndState('fired');
+                setEndState('lose');
+            } else if (option.type === 'bad_end') {
+                 setIsFinished(true);
+                 setEndState('bad-win');
+                 setTimeout(() => onBack(), 4000);
+            } else if (option.type === 'good_end') {
+                const finalScore = awakeningScore + option.score;
+                if(finalScore > 3) {
+                     setSystemMessage({ text: 'تو نه تنها بیدار شدی، بلکه از بازی بیرون زدی. تو آزادی.', isGlitchy: false });
+                     setEndState('good-win');
+                } else {
+                     setSystemMessage({ text: 'تو فرار کردی، اما هنوز سایه سیستم همراه توست. شاید هیچ‌وقت واقعا آزاد نباشی.', isGlitchy: false });
+                     setEndState('tainted-win');
+                }
+                setIsFinished(true);
+                setTimeout(() => onWin(), 4000);
             }
-        } else if (scenarioIndex === 1) {
-            if (choiceId === 'A') {
-                setSystemMessage('«عاقلانه است. گاهی حقیقت باید دفن شود تا سیستم پابرجا بماند.»');
-                setScenarioIndex(2);
-            } else { // 'B'
-                setIsFinished(true);
-                setEndState('whistleblower');
-            }
-        } else if (scenarioIndex === 2) {
-            if (choiceId === 'A') {
-                setSystemMessage('«تو بازی را بردی، اما در زمین آن‌ها. به قفس طلایی خوش آمدی.»');
-                setIsFinished(true);
-                setEndState('bad-win');
-            } else { // 'B'
-                setSystemMessage('«تو انتخاب کردی که بازی نکنی. این بزرگترین برد است.»');
-                setIsFinished(true);
-                setEndState('good-win');
-                setTimeout(() => onWin(), 2000);
-            }
-        }
-        setContainerKey(Date.now());
+        }, 500);
     };
 
     const resetLevel = () => {
         setScenarioIndex(0);
-        setSystemMessage('');
+        setAwakeningScore(0);
+        setSystemMessage({ text: '', isGlitchy: false });
         setIsFinished(false);
         setEndState(null);
-        setContainerKey(Date.now());
+        setIsFading(false);
     };
 
-    if (endState === 'whistleblower') {
-        return (
-            <div className="blackout-screen">
-                <p>«بعضی حقیقت‌ها آنقدر بزرگ هستند که گوینده را می‌بلعند. بازی برای تو تمام شد.»</p>
-                <button className="button-glow" onClick={resetLevel} style={{marginTop: '40px'}}>شروع مجدد</button>
-            </div>
-        )
-    }
+    const SystemVoice = ({ message }) => {
+        if (!message.text) return null;
+        if (message.isGlitchy) {
+            return <p className="system-voice glitch-text" data-text={message.text}>{message.text}</p>;
+        }
+        return <p className="system-voice">{message.text}</p>;
+    };
 
     return (
         <div className="level-two-screen page-container">
-            <div className="scenario-container" key={containerKey}>
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
                 {isFinished ? (
                     <div className="result-container">
-                        <p className="system-voice">{systemMessage}</p>
-                        {endState === 'fired' && <button className="button-glow" onClick={resetLevel}>شروع مجدد مرحله</button>}
-                        {endState === 'bad-win' && <button className="button-glow" onClick={onBack}>بازگشت به منو</button>}
+                        <SystemVoice message={systemMessage} />
+                        {endState === 'lose' && <button className="button-glow" onClick={resetLevel} style={{marginTop: '20px'}}>تلاش مجدد</button>}
                     </div>
                 ) : (
                     <>
                         <p className="scenario-text">{scenarios[scenarioIndex].text}</p>
-                        {systemMessage && <p className="system-voice">{systemMessage}</p>}
+                        <SystemVoice message={systemMessage} />
                         <div className="choices-container">
-                            {scenarios[scenarioIndex].options.map(option => (
-                                <button key={option.id} className="choice-button" onClick={() => handleChoice(option.id)}>
+                            {currentOptions.map(option => (
+                                <button key={option.id} className="choice-button" onClick={() => handleChoice(option)}>
                                     {option.text}
                                 </button>
                             ))}
