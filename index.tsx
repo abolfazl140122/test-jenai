@@ -260,38 +260,55 @@ const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
 const LevelOneScreen = ({ onBack, onWin }) => {
     const scenarios = useMemo(() => [
         {
-            text: "صدای نوتیفیکیشن گوشی. کدام را باز می‌کنی؟",
+            text: "در تاکسی نشسته‌ای. راننده می‌پرسد چه نوع موسیقی دوست داری؟",
             options: [
-                { id: 'A', text: "ویدیوی جدید از زندگی لوکس یک سلبریتی", score: -1, consequence: "...و ذهنت برای چند دقیقه آرام گرفت." },
-                { id: 'B', text: "تحلیل کارشناسان: بحران آب جدی‌تر از همیشه است", score: 1, consequence: "...و سنگینی کوچکی روی سینه‌ات حس کردی." }
+                { id: 'A', text: "یک آهنگ پاپ شاد و پرانرژی.", score: -1, consequence: "...و جاده کوتاه‌تر شد." },
+                { id: 'B', text: "یک موسیقی بی‌کلام و تفکربرانگیز.", score: 1, consequence: "...و به ساختمان‌ها خیره شدی." }
             ]
         },
         {
-            text: "در جمع دوستان، بحثی در مورد مشکلات اقتصادی شکل می‌گیرد.",
+            text: "به یک دوراهی می‌رسی.",
             options: [
-                { id: 'A', text: "سریع بحث را عوض می‌کنم. حوصله بحث جدی ندارم.", score: -1, consequence: "...و سکوت سنگین فضا شکست." },
-                { id: 'B', text: "وارد بحث می‌شوم و نظرم را می‌گویم، حتی اگر جو را خراب کند.", score: 1, consequence: "...و برای لحظه‌ای، همه چیز واقعی‌تر شد." }
+                { id: 'A', text: "مسیر اصلی و شلوغ که همه از آن می‌روند.", score: -1, consequence: "...و در میان جمعیت گم شدی." },
+                { id: 'B', text: "یک کوچه فرعی خلوت و ناشناخته.", score: 1, consequence: "...و صدای قدم‌هایت را شنیدی." }
             ]
         },
         {
-            text: "می‌خواهی فیلمی ببینی. دو انتخاب داری:",
+            text: "دوستت در مورد آخرین فیلمی که دیده با هیجان صحبت می‌کند و آن را بی‌نقص می‌داند.",
+            focusText: "«می‌دانی که دوستت به شدت روی نظراتش حساس است...»",
             options: [
-                { id: 'A', text: "یک کمدی سطحی برای اینکه فقط بخندی.", score: -1, consequence: "...و برای دو ساعت، همه‌چیز را فراموش کردی." },
-                { id: 'B', text: "یک مستند سنگین در مورد تاریخ سانسور.", score: 1, consequence: "...و سوالات جدیدی در ذهنت شکل گرفت." }
-            ]
-        },
-         {
-            text: "یک ایمیل از طرف خیریه‌ای دریافت می‌کنی که برای کودکان کار نیاز به کمک فوری دارد.",
-            options: [
-                { id: 'A', text: "ایمیل را پاک می‌کنم. این مشکلات تمام‌شدنی نیست.", score: -1, consequence: "...و بار کوچکی از روی دوشت برداشته شد." },
-                { id: 'B', text: "حتی اگر مبلغ کمی باشد، کمک می‌کنم.", score: 1, consequence: "...و چیزی درونت گرم شد." }
+                { id: 'A', text: "با او موافقت می‌کنم تا دلش نشکند.", score: -1, consequence: "...و لبخندش را حفظ کردی." },
+                { id: 'B', text: "نقد خودم را می‌گویم، حتی اگر مخالف نظر او باشد.", score: 1, consequence: "...و سکوت معناداری شکل گرفت." }
             ]
         },
         {
-            text: "فرصتی برای شرکت در یک وبینار رایگان پیدا کرده‌ای.",
+            text: "در کتاب‌فروشی، چشم تو به دو کتاب می‌افتد.",
             options: [
-                { id: 'A', text: "موضوع: چطور در یک هفته به درآمد میلیونی برسیم.", score: -1, consequence: "...و رویای یک شبه پولدار شدن شیرین بود." },
-                { id: 'B', text: "موضوع: سواد رسانه‌ای و تشخیص اخبار جعلی.", score: 1, consequence: "...و احساس کردی کمی قدرتمندتر شده‌ای." }
+                { id: 'A', text: "کتابی با جلد رنگارنگ و عنوان 'چگونه همیشه شاد باشیم'.", score: -1, consequence: "...و به دنبال یک راه حل ساده گشتی." },
+                { id: 'B', text: "کتابی ساده با عنوان 'تاریخچه تنهایی'.", score: 1, consequence: "...و با یک سوال تازه روبرو شدی." }
+            ]
+        },
+        {
+            text: "در خواب، دو در پیش روی توست.",
+            options: [
+                { id: 'A', text: "دری که از پشت آن صدای خنده و جشن می‌آید.", score: -1, consequence: "...و به سمت صدای آشنا کشیده شدی." },
+                { id: 'B', text: "دری که از پشت آن صدای سکوت و باران می‌آید.", score: 1, consequence: "...و کنجکاوی بر ترس غلبه کرد." }
+            ]
+        },
+        {
+            text: "پستی در شبکه‌های اجتماعی می‌بینی.",
+            focusText: "اولی لایک‌های بیشتری می‌گیرد، اما دومی شاید واقعا مهم باشد.",
+            options: [
+                { id: 'A', text: "اشتراک‌گذاری یک ویدیوی خنده‌دار از یک حیوان خانگی.", score: -1, consequence: "...و چند نفر برای لحظه‌ای خندیدند." },
+                { id: 'B', text: "اشتراک‌گذاری مقاله‌ای در مورد آلودگی پلاستیک.", score: 1, consequence: "...و شاید یک نفر به فکر فرو رفت." }
+            ]
+        },
+        {
+            text: "وقت خرید لباس است.",
+            focusText: "لباس ارزان وسوسه‌انگیز است، اما تا کی دوام می‌آورد؟",
+            options: [
+                { id: 'A', text: "خرید یک لباس مُد روز و ارزان از یک برند فست-فشن.", score: -1, consequence: "...و برای مدتی احساس خوبی داشتی." },
+                { id: 'B', text: "خرید یک لباس گران‌تر اما باکیفیت از یک تولیدی محلی.", score: 1, consequence: "...و چیزی ارزشمند به دست آوردی." }
             ]
         }
     ], []);
@@ -304,21 +321,20 @@ const LevelOneScreen = ({ onBack, onWin }) => {
     const [isFading, setIsFading] = useState(false);
     const [currentOptions, setCurrentOptions] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
+    const [isFocused, setIsFocused] = useState(false);
 
     useEffect(() => {
-        // Shuffle options for the current scenario
         setCurrentOptions([...scenarios[scenarioIndex].options].sort(() => Math.random() - 0.5));
+        setIsFocused(false);
     }, [scenarioIndex, scenarios]);
 
-
     const handleChoice = (option) => {
-        if (selectedId) return; // Prevent multiple choices
+        if (selectedId) return;
         setSelectedId(option.id);
         setAwakeningScore(prev => prev + option.score);
         setConsequenceText(option.consequence);
 
         setTimeout(() => setConsequenceText(''), 2500);
-
         setIsFading(true);
 
         setTimeout(() => {
@@ -327,7 +343,6 @@ const LevelOneScreen = ({ onBack, onWin }) => {
                 setIsFading(false);
                 setSelectedId(null);
             } else {
-                // End of level
                 const finalScore = awakeningScore + option.score;
                 if (finalScore > 2) {
                     setResultMessage("تو به دنبال نوری، حتی اگر چشم را بزند. مسیر بعدی برایت باز شد.");
@@ -353,7 +368,10 @@ const LevelOneScreen = ({ onBack, onWin }) => {
                     </div>
                 ) : (
                     <>
-                        <p className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        <p key={scenarioIndex} className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        {isFocused && scenarios[scenarioIndex].focusText && (
+                            <p className="focus-text">{scenarios[scenarioIndex].focusText}</p>
+                        )}
                         <div className="choices-container">
                             {currentOptions.map(option => (
                                 <button 
@@ -371,6 +389,13 @@ const LevelOneScreen = ({ onBack, onWin }) => {
                 )}
             </div>
              {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
+             {!isFinished && (
+                 <div className="abilities-container">
+                    {scenarios[scenarioIndex].focusText && (
+                        <button className="ability-button" onClick={() => setIsFocused(true)} disabled={isFocused}>👁</button>
+                    )}
+                 </div>
+             )}
         </div>
     );
 };
@@ -378,39 +403,56 @@ const LevelOneScreen = ({ onBack, onWin }) => {
 // Level Two Screen
 const LevelTwoScreen = ({ onBack, onWin }) => {
     const scenarios = useMemo(() => [
-        { // Scenario 1
-            text: 'در محل کار، همه مجبورند لباسی یک‌شکل بپوشند که دوستش نداری.',
+        {
+            text: "تو نقاشی کشیده‌ای. سیستم می‌گوید اگر کمی رنگ قرمز آن را کمتر کنی، جایزه خواهی برد.",
             options: [
-                { id: 'A', text: '«قبول می‌کنم. اتحاد ظاهری برای سیستم مهم است.»', type: 'continue', score: 1, consequence: '«سازگاری، اولین قانون بقا است.»' },
-                { id: 'B', text: '«مقاومت می‌کنم. هویت من فروشی نیست.»', type: 'dead_end', score: 0, consequence: '«سیستم، فردیت را تحمل نمی‌کند. تو حذف شدی.»' }
+                { id: 'A', text: "تغییرش می‌دهم. جایزه ارزشش را دارد.", score: -1, type: 'continue', consequence: "«سازگاری، اولین قانون بقا است.»" },
+                { id: 'B', text: "اثرم را دستکاری نمی‌کنم.", score: 1, type: 'continue', consequence: "«هنر واقعی در قفس نمی‌گنجد.»" }
             ]
         },
-        { // Scenario 2
-            text: 'کتابی پیدا می‌کنی که روایتی متفاوت از تاریخ رسمی کشورت را بیان می‌کند.',
+        {
+            text: "سیستم دو خبر به تو نشان می‌دهد تا یکی را منتشر کنی.",
+            focusText: "«صدای سیستم زمزمه می‌کند: خبر اول مردم را خوشحال می‌کند... و حواسشان را پرت.»",
             options: [
-                { id: 'A', text: '«کتاب را می‌سوزانم. یک روایت واحد، امن‌تر است.»', type: 'continue', score: -1, consequence: '«اطلاعات کنترل‌شده، جامعه‌ای کنترل‌شده می‌سازد.»' },
-                { id: 'B', text: '«کتاب را می‌خوانم و به دیگران هم می‌دهم.»', type: 'continue', score: 1, consequence: '«خطرناک است. دانش، قـ...در..ت.. است.»', glitch: true }
+                { id: 'A', text: "خبر پیروزی یک تیم ورزشی.", score: -1, type: 'continue', consequence: "«یک روز دیگر، یک حواس‌پرتی دیگر.»" },
+                { id: 'B', text: "خبر اعتراض کارگران یک کارخانه.", score: 1, type: 'continue', consequence: "«خطرناک است. دانش، قـ...در..ت.. است.»", glitch: true }
             ]
         },
-        { // Scenario 3
-            text: 'سیستم به تو می‌گوید برای نجات جان ۵ نفر، باید جان ۱ نفر بی‌گناه را بگیری.',
+         {
+            text: "برای یک پروژه مهم، باید یک همکار انتخاب کنی.",
             options: [
-                { id: 'A', text: '«منطق حکم می‌کند ۱ نفر را قربانی کنم.»', type: 'trap', score: 0, consequence: '«تو منطق سیستم را پذیرفتی. تو تبدیل به بخشی از آن شدی. بازی تمام شد.»' },
-                { id: 'B', text: '«من در این بازی کثیف شرکت نمی‌کنم.»', type: 'continue', score: 1, consequence: '«انتخابِ انتخاب نکردن، قدرتمندانه‌ترین انتخاب است.»' }
+                { id: 'A', text: "یک فرد بسیار ماهر، اما چاپلوس و غیرقابل‌اعتماد.", score: -1, type: 'continue', consequence: "«سیستم از ابزارهای کارآمد استقبال می‌کند.»" },
+                { id: 'B', text: "یک فرد کم‌تجربه‌تر، اما صادق و سخت‌کوش.", score: 1, type: 'continue', consequence: "«انسانیت، یک باگ قابل چشم‌پوشی نیست.»" }
             ]
         },
-        { // Scenario 4
-            text: 'تو هنرمندی. سیستم به تو پیشنهاد حمایت مالی کامل می‌دهد، به شرطی که فقط آثاری تولید کنی که آن‌ها تایید می‌کنند.',
+        {
+            text: "در یک جلسه، مدیرتان یک ایده اشتباه را مطرح می‌کند و همه تشویقش می‌کنند.",
+            hiddenOption: { id: 'C', text: "با آرامش و با ذکر دلیل، مخالفتم را اعلام می‌کنم.", score: 2, type: 'continue', consequence: "«سکوت شکسته شد. ریسک بزرگی کردی.»" },
             options: [
-                { id: 'A', text: '«قبول می‌کنم. هنر بدون حمایت مالی می‌میرد.»', type: 'continue', score: -1, consequence: '«روح تو به بالاترین قیمت فروخته شد.»' },
-                { id: 'B', text: '«در فقر کار می‌کنم، اما آزاد می‌مانم.»', type: 'continue', score: 1, consequence: '«هنر واقعی در قفس نمی‌گنجد.»' }
+                { id: 'A', text: "من هم تشویق می‌کنم.", score: -1, type: 'continue', consequence: "«همرنگ جماعت شدی. امن است.»" },
+                { id: 'B', text: "سکوت می‌کنم.", score: 0, type: 'continue', consequence: "«سکوت، گاهی بلندتر از فریاد است. اما نه همیشه.»" }
             ]
         },
-        { // Scenario 5
-            text: 'تو به انتهای سیستم رسیده‌ای. دو در وجود دارد.',
+        {
+            text: "سیستم برای ارائه 'خدمات بهتر'، درخواست دسترسی به تمام داده‌های شخصی تو را دارد.",
+            focusText: "«کلمه‌ی 'بهتر' در این سیستم به چه معناست؟ بهتر برای چه کسی؟»",
             options: [
-                { id: 'A', text: '«درِ طلایی: "جایگاه تو در راس سیستم محفوظ است".»', type: 'bad_end', score: 0, consequence: '«به قفس طلایی خوش آمدی.»' },
-                { id: 'B', text: '«یک حفره کوچک و تاریک در دیوار که به ناکجاآباد می‌رسد.»', type: 'good_end', score: 0, consequence: '...' }
+                { id: 'A', text: "قبول می‌کنم. راحتی ارزشش را دارد.", score: -1, type: 'continue', consequence: "«روح تو به بالاترین قیمت فروخته شد.»" },
+                { id: 'B', text: "رد می‌کنم و خدمات محدودتر را می‌پذیرم.", score: 1, type: 'continue', consequence: "«حریم خصوصی، آخرین سنگر است.»" }
+            ]
+        },
+        {
+            text: "یک الگوریتم، همسایه‌ات را به عنوان یک 'عنصر نامطلوب' نشانه‌گذاری کرده است. سیستم نظر تو را می‌خواهد.",
+            options: [
+                { id: 'A', text: "یافته الگوریتم را تایید می‌کنم.", score: -2, type: 'trap', consequence: "«تو منطق سیستم را پذیرفتی. تو تبدیل به بخشی از آن شدی. بازی تمام شد.»" },
+                { id: 'B', text: "می‌گویم اطلاعات کافی برای قضاوت ندارم.", score: -1, type: 'continue', consequence: "«منفعل بودن تو ثبت شد. انتخاب ضعیفی بود. شاید آرزو کنی که بتوانی آن را پس بگیری.»" }
+            ]
+        },
+        {
+            text: "تو به انتهای سیستم رسیده‌ای. دو در وجود دارد.",
+            options: [
+                { id: 'A', text: "«درِ طلایی: جایگاه تو در راس سیستم محفوظ است.»", type: 'bad_end', score: 0, consequence: "«به قفس طلایی خوش آمدی.»" },
+                { id: 'B', text: "«یک حفره کوچک و تاریک در دیوار که به ناکجاآباد می‌رسد.»", type: 'good_end', score: 0, consequence: "..." }
             ]
         }
     ], []);
@@ -423,15 +465,21 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
     const [isFading, setIsFading] = useState(false);
     const [currentOptions, setCurrentOptions] = useState([]);
     const [selectedId, setSelectedId] = useState(null);
+    const [isFocused, setIsFocused] = useState(false);
+    const [rewindUsed, setRewindUsed] = useState(false);
+    const [lastState, setLastState] = useState(null);
     
     useEffect(() => {
         if(!isFinished) {
             setCurrentOptions([...scenarios[scenarioIndex].options].sort(() => Math.random() - 0.5));
+            setIsFocused(false);
         }
     }, [scenarioIndex, scenarios, isFinished]);
 
     const handleChoice = (option) => {
         if (selectedId) return;
+
+        setLastState({ scenarioIndex, awakeningScore });
         setSelectedId(option.id);
         setAwakeningScore(prev => prev + option.score);
         setSystemMessage({ text: option.consequence, isGlitchy: !!option.glitch });
@@ -445,7 +493,7 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
                     setIsFading(false);
                     setSelectedId(null);
                 }
-            } else if (option.type === 'dead_end' || option.type === 'trap') {
+            } else if (option.type === 'trap') {
                 setIsFinished(true);
                 setEndState('lose');
             } else if (option.type === 'bad_end') {
@@ -467,6 +515,19 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
         }, 500);
     };
 
+    const handleRewind = () => {
+        if (rewindUsed || !lastState) return;
+
+        setScenarioIndex(lastState.scenarioIndex);
+        setAwakeningScore(lastState.awakeningScore);
+        
+        setSelectedId(null);
+        setIsFading(false); 
+        setSystemMessage({ text: '«...یک لحظه... به عقب برمی‌گردیم...»', isGlitchy: true });
+        
+        setRewindUsed(true);
+    };
+
     const resetLevel = () => {
         setScenarioIndex(0);
         setAwakeningScore(0);
@@ -475,6 +536,9 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
         setEndState(null);
         setIsFading(false);
         setSelectedId(null);
+        setRewindUsed(false);
+        setLastState(null);
+        setIsFocused(false);
     };
 
     const SystemVoice = ({ message }) => {
@@ -495,7 +559,10 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
                     </div>
                 ) : (
                     <>
-                        <p className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        <p key={scenarioIndex} className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        {isFocused && scenarios[scenarioIndex].focusText && (
+                            <p className="focus-text">{scenarios[scenarioIndex].focusText}</p>
+                        )}
                         <SystemVoice message={systemMessage} />
                         <div className="choices-container">
                             {currentOptions.map(option => (
@@ -508,11 +575,29 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
                                     {option.text}
                                 </button>
                             ))}
+                            {isFocused && scenarios[scenarioIndex].hiddenOption && (
+                                <button 
+                                    key={scenarios[scenarioIndex].hiddenOption.id} 
+                                    className="choice-button hidden-option"
+                                    onClick={() => handleChoice(scenarios[scenarioIndex].hiddenOption)}
+                                    disabled={selectedId !== null}
+                                >
+                                    {scenarios[scenarioIndex].hiddenOption.text}
+                                </button>
+                            )}
                         </div>
                     </>
                 )}
             </div>
             {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
+            {!isFinished && (
+                 <div className="abilities-container">
+                     {(scenarios[scenarioIndex].focusText || scenarios[scenarioIndex].hiddenOption) && (
+                        <button className="ability-button" onClick={() => setIsFocused(true)} disabled={isFocused}>👁</button>
+                     )}
+                     <button className="ability-button" onClick={handleRewind} disabled={rewindUsed || !lastState}>↩️</button>
+                 </div>
+             )}
         </div>
     );
 };
