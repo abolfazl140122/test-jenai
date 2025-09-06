@@ -25,7 +25,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Vazirmatn:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         /* Global Styles */
@@ -35,11 +35,23 @@
           width: 100%;
           height: 100%;
           overflow: hidden;
-          font-family: 'Creepster', cursive;
           background: radial-gradient(ellipse at center, #2e0000 0%, #000 75%);
           color: #ff0000;
           animation: backgroundPulse 7s infinite ease-in-out;
         }
+
+        body {
+            font-family: 'Vazirmatn', 'Creepster', cursive;
+        }
+
+        body[dir="rtl"] {
+            /* Styles for Farsi can go here if needed */
+        }
+        
+        .creepster-font {
+            font-family: 'Creepster', cursive;
+        }
+
 
         /* Keyframes */
         @keyframes pulse {
@@ -234,13 +246,13 @@
         .form-group { margin-bottom: 20px; }
         .form-group.shake { animation: shake 0.5s; }
         .form-card input {
-          box-sizing: border-box; width: 100%; padding: 10px; background-color: transparent; border: 2px solid #b40000; border-radius: 8px; color: #ff0000; font-size: 1.2rem; text-align: center; font-family: 'Creepster', cursive; transition: all 0.3s ease-in-out; animation: inputGlow 2.5s infinite ease-in-out;
+          box-sizing: border-box; width: 100%; padding: 10px; background-color: transparent; border: 2px solid #b40000; border-radius: 8px; color: #ff0000; font-size: 1.2rem; text-align: center; font-family: 'Vazirmatn', 'Creepster', cursive; transition: all 0.3s ease-in-out; animation: inputGlow 2.5s infinite ease-in-out;
         }
         .form-card input:focus {
           outline: none; border-color: #ff4d4d; box-shadow: 0 0 15px #ff4d4d;
         }
         .button-glow {
-          position: relative; padding: 10px 20px; background: linear-gradient(45deg, #b40000, #ff0000); border: none; border-radius: 8px; color: #fff; font-family: 'Creepster', cursive; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease-in-out; box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+          position: relative; padding: 10px 20px; background: linear-gradient(45deg, #b40000, #ff0000); border: none; border-radius: 8px; color: #fff; font-family: 'Vazirmatn', 'Creepster', cursive; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.3s ease-in-out; box-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
         }
         .button-glow:hover {
           background: linear-gradient(45deg, #ff0000, #b40000); box-shadow: 0 0 15px #ff4d4d, 0 0 30px #ff0000; transform: translateY(-2px);
@@ -268,7 +280,7 @@
           display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 300px;
         }
         .menu-button {
-          background-color: rgba(0, 0, 0, 0.7); color: #ff0000; border: 2px solid #ff0000; padding: 15px 0; font-family: 'Creepster', cursive; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.25s ease-in-out; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+          background-color: rgba(0, 0, 0, 0.7); color: #ff0000; border: 2px solid #ff0000; padding: 15px 0; font-family: 'Vazirmatn', 'Creepster', cursive; font-size: 1.8rem; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: all 0.25s ease-in-out; box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
           opacity: 0;
           animation: staggeredFadeInUp 0.6s ease-out forwards;
         }
@@ -276,6 +288,7 @@
         .menu-list .menu-button:nth-child(2) { animation-delay: 0.3s; }
         .menu-list .menu-button:nth-child(3) { animation-delay: 0.4s; }
         .menu-list .menu-button:nth-child(4) { animation-delay: 0.5s; }
+        .menu-list .menu-button:nth-child(5) { animation-delay: 0.6s; }
 
         .menu-button:hover {
           transform: scale(1.05); box-shadow: 0 0 20px #ff4d4d, 0 0 40px #ff0000;
@@ -325,7 +338,7 @@
           color: #ff0000;
           border: 2px solid #ff0000;
           padding: 10px 25px;
-          font-family: 'Creepster', cursive;
+          font-family: 'Vazirmatn', 'Creepster', cursive;
           font-size: 1.5rem;
           text-transform: uppercase;
           letter-spacing: 0.1em;
@@ -442,7 +455,7 @@
             border: 2px solid #b40000;
             border-radius: 8px;
             color: #ffaaaa;
-            font-family: 'Creepster', cursive;
+            font-family: 'Vazirmatn', 'Creepster', cursive;
             font-size: clamp(1.1rem, 3vw, 1.3rem);
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -571,6 +584,10 @@
             gap: 15px;
             z-index: 10;
         }
+        body[dir="rtl"] .abilities-container {
+            right: auto;
+            left: 20px;
+        }
         .ability-button {
             width: 50px;
             height: 50px;
@@ -600,6 +617,10 @@
             line-height: 20px;
             text-align: center;
             font-family: Arial, sans-serif;
+        }
+        body[dir="rtl"] .ability-uses {
+            right: auto;
+            left: -5px;
         }
         .ability-button:hover:not(:disabled) {
             background-color: rgba(255, 0, 0, 0.3);
