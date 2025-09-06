@@ -224,7 +224,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   };
 
   const logoUrl = 'https://up.20script.ir/file/e71f-gemini-2-5-flash-image-preview-nano-banana-میخوام-دست-هایشان-پی.png';
-  const iranFlagUrl = 'https://static.vecteezy.com/system/resources/previews/016/328/940/original/iran-flat-rounded-flag-icon-with-transparent-background-free-png.png';
+  const introImageUrl = 'https://up.20script.ir/file/e578-preview.jpg';
 
 
   return (
@@ -251,7 +251,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
         <div className="intro-panel-overlay">
           <div className="intro-panel-content">
             <h2 className="intro-title creepster-font">{t.intro_panel.title}</h2>
-            <img src={iranFlagUrl} alt="Iran Flag" className="flag-logo" />
+            <img src={introImageUrl} alt="Game Emblem" className="intro-panel-image-cool" />
             <p className="intro-description">{t.intro_panel.description}</p>
             <button className="button-glow intro-agree-button" onClick={onLoadingComplete}>
               {t.intro_panel.agree_button}

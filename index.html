@@ -179,6 +179,20 @@
                 filter: blur(0);
             }
         }
+        @keyframes scaleAndFadeIn { 
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); } 
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); } 
+        }
+        @keyframes textGlowPulse { 
+            0% { text-shadow: 0 0 5px rgba(255, 0, 0, 0.7); } 
+            50% { text-shadow: 0 0 15px rgba(255, 0, 0, 1); } 
+            100% { text-shadow: 0 0 5px rgba(255, 0, 0, 0.7); } 
+        }
+        @keyframes imagePulse { 
+            0% { transform: scale(1); filter: grayscale(20%); } 
+            50% { transform: scale(1.05); filter: grayscale(0%); } 
+            100% { transform: scale(1); filter: grayscale(20%); } 
+        }
 
         /* Grain Overlay */
         .grain-overlay::after {
@@ -244,17 +258,19 @@
             backdrop-filter: blur(5px);
         }
         .intro-panel-content { 
-            background: rgba(20, 20, 20, 0.9); 
-            border: 2px solid #ff0000; 
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); 
+            background: linear-gradient(135deg, rgba(30,0,0,0.9), rgba(0,0,0,0.9));
+            border: 3px double #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
             padding: 30px; 
-            border-radius: 10px; 
+            border-radius: 15px;
             max-width: 90%; 
             width: 500px; 
             text-align: center; 
-            color: #eee; 
-            position: relative; 
-            animation: fadeIn 0.8s ease-out; 
+            color: #e0e0e0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            animation: scaleAndFadeIn 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
         }
         .intro-title { 
             font-size: clamp(1.8rem, 5vw, 2.2rem); 
@@ -262,24 +278,40 @@
             margin-bottom: 20px; 
             text-shadow: 0 0 10px rgba(255, 0, 0, 0.7); 
             font-family: 'Creepster', cursive;
+            animation: textGlowPulse 2s infinite;
         }
-        .flag-logo { 
-            width: 80px; 
-            height: auto; 
-            margin-bottom: 20px; 
-            border-radius: 50%; 
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); 
+        .intro-panel-image-cool {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8), inset 0 0 8px rgba(255, 0, 0, 0.5);
+            filter: grayscale(20%);
+            animation: imagePulse 2.5s infinite alternate;
+            margin-bottom: 25px;
         }
         .intro-description { 
-            font-size: clamp(1rem, 3vw, 1.1rem); 
+            font-size: 1.15em;
             line-height: 1.6; 
-            margin-bottom: 30px; 
-            color: #ccc;
+            margin-bottom: 35px;
+            color: #e0e0e0;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
         }
         .intro-agree-button { 
-            padding: 12px 25px; 
-            font-size: clamp(1rem, 4vw, 1.2rem); 
+            padding: 15px 35px;
+            font-size: 1.3em;
+            background-color: #ff0000;
+            color: #fff;
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.7);
+            transition: all 0.3s ease-in-out;
             cursor: pointer; 
+        }
+        .intro-agree-button:hover {
+            transform: scale(1.08);
+            background-color: #e60000;
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.9);
         }
 
         /* SabtName Styles */
