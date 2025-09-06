@@ -8,6 +8,11 @@ const translations = {
   en: {
     loading: 'LOADING...',
     tapToStart: 'TAP TO START',
+    intro_panel: {
+      title: "Welcome to The Abyss",
+      description: "This game is not just about entertainment; it's a journey into the depths of societal consciousness. We explore the hidden truths, the unseen struggles, and the choices that define our collective future. Your path will challenge your perception of reality.",
+      agree_button: "I understand and agree"
+    },
     sabtName: {
       title: 'Enter your name',
       subtitle: 'The shadows are waiting...',
@@ -76,6 +81,11 @@ const translations = {
   fa: {
     loading: 'در حال بارگذاری...',
     tapToStart: 'برای شروع ضربه بزنید',
+    intro_panel: {
+        title: "به مغاک خوش آمدید",
+        description: "این بازی صرفاً برای سرگرمی نیست؛ سفری است به اعماق آگاهی اجتماعی. ما به کاوش حقایق پنهان، مبارزات نادیده گرفته شده، و انتخاب‌هایی می‌پردازیم که آینده جمعی ما را شکل می‌دهند. مسیر پیش رو، ادراک شما از واقعیت را به چالش خواهد کشید.",
+        agree_button: "می‌پذیرم و موافقم"
+    },
     sabtName: {
       title: 'نام خود را وارد کنید',
       subtitle: 'سایه‌ها منتظرند...',
@@ -181,6 +191,7 @@ const LoadingScreen = ({ onLoadingComplete }) => {
   const [isLoaded, setIsLoaded] = useState(false);
   const [startClicked, setStartClicked] = useState(false);
   const [introFinished, setIntroFinished] = useState(false);
+  const [showIntroPanel, setShowIntroPanel] = useState(false);
 
   useEffect(() => {
     const introTimer = setTimeout(() => {
@@ -208,31 +219,47 @@ const LoadingScreen = ({ onLoadingComplete }) => {
     e.preventDefault();
     if (isLoaded) {
       setStartClicked(true);
-      setTimeout(() => onLoadingComplete(), 500);
+      setTimeout(() => setShowIntroPanel(true), 500);
     }
   };
 
   const logoUrl = 'https://up.20script.ir/file/e71f-gemini-2-5-flash-image-preview-nano-banana-میخوام-دست-هایشان-پی.png';
+  const iranFlagUrl = 'https://static.vecteezy.com/system/resources/previews/016/328/940/original/iran-flat-rounded-flag-icon-with-transparent-background-free-png.png';
+
 
   return (
-    <div 
-      className={`loading-container ${introFinished ? 'intro-finished' : ''} ${startClicked ? 'shake' : ''}`} 
-      role="application" 
-      aria-busy={!isLoaded} 
-      aria-label="Game is loading"
-      onClick={handleStartClick}
-    >
-      <img src={logoUrl} alt="Game Logo" className="logo" />
-      <div className="progress-bar-container" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
-        <div className="progress-bar" style={{ width: `${progress}%` }}></div>
-      </div>
+    <>
       <div 
-        className={`loading-text ${isLoaded ? 'tap-to-start' : 'loading'} creepster-font`} 
-        aria-live="polite"
+        className={`loading-container ${introFinished ? 'intro-finished' : ''} ${startClicked ? 'shake' : ''}`} 
+        role="application" 
+        aria-busy={!isLoaded} 
+        aria-label="Game is loading"
+        onClick={!showIntroPanel ? handleStartClick : undefined}
       >
-        {isLoaded ? t.tapToStart : t.loading}
+        <img src={logoUrl} alt="Game Logo" className="logo" />
+        <div className="progress-bar-container" role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100}>
+          <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+        </div>
+        <div 
+          className={`loading-text ${isLoaded ? 'tap-to-start' : 'loading'} creepster-font`} 
+          aria-live="polite"
+        >
+          {isLoaded ? t.tapToStart : t.loading}
+        </div>
       </div>
-    </div>
+      {showIntroPanel && (
+        <div className="intro-panel-overlay">
+          <div className="intro-panel-content">
+            <h2 className="intro-title creepster-font">{t.intro_panel.title}</h2>
+            <img src={iranFlagUrl} alt="Iran Flag" className="flag-logo" />
+            <p className="intro-description">{t.intro_panel.description}</p>
+            <button className="button-glow intro-agree-button" onClick={onLoadingComplete}>
+              {t.intro_panel.agree_button}
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -654,6 +681,7 @@ const App = () => {
   const [gameState, setGameState] = useState('loading');
   const [userName, setUserName] = useState('');
   const [unlockedLevels, setUnlockedLevels] = useState([1]);
+  const backgroundMusic = useMemo(() => new Audio('https://raw.githubusercontent.com/abolfazl140122/test-jenai/db04f46770fa6cb3e02056e89905cd203cd54d46/horror-background-music-313735.mp3'), []);
 
   useEffect(() => {
     const savedName = localStorage.getItem('userName');
@@ -675,11 +703,18 @@ const App = () => {
     }
     setGameState('level-select');
   };
+  
+  const handleLoadingComplete = () => {
+    backgroundMusic.loop = true;
+    backgroundMusic.volume = 0.4;
+    backgroundMusic.play().catch(error => console.error("Audio play failed:", error));
+    setGameState(userName || localStorage.getItem('userName') ? 'main-menu' : 'sabt-name');
+  };
 
   const renderScreen = () => {
     switch (gameState) {
       case 'loading':
-        return <LoadingScreen onLoadingComplete={() => setGameState(userName || localStorage.getItem('userName') ? 'main-menu' : 'sabt-name')} />;
+        return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
       case 'sabt-name':
         return <SabtName onNameSubmit={handleNameSubmit} />;
       case 'main-menu':

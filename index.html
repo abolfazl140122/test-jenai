@@ -228,6 +228,60 @@
             opacity: 1; animation: tapGlow 2.5s infinite ease-in-out; cursor: pointer;
         }
 
+        /* Intro Panel Styles */
+        .intro-panel-overlay { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0, 0, 0, 0.85); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 1000; 
+            animation: fadeIn 0.5s ease-out; 
+            backdrop-filter: blur(5px);
+        }
+        .intro-panel-content { 
+            background: rgba(20, 20, 20, 0.9); 
+            border: 2px solid #ff0000; 
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); 
+            padding: 30px; 
+            border-radius: 10px; 
+            max-width: 90%; 
+            width: 500px; 
+            text-align: center; 
+            color: #eee; 
+            position: relative; 
+            animation: fadeIn 0.8s ease-out; 
+        }
+        .intro-title { 
+            font-size: clamp(1.8rem, 5vw, 2.2rem); 
+            color: #ff0000; 
+            margin-bottom: 20px; 
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7); 
+            font-family: 'Creepster', cursive;
+        }
+        .flag-logo { 
+            width: 80px; 
+            height: auto; 
+            margin-bottom: 20px; 
+            border-radius: 50%; 
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); 
+        }
+        .intro-description { 
+            font-size: clamp(1rem, 3vw, 1.1rem); 
+            line-height: 1.6; 
+            margin-bottom: 30px; 
+            color: #ccc;
+        }
+        .intro-agree-button { 
+            padding: 12px 25px; 
+            font-size: clamp(1rem, 4vw, 1.2rem); 
+            cursor: pointer; 
+        }
+
         /* SabtName Styles */
         .sabt-name-container {
           position: relative; display: flex; flex-direction: column; justify-content: center; align-items: center; width: 100%; height: 100%; user-select: none; isolation: isolate;
