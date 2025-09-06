@@ -30,6 +30,7 @@ const translations = {
       sound: 'Sound: ON',
       music: 'Music: ON',
       difficulty: 'Difficulty: Nightmare',
+      language: 'Language',
       back: 'Back',
     },
     credits: {
@@ -97,6 +98,7 @@ const translations = {
       sound: 'صدا: روشن',
       music: 'موسیقی: روشن',
       difficulty: 'درجه سختی: کابوس',
+      language: 'زبان',
       back: 'بازگشت',
     },
     credits: {
@@ -327,12 +329,6 @@ const MainMenu = ({ onNavigate }) => {
           {t.mainMenu.options}
         </button>
         <button
-          className={`menu-button ${activeButton === 'language' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('language', 'language-select')}
-        >
-          {t.mainMenu.language}
-        </button>
-        <button
           className={`menu-button ${activeButton === 'credits' ? 'active' : ''}`}
           onClick={() => handleButtonClick('credits', 'credits')}
         >
@@ -349,33 +345,9 @@ const MainMenu = ({ onNavigate }) => {
   );
 };
 
-// Language Selection Screen
-const LanguageScreen = ({ onNavigate }) => {
-    const { setLanguage, t } = useContext(LanguageContext);
-
-    const handleLanguageSelect = (lang) => {
-        setLanguage(lang);
-        onNavigate('main-menu');
-    }
-
-    return (
-        <div className="page-container">
-            <h1 className="page-title creepster-font">{t.languageSelect.title}</h1>
-            <div className="menu-list">
-                <button className="menu-button" onClick={() => handleLanguageSelect('en')}>
-                    {t.languageSelect.english}
-                </button>
-                <button className="menu-button" onClick={() => handleLanguageSelect('fa')}>
-                    {t.languageSelect.farsi}
-                </button>
-            </div>
-        </div>
-    );
-};
-
 // Options Screen
 const OptionsScreen = ({ onBack }) => {
-  const { t } = useContext(LanguageContext);
+  const { language, setLanguage, t } = useContext(LanguageContext);
   return (
     <div className="options-container page-container">
         <h1 className="page-title creepster-font">{t.options.title}</h1>
@@ -383,6 +355,23 @@ const OptionsScreen = ({ onBack }) => {
             <p>{t.options.sound}</p>
             <p>{t.options.music}</p>
             <p>{t.options.difficulty}</p>
+            <div className="language-selector">
+                <p>{t.options.language}</p>
+                <div className="language-buttons">
+                    <button 
+                        className={`lang-button ${language === 'en' ? 'active' : ''}`}
+                        onClick={() => setLanguage('en')}
+                    >
+                        {t.languageSelect.english}
+                    </button>
+                    <button 
+                        className={`lang-button ${language === 'fa' ? 'active' : ''}`}
+                        onClick={() => setLanguage('fa')}
+                    >
+                        {t.languageSelect.farsi}
+                    </button>
+                </div>
+            </div>
         </div>
         <button className="back-button" onClick={onBack}>{t.options.back}</button>
     </div>
@@ -699,8 +688,6 @@ const App = () => {
         return <OptionsScreen onBack={() => setGameState('main-menu')} />;
       case 'credits':
         return <CreditsScreen onBack={() => setGameState('main-menu')} />;
-      case 'language-select':
-        return <LanguageScreen onNavigate={setGameState} />;
       case 'level-select':
         return <LevelSelectScreen onBack={() => setGameState('main-menu')} onNavigate={setGameState} unlockedLevels={unlockedLevels} />;
       case 'level-one':
