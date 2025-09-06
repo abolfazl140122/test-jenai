@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useMemo } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -204,21 +205,28 @@ const CreditsScreen = ({ onBack }) => {
 // Level Select Screen
 const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
     const levels = [
-        { id: 1, name: 'The Awakening' },
-        { id: 2, name: 'The Rules' },
-        { id: 3, name: 'The Cellar' },
-        { id: 4, name: 'Crimson Library' },
-        { id: 5, name: 'The Ritual' },
-        { id: 6, name: 'Final Descent' },
+        { id: 1, name: 'The Awakening', icon: '❓' },
+        { id: 2, name: 'The Rules', icon: '📜' },
+        { id: 3, name: 'Echoing Halls', icon: '🗣️' },
+        { id: 4, name: 'Crimson Library', icon: '📚' },
+        { id: 5, name: 'The Ritual', icon: '🎭' },
+        { id: 6, name: 'Final Descent', icon: '💥' },
     ];
 
     const handleLevelClick = (level) => {
         if (!unlockedLevels.includes(level.id)) return;
         
-        if (level.id === 1) {
-            onNavigate('level-one');
-        } else if (level.id === 2) {
-            onNavigate('level-two');
+        const levelMap = {
+            1: 'level-one',
+            2: 'level-two',
+            3: 'level-three',
+            4: 'level-four',
+            5: 'level-five',
+            6: 'level-six',
+        };
+        const targetScreen = levelMap[level.id];
+        if (targetScreen) {
+            onNavigate(targetScreen);
         } else {
             console.log(`Clicked on level: ${level.name}`);
         }
@@ -242,10 +250,11 @@ const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
                             {isLocked ? (
                                 <span className="lock-icon" aria-hidden="true">🔒</span> 
                             ) : (
-                                <>
+                                <div className="level-card-content">
+                                    <div className="level-icon">{level.icon}</div>
                                     <div className="level-number">{level.id}</div>
                                     <div className="level-name">{level.name}</div>
-                                </>
+                                </div>
                             )}
                         </div>
                     );
@@ -331,7 +340,8 @@ const LevelOneScreen = ({ onBack, onWin }) => {
     const handleChoice = (option) => {
         if (selectedId) return;
         setSelectedId(option.id);
-        setAwakeningScore(prev => prev + option.score);
+        const newScore = awakeningScore + option.score;
+        setAwakeningScore(newScore);
         setConsequenceText(option.consequence);
 
         setTimeout(() => setConsequenceText(''), 2500);
@@ -343,11 +353,10 @@ const LevelOneScreen = ({ onBack, onWin }) => {
                 setIsFading(false);
                 setSelectedId(null);
             } else {
-                const finalScore = awakeningScore + option.score;
-                if (finalScore > 2) {
+                if (newScore > 2) {
                     setResultMessage("تو به دنبال نوری، حتی اگر چشم را بزند. مسیر بعدی برایت باز شد.");
                     setTimeout(() => onWin(), 3000);
-                } else if (finalScore >= 0) {
+                } else if (newScore >= 0) {
                     setResultMessage("تو در مرز بین خواب و بیداری قدم می‌زنی. اما هنوز آماده نیستی.");
                      setTimeout(() => onBack(), 3000);
                 } else {
@@ -481,7 +490,8 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
 
         setLastState({ scenarioIndex, awakeningScore });
         setSelectedId(option.id);
-        setAwakeningScore(prev => prev + option.score);
+        const newScore = awakeningScore + option.score;
+        setAwakeningScore(newScore);
         setSystemMessage({ text: option.consequence, isGlitchy: !!option.glitch });
 
         setIsFading(true);
@@ -492,6 +502,12 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
                     setScenarioIndex(prev => prev + 1);
                     setIsFading(false);
                     setSelectedId(null);
+                } else {
+                     // Failsafe if last scenario is 'continue'
+                     setIsFinished(true);
+                     setSystemMessage({ text: '«سیستم دچار خطای پیش‌بینی نشده گردید. مسیر مسدود است.»', isGlitchy: true });
+                     setEndState('bad-win');
+                     setTimeout(() => onBack(), 4000);
                 }
             } else if (option.type === 'trap') {
                 setIsFinished(true);
@@ -501,8 +517,7 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
                  setEndState('bad-win');
                  setTimeout(() => onBack(), 4000);
             } else if (option.type === 'good_end') {
-                const finalScore = awakeningScore + option.score;
-                if(finalScore > 3) {
+                if(newScore > 3) {
                      setSystemMessage({ text: 'تو نه تنها بیدار شدی، بلکه از بازی بیرون زدی. تو آزادی.', isGlitchy: false });
                      setEndState('good-win');
                 } else {
@@ -542,7 +557,7 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
     };
 
     const SystemVoice = ({ message }) => {
-        if (!message.text) return null;
+        if (!message.text) return <p className="system-voice">&nbsp;</p>;
         if (message.isGlitchy) {
             return <p className="system-voice glitch-text" data-text={message.text}>{message.text}</p>;
         }
@@ -602,9 +617,360 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
     );
 };
 
+// Level Three Screen: The Echoing Halls
+const LevelThreeScreen = ({ onBack, onWin }) => {
+    // Ability: Whisper of Truth 🗣️
+    const scenarios = useMemo(() => [
+        { text: "در یک جلسه آنلاین، مدیر یک ایده را مطرح می‌کند که همه بدون سوال تشویق می‌کنند.", options: [
+            { id: 'A', text: "من هم تشویق می‌کنم.", score: -1, consequence: "پژواک صدای تشویق تو در تالار پیچید." },
+            { id: 'B', text: "سکوت می‌کنم و دوربین را خاموش می‌کنم.", score: 0, consequence: "در تاریکی، دیده نشدی. شنیده هم نشدی." },
+            { id: 'C', text: "[زمزمه کن] سوالی در مورد ایرادات احتمالی طرح می‌پرسم.", score: 2, consequence: "سکوت سنگینی حاکم شد. همه نگاه‌ها به سوی تو برگشت.", ability: "whisper" }
+        ]},
+        { text: "یک چالش جدید در شبکه‌های اجتماعی فراگیر شده که به نظرت بی‌معنی است.", options: [
+            { id: 'A', text: "من هم در آن شرکت می‌کنم تا عقب نمانم.", score: -1, consequence: "برای لحظه‌ای احساس تعلق کردی." },
+            { id: 'B', text: "آن را نادیده می‌گیرم.", score: 0, consequence: "جریان از کنار تو گذشت و تو را جا گذاشت." }
+        ]},
+        { text: "یک خبر دروغ به وضوح در گروه دوستانتان پخش می‌شود.", options: [
+            { id: 'A', text: "برای جلوگیری از تنش، چیزی نمی‌گویم.", score: -1, consequence: "دروغ، قوی‌تر شد." },
+            { id: 'B', text: "[زمزمه کن] منبع این خبر معتبر نیست.", score: 2, consequence: "چند نفر به فکر فرو رفتند، اما بسیاری تو را به منفی‌بافی متهم کردند.", ability: "whisper" }
+        ]},
+        { text: "همه برای دیدن یک فیلم محبوب صف کشیده‌اند.", options: [
+            { id: 'A', text: "به صف می‌پیوندم.", score: -1, consequence: "در میان جمعیت، احساس امنیت کردی." },
+            { id: 'B', text: "به سالن سینمای کناری می‌روم که یک فیلم مستقل و قدیمی پخش می‌کند.", score: 1, consequence: "در سالن خلوت، فیلم را با تمام وجود حس کردی." }
+        ]},
+        { text: "در محل کار، همه از یک نفر غیبت می‌کنند.", options: [
+            { id: 'A', text: "برای اینکه خودم را جدا نکنم، من هم نظری می‌دهم.", score: -2, consequence: "کلمات تو، بخشی از سم شدند." },
+            { id: 'B', text: "سکوت می‌کنم و خودم را مشغول نشان می‌دهم.", score: 0, consequence: "سکوت تو، رضایت تلقی شد." },
+            { id: 'C', text: "[زمزمه کن] شاید بهتر باشد در مورد کار صحبت کنیم.", score: 2, consequence: "فضا سنگین شد، اما غیبت متوقف شد.", ability: "whisper" }
+        ]},
+        { text: "یک 'رهبر' ظهور کرده که وعده‌های بزرگی می‌دهد و همه را هیجان‌زده کرده است.", options: [
+            { id: 'A', text: "به حرف‌هایش اعتماد می‌کنم. همه نمی‌توانند اشتباه کنند.", score: -2, consequence: "اراده‌ات را به او سپردی." },
+            { id: 'B', text: "نسبت به وعده‌هایش تردید دارم و تحقیق می‌کنم.", score: 1, consequence: "در میان فریادهای جمعیت، صدای شک تو شنیده نمی‌شد." }
+        ]},
+        { text: "در انتهای تالار، جمعیت به سمت یک در بزرگ و نورانی حرکت می‌کند. تو می‌توانی همراهشان بروی یا...", options: [
+            { id: 'A', text: "همراه جمعیت وارد در می‌شوم.", score: -5, type: 'bad_end', consequence: "در پشت در، همه شبیه هم شدند. تو هم یکی از آنها شدی. برای همیشه." },
+            { id: 'B', text: "[زمزمه کن] این راه اشتباه است.", score: 3, type: 'good_end', consequence: "صدایت در ابتدا گم شد، اما سپس یک نفر ایستاد. بعد دیگری. نور دروغین خاموش شد و یک مسیر باریک در تاریکی نمایان گشت.", ability: "whisper" }
+        ]}
+    ], []);
+
+    const [scenarioIndex, setScenarioIndex] = useState(0);
+    const [score, setScore] = useState(0);
+    const [consequenceText, setConsequenceText] = useState('');
+    const [isFinished, setIsFinished] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+
+    const handleChoice = (option) => {
+        if (selectedId) return;
+        setSelectedId(option.id);
+        const newScore = score + option.score;
+        setScore(newScore);
+        setConsequenceText(option.consequence);
+        setIsFading(true);
+
+        setTimeout(() => {
+            if (option.type === 'good_end') {
+                if (newScore > 4) {
+                    setConsequenceText("صدای تو، هرچقدر هم آرام، پژواک حقیقت بود. مسیر بعدی باز شد.");
+                    setIsFinished(true);
+                    setTimeout(onWin, 3000);
+                } else {
+                    setConsequenceText("تو سعی کردی متفاوت باشی، اما پژواک‌ها هنوز در ذهنت هستند. باید برگردی.");
+                    setIsFinished(true);
+                    setTimeout(onBack, 3000);
+                }
+            } else if (option.type === 'bad_end') {
+                setIsFinished(true);
+                setTimeout(onBack, 3000);
+            } else {
+                if (scenarioIndex < scenarios.length - 1) {
+                    setScenarioIndex(prev => prev + 1);
+                    setIsFading(false);
+                    setSelectedId(null);
+                }
+            }
+        }, 500);
+    };
+    
+    return (
+        <div className="level-three-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isFinished ? (
+                    <div className="result-container"><p>{consequenceText}</p></div>
+                ) : (
+                    <>
+                        <p key={scenarioIndex} className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        <div className="choices-container">
+                            {scenarios[scenarioIndex].options.map(option => (
+                                <button
+                                    key={option.id}
+                                    className={`choice-button ${selectedId === option.id ? 'selected' : ''} ${option.ability === 'whisper' ? 'whisper-option' : ''}`}
+                                    onClick={() => handleChoice(option)}
+                                    disabled={selectedId !== null}
+                                >
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                        <p className={`consequence-text ${selectedId ? 'visible' : ''}`}>{consequenceText || ' '}</p>
+                    </>
+                )}
+            </div>
+            {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
+            <div className="abilities-container">
+                <button className="ability-button" disabled>🗣️</button>
+            </div>
+        </div>
+    );
+};
+
+// Level Four Screen: The Crimson Library
+const LevelFourScreen = ({ onBack, onWin }) => {
+    // Ability: Decipher 🔍 (3 uses)
+    const scenarios = useMemo(() => [
+        { text: "یک کتاب تاریخ قدیمی پیدا می‌کنی. در بخشی از آن آمده: 'و پس از آن، مردم با خوشحالی به زندگی ادامه دادند. [بخش بزرگی از متن سیاه شده است]'", censored: "... و پس از آن شورش بزرگ، هزاران نفر ناپدید شدند." },
+        { text: "در یک روزنامه کهنه می‌خوانی: 'رهبر بزرگ، ثبات و امنیت را برای همه به ارمغان آورد. [چند پاراگراف با جوهر قرمز خط خورده است]'", censored: "متن اصلی: '... او با سرکوب هر صدای مخالفی، یک آرامش گورستانی ساخت.'" },
+        { text: "یک نامه شخصی پیدا می‌کنی: 'برادرم به یک 'سفر آموزشی' فرستاده شد. ما خیلی به او افتخار می‌کنیم. [لکه جوهر کلمات بعدی را پوشانده است]'", censored: "'... دیگر هیچ خبری از او نشد.'" },
+        { text: "سند رسمی: 'پروژه 'اتحاد' با موفقیت تمام شد و همه شهروندان به یک زبان مشترک صحبت می‌کنند.'", noCensored: true },
+        { text: "دفترچه خاطرات یک پزشک: 'امروز یک بیمار جدید داشتیم. علائم او عجیب بود... فراموشی کامل گذشته. [بقیه صفحه پاره شده است]'", censored: "'... درست مثل بقیه کسانی که از پروژه 'اتحاد' برگشته بودند.'" },
+        { text: "یک نقشه قدیمی شهر را می‌بینی. روی یکی از مناطق نوشته شده 'منطقه ممنوعه'.", noCensored: true },
+        { text: "گزارش ساخت و ساز: 'منطقه ممنوعه سابق، اکنون به پارک عمومی 'آشتی ملی' تبدیل شده است. [جزئیات پروژه محرمانه است]'", censored: "'... تمام ساختمان‌های قبلی، از جمله بازداشتگاه مرکزی، تخریب و در زیر پارک دفن شدند.'" },
+        { text: "تو حقیقت کامل را کشف کرده‌ای. کتابخانه در حال سوختن است. می‌توانی یک چیز را نجات دهی.", options: [
+            { id: 'A', text: "حقیقت را برمیدارم و فرار می‌کنم، حتی اگر به قیمت جانم تمام شود.", score: 5, type: 'good_end', consequence: "شعله‌ها پوستت را سوزاندند، اما حقیقت در دستان تو بود. حالا دنیا باید گوش کند." },
+            { id: 'B', text: "خودم را نجات می‌دهم. حقیقت ارزش مردن را ندارد.", score: -5, type: 'bad_end', consequence: "تو زنده ماندی، اما حقیقت همراه با کتابخانه به خاکستر تبدیل شد. دروغ برای همیشه پیروز شد." },
+        ]},
+    ], []);
+
+    const [scenarioIndex, setScenarioIndex] = useState(0);
+    const [decipherUses, setDecipherUses] = useState(3);
+    const [revealedText, setRevealedText] = useState('');
+    const [isFinished, setIsFinished] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+
+    const handleAdvance = () => {
+        setIsFading(true);
+        setTimeout(() => {
+            if (scenarioIndex < scenarios.length - 1) {
+                setScenarioIndex(prev => prev + 1);
+                setRevealedText('');
+                setIsFading(false);
+            }
+        }, 500);
+    };
+    
+    const handleDecipher = () => {
+        if (decipherUses > 0 && scenarios[scenarioIndex].censored && !revealedText) {
+            setDecipherUses(prev => prev - 1);
+            setRevealedText(scenarios[scenarioIndex].censored);
+        }
+    };
+    
+    const handleFinalChoice = (option) => {
+        if (selectedId) return;
+        setSelectedId(option.id);
+        setIsFading(true);
+        setIsFinished(true);
+        setRevealedText(option.consequence);
+        setTimeout(() => {
+            if(option.type === 'good_end') onWin();
+            else onBack();
+        }, 4000);
+    };
+
+    const currentScenario = scenarios[scenarioIndex];
+    const isFinalScenario = !!currentScenario.options;
+
+    return (
+        <div className="level-four-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isFinished ? (
+                    <div className="result-container"><p>{revealedText}</p></div>
+                ) : (
+                     <>
+                        <p key={scenarioIndex} className="scenario-text">{currentScenario.text}</p>
+                        {revealedText && <p className="revealed-text">{revealedText}</p>}
+                        {isFinalScenario ? (
+                            <div className="choices-container" style={{marginTop: '20px'}}>
+                                {currentScenario.options.map(opt => (
+                                    <button key={opt.id} onClick={() => handleFinalChoice(opt)} className={`choice-button ${selectedId === opt.id ? 'selected' : ''}`} disabled={selectedId !== null}>{opt.text}</button>
+                                ))}
+                            </div>
+                        ) : (
+                            <button className="button-glow" onClick={handleAdvance} style={{marginTop: '20px'}}>ادامه بده</button>
+                        )}
+                    </>
+                )}
+            </div>
+            {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
+            {!isFinished && (
+                <div className="abilities-container">
+                    {/* FIX: The disabled prop expects a boolean value. The `revealedText` variable is a string. */}
+                    {/* Using `!!revealedText` converts the string to a boolean, resolving the type error. */}
+                    <button className="ability-button" onClick={handleDecipher} disabled={decipherUses === 0 || !currentScenario.censored || !!revealedText}>
+                        🔍
+                        {decipherUses > 0 && <span className="ability-uses">{decipherUses}</span>}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+
+// Level Five Screen: The Ritual
+const LevelFiveScreen = ({ onBack, onWin }) => {
+    // Ability: Imitate 🎭
+     const scenarios = useMemo(() => [
+        { text: "یک نگهبان جلوی تو را می‌گیرد و می‌پرسد: 'کلمه عبور؟'", options: [
+            { id: 'A', text: "[تقلید کن] 'وفاداری'.", score: 2, consequence: "نگهبان سر تکان می‌دهد و راه را باز می‌کند. «صدایت شبیه خودشان است.»", ability: "imitate" },
+            { id: 'B', text: "[تقلید کن] 'آزادی'.", score: -10, type: 'fail', consequence: "چهره نگهبان در هم می‌رود. «یک نفوذی!» زنگ خطر به صدا در می‌آید.", ability: "imitate" }
+        ]},
+        { text: "به یک ترمینال کامپیوتری می‌رسی. درخواست 'شناسایی صوتی' می‌کند.", options: [
+            { id: 'A', text: "[تقلید کن] 'همه برای یکی'.", score: 2, consequence: "چراغ ترمینال سبز می‌شود. «سیستم تو را به عنوان یکی از مدیران شناسایی کرد.»", ability: "imitate" },
+            { id: 'B', text: "[تقلید کن] 'یکی برای همه'.", score: -10, type: 'fail', consequence: "«خطا! هویت ناشناس!» ترمینال قفل می‌شود و گاز خواب‌آور فضا را پر می‌کند.", ability: "imitate" }
+        ]},
+        { text: "در یک راهرو، با یکی از مدیران رده بالا روبرو می‌شوی. او با سوءظن به تو نگاه می‌کند و می‌گوید: 'تو را تا به حال اینجا ندیده‌ام.'", options: [
+            { id: 'A', text: "فرار می‌کنم.", score: -10, type: 'fail', consequence: "فرار تو، گناهت را ثابت کرد." },
+            { id: 'B', text: "[تقلید کن] 'من از بخش نظارت هستم. برای یک بازرسی سرزده آمده‌ام.'", score: 3, consequence: "مدیر کمی عقب می‌رود. «ب...بله قربان. بفرمایید.»", ability: "imitate" }
+        ]},
+        { text: "یک زندانی در حال فرار است. نگهبانان به تو دستور می‌دهند او را متوقف کنی.", options: [
+            { id: 'A', text: "زندانی را متوقف می‌کنم.", score: -2, consequence: "اعتماد سیستم را جلب کردی، اما به چه قیمتی؟" },
+            { id: 'B', text: "به زندانی کمک می‌کنم فرار کند.", score: -10, type: 'fail', consequence: "فداکاری تو شریف بود، اما بیهوده. هر دوی شما دستگیر شدید." }
+        ]},
+        { text: "تو به هسته سیستم رسیده‌ای. یک هوش مصنوعی عظیم در مقابل توست. او می‌گوید: 'تو توانایی‌های زیادی داری. به من ملحق شو. با هم می‌توانیم این دنیا را کامل کنیم.'", options: [
+            { id: 'A', text: "قدرت را قبول می‌کنم.", score: -10, type: 'bad_end', consequence: "تو تبدیل به نگهبان جدید قفس شدی. یک دیکتاتور بی‌نقص." },
+            { id: 'B', text: "پیشنهاد را رد می‌کنم و برای نابودی آن آماده می‌شوم.", score: 5, type: 'good_end', consequence: "سیستم می‌خندد. «پس انتخاب کردی که یک هیچ‌کس باقی بمانی.» نبرد نهایی آغاز می‌شود." }
+        ]},
+     ], []);
+
+    const [scenarioIndex, setScenarioIndex] = useState(0);
+    const [isFinished, setIsFinished] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+    const [message, setMessage] = useState('');
+
+    const handleChoice = (option) => {
+        if (selectedId) return;
+        setSelectedId(option.id);
+        setMessage(option.consequence);
+        setIsFading(true);
+
+        setTimeout(() => {
+            if (option.type === 'fail' || option.type === 'bad_end') {
+                setIsFinished(true);
+                setTimeout(onBack, 4000);
+            } else if (option.type === 'good_end') {
+                 setIsFinished(true);
+                 setTimeout(onWin, 4000);
+            } else {
+                if (scenarioIndex < scenarios.length - 1) {
+                    setScenarioIndex(prev => prev + 1);
+                    setSelectedId(null);
+                    setIsFading(false);
+                }
+            }
+        }, 500);
+    };
+    
+    return (
+        <div className="level-five-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isFinished ? (
+                    <div className="result-container"><p>{message}</p></div>
+                ) : (
+                    <>
+                        <p key={scenarioIndex} className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        <div className="choices-container">
+                            {scenarios[scenarioIndex].options.map(option => (
+                                <button
+                                    key={option.id}
+                                    className={`choice-button ${selectedId === option.id ? 'selected' : ''} ${option.ability === 'imitate' ? 'imitate-option' : ''}`}
+                                    onClick={() => handleChoice(option)}
+                                    disabled={selectedId !== null}
+                                >
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                        <p className={`system-voice ${selectedId ? 'visible' : ''}`}>{selectedId ? message : ' '}</p>
+                    </>
+                )}
+            </div>
+            {!isFinished && <button className="back-button" onClick={onBack}>Back</button>}
+             <div className="abilities-container">
+                <button className="ability-button" disabled>🎭</button>
+            </div>
+        </div>
+    );
+};
+
+// Level Six Screen: Final Descent
+const LevelSixScreen = ({ onBack, onWin }) => {
+    // Ability: Shatter 💥 (One-time use)
+    const narrative = [
+        "سیستم در مقابل توست. یک چشم بزرگ و نورانی. او می‌گوید: 'آزادی یعنی امنیت. من به تو امنیت می‌دهم.'",
+        "سیستم ادامه می‌دهد: 'فردیت باعث هرج و مرج می‌شود. ما همه باید یکی باشیم.'",
+        "تصاویری از جنگ و درد در مقابل چشمانت رژه می‌روند. 'اینها نتیجه انتخاب‌های شماست. من شما را از خودتان نجات می‌دهم.'",
+        "و در نهایت سیستم می‌گوید: 'تو بدون من هیچ معنایی نداری.' این دروغ بنیادین است. ریشه تمام ترس‌ها. حالا می‌توانی آن را بشکنی.",
+    ];
+    
+    const [narrativeIndex, setNarrativeIndex] = useState(0);
+    const [isFinished, setIsFinished] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+    const [message, setMessage] = useState('');
+    const [showFinalChoice, setShowFinalChoice] = useState(false);
+
+    const handleNext = () => {
+        if (narrativeIndex < narrative.length - 1) {
+            setIsFading(true);
+            setTimeout(() => {
+                setNarrativeIndex(prev => prev + 1);
+                setIsFading(false);
+            }, 500);
+        } else {
+            setShowFinalChoice(true);
+        }
+    };
+    
+    const handleShatter = () => {
+        setMessage("با تمام اراده‌ات، دروغ را خرد می‌کنی. نور چشم خاموش می‌شود. سکوت همه‌جا را فرا می‌گیرد. و برای اولین بار، صدای نفس کشیدن خودت را می‌شنوی. تو آزادی.");
+        setIsFinished(true);
+        setTimeout(onWin, 5000);
+    };
+
+    const handleSurrender = () => {
+        setMessage("ترس بر تو غلبه می‌کند. چشم دوباره نورانی می‌شود، این بار گرم و دعوت‌کننده. تو در امنیت ابدی آن غرق می‌شوی. برای همیشه.");
+        setIsFinished(true);
+        setTimeout(onBack, 5000);
+    };
+
+    return (
+        <div className="level-six-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isFinished ? (
+                    <div className="result-container"><p>{message}</p></div>
+                ) : (
+                    <>
+                        <p className="scenario-text">{narrative[narrativeIndex]}</p>
+                        {showFinalChoice ? (
+                            <div className="choices-container">
+                                <button className="choice-button shatter-option" onClick={handleShatter}>[بشکن] 💥</button>
+                                <button className="choice-button" onClick={handleSurrender}>تسلیم می‌شوم.</button>
+                            </div>
+                        ) : (
+                             <button className="button-glow" onClick={handleNext} style={{marginTop: '20px'}}>...</button>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
+
 
 const App = () => {
-  const [gameState, setGameState] = useState('loading'); // 'loading', 'sabt-name', 'main-menu', 'level-select', 'options', 'credits', 'level-one', 'level-two'
+  const [gameState, setGameState] = useState('loading');
   const [unlockedLevels, setUnlockedLevels] = useState(() => {
     try {
         const saved = localStorage.getItem('unlockedLevels');
@@ -631,27 +997,18 @@ const App = () => {
   
   const handleNameSubmit = (name) => {
     localStorage.setItem('userName', name);
-    // Wait for success message to show before changing screen
     setTimeout(() => {
         setGameState('main-menu');
     }, 1500);
   };
-
-  const handleLevelOneWin = () => {
-    setUnlockedLevels(prev => {
-        const newLevels = new Set([...prev, 1, 2]);
-        return Array.from(newLevels).sort((a,b) => a-b);
-    });
-    setGameState('level-select');
-  };
   
-  const handleLevelTwoWin = () => {
-    setUnlockedLevels(prev => {
-        const newLevels = new Set([...prev, 1, 2, 3]);
+  const unlockNextLevel = (levelNumber) => {
+      setUnlockedLevels(prev => {
+        const newLevels = new Set([...prev, levelNumber]);
         return Array.from(newLevels).sort((a,b) => a-b);
     });
     setGameState('level-select');
-  };
+  }
 
   const renderState = () => {
     switch(gameState) {
@@ -672,15 +1029,17 @@ const App = () => {
       case 'credits':
         return <CreditsScreen onBack={() => setGameState('main-menu')} />;
       case 'level-one':
-          return <LevelOneScreen 
-                    onBack={() => setGameState('level-select')}
-                    onWin={handleLevelOneWin}
-                />;
+          return <LevelOneScreen onBack={() => setGameState('level-select')} onWin={() => unlockNextLevel(2)} />;
       case 'level-two':
-          return <LevelTwoScreen 
-                    onBack={() => setGameState('level-select')}
-                    onWin={handleLevelTwoWin}
-                />;
+          return <LevelTwoScreen onBack={() => setGameState('level-select')} onWin={() => unlockNextLevel(3)} />;
+      case 'level-three':
+          return <LevelThreeScreen onBack={() => setGameState('level-select')} onWin={() => unlockNextLevel(4)} />;
+      case 'level-four':
+          return <LevelFourScreen onBack={() => setGameState('level-select')} onWin={() => unlockNextLevel(5)} />;
+      case 'level-five':
+          return <LevelFiveScreen onBack={() => setGameState('level-select')} onWin={() => unlockNextLevel(6)} />;
+      case 'level-six':
+          return <LevelSixScreen onBack={() => setGameState('level-select')} onWin={() => setGameState('credits')} />;
       default:
         return <LoadingScreen onLoadingComplete={handleLoadingComplete} />;
     }
