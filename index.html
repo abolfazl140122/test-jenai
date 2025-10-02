@@ -1007,60 +1007,21 @@
             box-shadow: 0 0 25px #fff, 0 0 40px #fff;
         }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
+    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.4",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.21.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "vite": "https://aistudiocdn.com/vite@^7.1.8",
-    "@vitejs/plugin-react": "https://aistudiocdn.com/@vitejs/plugin-react@^5.0.4",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.21.0"
+    "vite": "https://aistudiocdn.com/vite@^7.1.8"
   }
 }
 </script>
 </head>
   <body>
     <div id="root"></div>
-    <!-- 
-      The following scripts are added to enable running React with JSX and TypeScript
-      directly in the browser on a static hosting service without a build step.
-      This fixes the loading error on platforms like GitHub Pages.
-    -->
-
-    <!-- 1. Babel Standalone: Transpiles JSX and TypeScript into plain JavaScript -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-    <!-- 2. Your Application Code: Transformed and loaded as a module -->
-    <script type="module">
-      (async () => {
-        try {
-          const response = await fetch('index.tsx');
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const tsxCode = await response.text();
-
-          const transformedCode = Babel.transform(tsxCode, {
-            presets: ['react', 'typescript'],
-            filename: 'index.tsx' // For sourcemaps and error messages
-          }).code;
-
-          // Create a blob from the transformed code
-          const blob = new Blob([transformedCode], { type: 'application/javascript' });
-          const url = URL.createObjectURL(blob);
-          
-          // Dynamically import the module
-          await import(url);
-
-        } catch (error) {
-          console.error('Error loading or transforming script:', error);
-          const root = document.getElementById('root');
-          if(root) {
-            root.innerHTML = `<div style="color: red; padding: 20px; font-family: monospace;"><h2>Error loading application</h2><pre>${error.stack || error.message}</pre></div>`;
-          }
-        }
-      })();
-    </script>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
