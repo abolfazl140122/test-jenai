@@ -28,7 +28,6 @@ const translations = {
       options: 'Options',
       language: 'Language',
       credits: 'Credits',
-      exit: 'Exit',
     },
     options: {
       title: 'Options',
@@ -40,7 +39,10 @@ const translations = {
     },
     credits: {
       title: 'Credits',
-      line1: 'A creation born from the digital ether.',
+      team: [
+        { name: 'Seyed Abbas Sajjadi', role: 'Lead Coder' },
+        { name: 'Ali Babaei', role: 'Graphic Developer & Idea Person' },
+      ],
       line2: 'Powered by Gemini AI.',
       back: 'Back',
     },
@@ -101,7 +103,6 @@ const translations = {
       options: 'تنظیمات',
       language: 'زبان',
       credits: 'سازندگان',
-      exit: 'خروج',
     },
     options: {
       title: 'تنظیمات',
@@ -113,7 +114,10 @@ const translations = {
     },
     credits: {
       title: 'سازندگان',
-      line1: 'خلقت یافته از اثیر دیجیتال.',
+      team: [
+        { name: 'سید عباس سجادی', role: 'کد نویسی ارشد' },
+        { name: 'علی بابایی', role: 'توسعه دهنده گرافیک و ایده پرداز' },
+      ],
       line2: 'قدرت گرفته از هوش مصنوعی Gemini.',
       back: 'بازگشت',
     },
@@ -361,12 +365,6 @@ const MainMenu = ({ onNavigate }) => {
         >
           {t.mainMenu.credits}
         </button>
-        <button
-          className={`menu-button ${activeButton === 'exit' ? 'active' : ''}`}
-          onClick={() => handleButtonClick('exit', null)}
-        >
-          {t.mainMenu.exit}
-        </button>
       </div>
     </div>
   );
@@ -412,8 +410,15 @@ const CreditsScreen = ({ onBack }) => {
     <div className="credits-container page-container">
         <h1 className="page-title creepster-font">{t.credits.title}</h1>
         <div className="page-content">
-            <p>{t.credits.line1}</p>
-            <p>{t.credits.line2}</p>
+            <div className="credits-list">
+                {t.credits.team.map((member, index) => (
+                    <div key={index} className="credit-entry" style={{ animationDelay: `${index * 0.2 + 0.2}s` }}>
+                        <p className="credit-name">{member.name}</p>
+                        <p className="credit-role">{member.role}</p>
+                    </div>
+                ))}
+            </div>
+            <p className="gemini-credit">{t.credits.line2}</p>
         </div>
         <button className="back-button" onClick={onBack}>{t.credits.back}</button>
     </div>
