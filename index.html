@@ -196,6 +196,15 @@
             from { transform: rotate(0deg) scale(1.5); }
             to { transform: rotate(360deg) scale(1.5); }
         }
+        @keyframes blackHolePulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        @keyframes fadeInStark {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
 
 
         /* Grain Overlay */
@@ -923,6 +932,79 @@
         .level-seven-screen .progress-indicator {
             color: #00ffff;
             text-shadow: 0 0 8px #00ffff;
+        }
+
+        /* Level Eight: The Last Choice Styles */
+        .level-eight-screen.page-container {
+            background: #000;
+            color: #fff;
+        }
+        .level-eight-screen.page-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 150vmax;
+            height: 150vmax;
+            margin-top: -75vmax;
+            margin-left: -75vmax;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 20%, transparent 40%);
+            animation: vortex 120s linear infinite, blackHolePulse 10s ease-in-out infinite;
+            z-index: 0;
+        }
+        .level-eight-screen .scenario-container {
+            background: rgba(10, 10, 10, 0.7);
+            border: 2px solid #fff;
+            box-shadow: 0 0 30px #fff, inset 0 0 20px rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .level-eight-screen .page-title {
+            color: #fff;
+            animation: textGlowPulse 4s infinite, fadeInStark 2s forwards;
+        }
+        .level-eight-screen .scenario-text {
+            color: #e0e0e0;
+            font-size: 1.5rem;
+            animation: fadeInStark 2s forwards;
+        }
+        .level-eight-screen .choice-button {
+            border: 2px solid #aaa;
+            color: #ccc;
+            background: transparent;
+            text-shadow: none;
+            transition: all 0.3s ease;
+        }
+        .level-eight-screen .choice-button:hover:not(:disabled) {
+            background: #fff;
+            border-color: #fff;
+            color: #000;
+            box-shadow: 0 0 20px #fff;
+            transform: scale(1.03);
+        }
+        .level-eight-screen .ai-response-box.analysis {
+            color: #fff;
+            border-color: #fff;
+            text-shadow: 0 0 10px #fff;
+            font-size: 1.4em;
+            line-height: 1.8;
+            background: transparent;
+            border-style: double;
+            border-width: 3px;
+        }
+        .level-eight-screen .progress-indicator {
+            color: #fff;
+            text-shadow: 0 0 5px #fff;
+        }
+        .level-eight-screen .back-button, .level-eight-screen .button-glow {
+            background: transparent;
+            color: #fff;
+            border: 2px solid #fff;
+            box-shadow: 0 0 10px #fff;
+        }
+        .level-eight-screen .back-button:hover, .level-eight-screen .button-glow:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 25px #fff, 0 0 40px #fff;
         }
     </style>
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>

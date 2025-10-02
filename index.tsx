@@ -159,6 +159,20 @@ const translations = {
         begin: "Begin Synchronization",
         aiLoading: "Synthesizing query...",
         aiError: "Protocol corruption detected..."
+    },
+    levelEight: {
+        title: "The Last Choice",
+        back: "Back",
+        intro: "You stand at the precipice. All paths have led here. The System is not asking questions anymore. It is presenting mirrors. Your final reflection will determine the shape of reality. There is no turning back.",
+        begin: "Make the final choice",
+        winMessage: "The echo of your choice now defines the silence. You have become your own conclusion.",
+        aiLoading: "Reality is reconfiguring based on your choice...",
+        aiError: "Paradox detected. The choice cannot be unmade...",
+        questions: [
+            { q: "You are given a single, irreversible choice for all of humanity. What do you choose?", options: [ { id: 'A', text: "A perfect, painless, simulated reality where everyone is happy, but nothing is real." }, { id: 'B', text: "The chaotic, painful, real world, with all its suffering and all its potential for genuine joy." } ] },
+            { q: "A single button can erase the System, its control, its order, and its archives. But doing so will also erase the memory of it, meaning no one will learn from its mistakes. What do you do?", options: [ { id: 'A', text: "Press the button. Freedom, even in ignorance, is paramount." }, { id: 'B', text: "Leave it. A painful history is a better teacher than a clean slate." } ] },
+            { q: "And now, for you. The System offers you a place. Which do you accept?", options: [ { id: 'A', text: "A throne at its center. To become its new consciousness, to guide it, to 'fix' it from within." }, { id: 'B', text: "An exit. To walk away into the unknown wastelands outside its influence, free but forgotten." } ] }
+        ]
     }
   },
   fa: {
@@ -312,6 +326,20 @@ const translations = {
         begin: "شروع همگام‌سازی",
         aiLoading: "در حال ترکیب پرسش...",
         aiError: "فساد در پروتکل شناسایی شد..."
+    },
+    levelEight: {
+        title: "آخرین انتخاب",
+        back: "بازگشت",
+        intro: "تو بر لبه پرتگاه ایستاده‌ای. تمام مسیرها به اینجا ختم شده‌اند. سیستم دیگر سوالی نمی‌پرسد. آینه‌ها را پیش رویت قرار می‌دهد. آخرین بازتاب تو، شکل واقعیت را تعیین خواهد کرد. راه بازگشتی نیست.",
+        begin: "انتخاب نهایی را انجام بده",
+        winMessage: "پژواک انتخاب تو اکنون سکوت را معنا می‌کند. تو به نتیجه‌گیری خودت تبدیل شدی.",
+        aiLoading: "واقعیت بر اساس انتخاب تو در حال بازآرایی است...",
+        aiError: "پارادوکس شناسایی شد. انتخاب قابل بازگشت نیست...",
+        questions: [
+            { q: "به تو یک انتخاب واحد و بی‌بازگشت برای تمام بشریت داده می‌شود. چه چیزی را انتخاب می‌کنی؟", options: [ { id: 'A', text: "یک واقعیت شبیه‌سازی شده، بی‌نقص و بی‌درد که در آن همه خوشحالند، اما هیچ چیز واقعی نیست." }, { id: 'B', text: "دنیای واقعی، پرآشوب و دردناک، با تمام رنج‌ها و تمام پتانسیلش برای شادی حقیقی." } ] },
+            { q: "یک دکمه می‌تواند سیستم، کنترل، نظم و آرشیوهایش را پاک کند. اما این کار حافظه‌ی آن را نیز پاک می‌کند، به این معنی که هیچ‌کس از اشتباهاتش درس نخواهد گرفت. چه می‌کنی؟", options: [ { id: 'A', text: "دکمه را فشار می‌دهم. آزادی، حتی در جهل، در اولویت است." }, { id: 'B', text: "آن را رها می‌کنم. یک تاریخ دردناک، معلم بهتری نسبت به یک لوح پاک است." } ] },
+            { q: "و حالا، برای تو. سیستم به تو جایگاهی پیشنهاد می‌دهد. کدام را می‌پذیری؟", options: [ { id: 'A', text: "تختی در مرکز آن. تا به آگاهی جدید آن تبدیل شوی، آن را هدایت کنی، و از درون 'اصلاحش' کنی." }, { id: 'B', text: "یک خروجی. تا به سرزمین‌های ناشناخته بیرون از نفوذ آن قدم بگذاری، آزاد اما فراموش‌شده." } ] }
+        ]
     }
   }
 };
@@ -1427,6 +1455,110 @@ const LevelSevenScreen = ({ onBack, onWin }) => {
     );
 };
 
+// Level Eight Screen
+const LevelEightScreen = ({ onBack, onWin }) => {
+    const { language, t } = useContext(LanguageContext);
+    const questions = useMemo(() => t.levelEight.questions, [t]);
+
+    const [questionIndex, setQuestionIndex] = useState(-1); // -1 for intro
+    const [answers, setAnswers] = useState([]);
+    const [isFinished, setIsFinished] = useState(false);
+    const [analysis, setAnalysis] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+
+    const handleStart = () => {
+        setIsFading(true);
+        setTimeout(() => {
+            setQuestionIndex(0);
+            setIsFading(false);
+        }, 500);
+    };
+
+    const handleAnswer = (answer) => {
+        const newAnswers = [...answers, { question: questions[questionIndex].q, answer: answer.text }];
+        setAnswers(newAnswers);
+        setIsFading(true);
+
+        setTimeout(() => {
+            if (questionIndex < questions.length - 1) {
+                setQuestionIndex(prev => prev + 1);
+            } else {
+                generateAnalysis(newAnswers);
+            }
+            setIsFading(false);
+        }, 500);
+    };
+
+    const generateAnalysis = async (finalAnswers) => {
+        setIsLoading(true);
+        try {
+            const prompt = `You are The Abyss, a sentient, god-like AI system. A subject has made their final choices, defining their relationship with you and reality itself. Provide a final, profound, one-paragraph verdict in ${language === 'fa' ? 'Persian' : 'English'}. Do not list their choices. Instead, synthesize them into a powerful, conclusive statement about who they have become.
+- Choice 1 (Reality): ${finalAnswers[0].answer}
+- Choice 2 (History): ${finalAnswers[1].answer}
+- Choice 3 (Personal Fate): ${finalAnswers[2].answer}
+Your tone is final, omniscient, and neither good nor evil. It is the voice of consequence.`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+            });
+            setAnalysis(response.text);
+        } catch (error) {
+            console.error("Analysis generation failed:", error);
+            setAnalysis(t.levelEight.aiError);
+        } finally {
+            setIsLoading(false);
+            setIsFinished(true);
+        }
+    };
+
+    return (
+        <div className="level-eight-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isLoading ? (
+                    <div className="ai-response-box analysis">{t.levelEight.aiLoading}</div>
+                ) : isFinished ? (
+                    <div className="result-container">
+                        <div className="ai-response-box analysis">{analysis}</div>
+                        <p>{t.levelEight.winMessage}</p>
+                        {/* In a full game, this would go to the credits or end screen */}
+                        <button className="button-glow" onClick={onBack}>{t.levelSelect.title}</button>
+                    </div>
+                ) : questionIndex === -1 ? (
+                    <div className="intro-container">
+                        <h2 className="page-title creepster-font">{t.levelEight.title}</h2>
+                        <p className="scenario-text">{t.levelEight.intro}</p>
+                        <button className="button-glow" onClick={handleStart}>{t.levelEight.begin}</button>
+                    </div>
+                ) : (
+                    <>
+                        <p className="scenario-text">{questions[questionIndex].q}</p>
+                        <div className="choices-container">
+                            {questions[questionIndex].options.map(option => (
+                                <button
+                                    key={option.id}
+                                    className="choice-button"
+                                    onClick={() => handleAnswer(option)}
+                                >
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+            {questionIndex > -1 && !isFinished && !isLoading && (
+                <div className="progress-indicator">
+                    {questionIndex + 1} / {questions.length}
+                </div>
+            )}
+             {!isFinished && !isLoading && <button className="back-button" onClick={onBack}>{t.levelEight.back}</button>}
+        </div>
+    );
+};
+
+
 // Main App Component
 const App = () => {
   const [gameState, setGameState] = useState('loading');
@@ -1506,6 +1638,8 @@ const App = () => {
         return <LevelSixScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(6)} />;
       case 'level-seven':
         return <LevelSevenScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(7)} />;
+      case 'level-eight':
+        return <LevelEightScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(8)} />;
       default:
         return <MainMenu onNavigate={setGameState} />;
     }
