@@ -1031,7 +1031,36 @@
     <!-- 1. Babel Standalone: Transpiles JSX and TypeScript into plain JavaScript -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- 2. Your Application Code: Marked as "text/babel" to be transformed -->
-    <script type="text/babel" data-presets="react,typescript" src="index.tsx"></script>
+    <!-- 2. Your Application Code: Transformed and loaded as a module -->
+    <script type="module">
+      (async () => {
+        try {
+          const response = await fetch('index.tsx');
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const tsxCode = await response.text();
+
+          const transformedCode = Babel.transform(tsxCode, {
+            presets: ['react', 'typescript'],
+            filename: 'index.tsx' // For sourcemaps and error messages
+          }).code;
+
+          // Create a blob from the transformed code
+          const blob = new Blob([transformedCode], { type: 'application/javascript' });
+          const url = URL.createObjectURL(blob);
+          
+          // Dynamically import the module
+          await import(url);
+
+        } catch (error) {
+          console.error('Error loading or transforming script:', error);
+          const root = document.getElementById('root');
+          if(root) {
+            root.innerHTML = `<div style="color: red; padding: 20px; font-family: monospace;"><h2>Error loading application</h2><pre>${error.stack || error.message}</pre></div>`;
+          }
+        }
+      })();
+    </script>
   </body>
 </html>
