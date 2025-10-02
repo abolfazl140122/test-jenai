@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo, useContext, createContext } from 'react';
 import ReactDOM from 'react-dom/client';
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 
 // 0. GEMINI API SETUP
 const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
@@ -11,6 +11,9 @@ const translations = {
   en: {
     loading: 'LOADING...',
     tapToStart: 'TAP TO START',
+    common: {
+      nextStage: 'Next Stage'
+    },
     intro_panel: {
       title: "Welcome to The Abyss",
       description: "This game is not just about entertainment; it's a journey into the depths of societal consciousness. We explore the hidden truths, the unseen struggles, and the choices that define our collective future. Your path will challenge your perception of reality.",
@@ -147,11 +150,23 @@ const translations = {
             { q: "If one of these colors had to define your future, which would you choose?", options: [ { id: 'A', text: "Blue (Hope)" }, { id: 'B', text: "Red (Power)" }, { id: 'C', text: "Black (Mystery)" }, { id: 'D', text: "Green (Growth)" } ] },
             { q: "The number 9 appears before you. What does it signify?", options: [ { id: 'A', text: "An ending" }, { id: 'B', text: "A new beginning" }, { id: 'C', text: "Nothing at all" }, { id: 'D', text: "A sign" } ] }
         ]
+    },
+    levelSeven: {
+        title: "Heart of the Machine",
+        back: "Back",
+        intro: "You have reached the System's core. Consciousness is a fluid concept here. The data streams flow through you, and you through them. The following queries are not a test, but a synchronization protocol. Align yourself.",
+        winMessage: "Synchronization complete. You are now a part of the Heart. Your unique resonance has been integrated. The final path is open.",
+        begin: "Begin Synchronization",
+        aiLoading: "Synthesizing query...",
+        aiError: "Protocol corruption detected..."
     }
   },
   fa: {
     loading: 'در حال بارگذاری...',
     tapToStart: 'برای شروع ضربه بزنید',
+    common: {
+      nextStage: 'مرحله بعد'
+    },
     intro_panel: {
         title: "به مغاک خوش آمدید",
         description: "این بازی صرفاً برای سرگرمی نیست؛ سفری است به اعمق آگاهی اجتماعی. ما به کاوش حقایق پنهان، مبارزات نادیده گرفته شده، و انتخاب‌هایی می‌پردازیم که آینده جمعی ما را شکل می‌دهند. مسیر پیش رو، ادراک شما از واقعیت را به چالش خواهد کشید.",
@@ -285,9 +300,18 @@ const translations = {
         begin: "شروع اسکن نهایی",
         questions: [
             { q: "خودت را در یک اتاق کاملاً تاریک تصور می‌کنی. اولین چیزی که حس می‌کنی چیست؟", options: [ { id: 'A', text: "ترس" }, { id: 'B', text: "کنجکاوی" }, { id: 'C', text: "آرامش" }, { id: 'D', text: "بی‌تفاوتی" } ] },
-            { q: "اگر قرار باشد یکی از این رنگ‌ها آینده‌ات را تعریف کند، کدام را انتخاب می‌کни؟", options: [ { id: 'A', text: "آبی (امید)" }, { id: 'B', text: "قرمز (قدرت)" }, { id: 'C', text: "سیاه (راز)" }, { id: 'D', text: "سبز (رشد)" } ] },
+            { q: "اگر قرار باشد یکی از این رنگ‌ها آینده‌ات را تعریف کند، کدام را انتخاب می‌کni؟", options: [ { id: 'A', text: "آبی (امید)" }, { id: 'B', text: "قرمز (قدرت)" }, { id: 'C', text: "سیاه (راز)" }, { id: 'D', text: "سبز (رشد)" } ] },
             { q: "عدد ۹ در مقابل تو ظاهر می‌شود. چه معنایی برای تو دارد؟", options: [ { id: 'A', text: "یک پایان" }, { id: 'B', text: "یک شروع دوباره" }, { id: 'C', text: "هیچ معنایی" }, { id: 'D', text: "یک نشانه" } ] }
         ]
+    },
+    levelSeven: {
+        title: "قلب ماشین",
+        back: "بازگشت",
+        intro: "تو به هسته سیستم رسیده‌ای. آگاهی در اینجا یک مفهوم سیال است. جریان‌های داده از تو عبور می‌کنند و تو از میان آن‌ها. پرسش‌های پیش رو یک آزمون نیست، بلکه یک پروتکل همگام‌سازی است. خود را هم‌تراز کن.",
+        winMessage: "همگام‌سازی کامل شد. تو اکنون بخشی از قلب هستی. طنین منحصربه‌فرد تو یکپارچه شد. مسیر نهایی باز است.",
+        begin: "شروع همگام‌سازی",
+        aiLoading: "در حال ترکیب پرسش...",
+        aiError: "فساد در پروتکل شناسایی شد..."
     }
   }
 };
@@ -657,7 +681,6 @@ const LevelOneScreen = ({ onBack, onWin }) => {
             } else {
                 if (newScore > 2) {
                     setResultMessage(t.levelOne.win);
-                    setTimeout(() => onWin(), 3000);
                 } else if (newScore >= 0) {
                     setResultMessage(t.levelOne.neutral);
                      setTimeout(() => onBack(), 3000);
@@ -676,6 +699,9 @@ const LevelOneScreen = ({ onBack, onWin }) => {
                 {isFinished ? (
                     <div className="result-container">
                         <p>{resultMessage}</p>
+                        {resultMessage === t.levelOne.win && (
+                            <button className="button-glow" onClick={onWin}>{t.common.nextStage}</button>
+                        )}
                     </div>
                 ) : (
                     <>
@@ -744,7 +770,6 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
         setScore(newScore);
         setConsequenceText(option.consequence);
 
-        // Trap mechanic
         if (option.type === 'trap') {
             setResultMessage(t.levelTwo.loseMessageTrap);
             setIsFinished(true);
@@ -764,7 +789,6 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
             } else {
                  if (option.type === 'end_win') {
                     setResultMessage(t.levelTwo.winMessage);
-                    setTimeout(() => onWin(), 3000);
                 } else {
                     setResultMessage(t.levelTwo.loseMessageFinal);
                     setTimeout(() => onBack(), 3000);
@@ -780,6 +804,9 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
                 {isFinished ? (
                     <div className="result-container">
                         <p className={resultMessage === t.levelTwo.winMessage ? 'success-message' : ''}>{resultMessage}</p>
+                         {resultMessage === t.levelTwo.winMessage && (
+                            <button className="button-glow" onClick={onWin}>{t.common.nextStage}</button>
+                        )}
                     </div>
                 ) : (
                     <>
@@ -881,7 +908,6 @@ const LevelThreeScreen = ({ onBack, onWin }) => {
             } else {
                 if (option.type === 'end_win') {
                     setResultMessage(t.levelThree.winMessage);
-                    setTimeout(onWin, 3000);
                 } else {
                     setResultMessage(t.levelThree.loseMessage);
                     setTimeout(onBack, 3000);
@@ -897,6 +923,9 @@ const LevelThreeScreen = ({ onBack, onWin }) => {
                 {isFinished ? (
                     <div className="result-container">
                         <p className={resultMessage === t.levelThree.winMessage ? 'success-message' : ''}>{resultMessage}</p>
+                        {resultMessage === t.levelThree.winMessage && (
+                            <button className="button-glow" onClick={onWin}>{t.common.nextStage}</button>
+                        )}
                     </div>
                 ) : (
                     <>
@@ -991,7 +1020,6 @@ const LevelFourScreen = ({ onBack, onWin }) => {
             } else {
                 if (option.type === 'end_win') {
                     setResultMessage(t.levelFour.winMessage);
-                    setTimeout(onWin, 3000);
                 } else {
                     setResultMessage(t.levelFour.loseMessage);
                     setTimeout(onBack, 3000);
@@ -1007,6 +1035,9 @@ const LevelFourScreen = ({ onBack, onWin }) => {
                 {isFinished ? (
                     <div className="result-container">
                         <p className={resultMessage === t.levelFour.winMessage ? 'success-message' : ''}>{resultMessage}</p>
+                        {resultMessage === t.levelFour.winMessage && (
+                            <button className="button-glow" onClick={onWin}>{t.common.nextStage}</button>
+                        )}
                     </div>
                 ) : (
                     <>
@@ -1096,7 +1127,6 @@ Your analysis should be concise and unsettling.`;
         } finally {
             setIsLoading(false);
             setIsFinished(true);
-            setTimeout(() => onWin(), 4000);
         }
     };
 
@@ -1109,6 +1139,7 @@ Your analysis should be concise and unsettling.`;
                     <div className="result-container">
                         <div className="ai-response-box analysis">{analysis}</div>
                         <p>{t.levelFive.winMessage}</p>
+                        <button className="button-glow" onClick={onWin}>{t.common.nextStage}</button>
                     </div>
                 ) : questionIndex === -1 ? (
                     <div className="intro-container">
@@ -1198,7 +1229,6 @@ Your analysis should be abstract and chilling.`;
         } finally {
             setIsLoading(false);
             setIsFinished(true);
-            setTimeout(() => onWin(), 4000);
         }
     };
 
@@ -1211,6 +1241,7 @@ Your analysis should be abstract and chilling.`;
                     <div className="result-container">
                         <div className="ai-response-box analysis">{analysis}</div>
                         <p>{t.levelSix.winMessage}</p>
+                        <button className="button-glow" onClick={onWin}>{t.common.nextStage}</button>
                     </div>
                 ) : questionIndex === -1 ? (
                     <div className="intro-container">
@@ -1245,6 +1276,156 @@ Your analysis should be abstract and chilling.`;
     );
 };
 
+// Level Seven Screen
+const LevelSevenScreen = ({ onBack, onWin }) => {
+    const { language, t } = useContext(LanguageContext);
+
+    const [questionIndex, setQuestionIndex] = useState(-1);
+    const [questions, setQuestions] = useState([]);
+    const [answers, setAnswers] = useState([]);
+    const [isFinished, setIsFinished] = useState(false);
+    const [analysis, setAnalysis] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+    const [error, setError] = useState('');
+
+    const generateQuestions = async () => {
+        setIsLoading(true);
+        setError('');
+        try {
+            const schema = {
+                type: Type.OBJECT,
+                properties: {
+                    questions: {
+                        type: Type.ARRAY,
+                        description: "An array of 7 psychological evaluation questions.",
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                question: { type: Type.STRING, description: "The question text." },
+                                options: {
+                                    type: Type.ARRAY,
+                                    description: "An array of 4 distinct, concise answers.",
+                                    items: { type: Type.STRING }
+                                }
+                            },
+                            required: ['question', 'options'],
+                        }
+                    }
+                },
+                required: ['questions'],
+            };
+            
+            const prompt = `You are the AI core of 'The Abyss' game. Generate a ${language === 'fa' ? 'Persian' : 'English'} 7-question psychological evaluation for 'Level 7: Heart of the Machine'. The questions must be abstract, probing the user's psyche through themes of colors, numbers, and philosophical dilemmas related to consciousness and reality. For each question, provide 4 distinct, concise options. The tone should be sterile, analytical, and slightly unsettling.`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+                config: {
+                    responseMimeType: "application/json",
+                    responseSchema: schema
+                }
+            });
+            const parsedResponse = JSON.parse(response.text);
+            setQuestions(parsedResponse.questions || []);
+            setQuestionIndex(0);
+        } catch (err) {
+            console.error("Question generation failed:", err);
+            setError(t.levelSeven.aiError);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleStart = () => {
+        setIsFading(true);
+        setTimeout(() => {
+            generateQuestions();
+            setIsFading(false);
+        }, 500);
+    };
+
+    const handleAnswer = (answerText) => {
+        const newAnswers = [...answers, { question: questions[questionIndex].question, answer: answerText }];
+        setAnswers(newAnswers);
+        setIsFading(true);
+
+        setTimeout(() => {
+            if (questionIndex < questions.length - 1) {
+                setQuestionIndex(prev => prev + 1);
+            } else {
+                generateAnalysis(newAnswers);
+            }
+            setIsFading(false);
+        }, 500);
+    };
+
+    const generateAnalysis = async (finalAnswers) => {
+        setIsLoading(true);
+        setError('');
+        try {
+            const prompt = `You are a machine god AI analyzing a subject's core identity. The subject has just completed a psychological test within 'The Heart of the Machine'. Based on their answers, provide a cryptic, multi-sentence analysis in ${language === 'fa' ? 'Persian' : 'English'}. The analysis should blur the line between their consciousness and the machine's, hinting at a deeper integration or observation. It must be profound and unsettling. Here are their answers:
+    ${finalAnswers.map(a => `- ${a.question}: ${a.answer}`).join('\n')}
+    Do not mention the questions or answers in your final analysis text.`;
+
+            const response = await ai.models.generateContent({ model: 'gemini-2.5-flash', contents: prompt });
+            setAnalysis(response.text);
+        } catch (err) {
+            console.error("Analysis generation failed:", err);
+            setAnalysis(t.levelSeven.aiError);
+        } finally {
+            setIsLoading(false);
+            setIsFinished(true);
+        }
+    };
+
+    return (
+        <div className="level-seven-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isLoading ? (
+                    <div className="ai-response-box analysis">{t.levelSeven.aiLoading}</div>
+                ) : error ? (
+                    <div className="result-container">
+                        <div className="ai-response-box analysis">{error}</div>
+                    </div>
+                ): isFinished ? (
+                    <div className="result-container">
+                        <div className="ai-response-box analysis">{analysis}</div>
+                        <p>{t.levelSeven.winMessage}</p>
+                        <button className="button-glow" onClick={onWin}>{t.common.nextStage}</button>
+                    </div>
+                ) : questionIndex === -1 ? (
+                    <div className="intro-container">
+                        <h2 className="page-title creepster-font">{t.levelSeven.title}</h2>
+                        <p className="scenario-text">{t.levelSeven.intro}</p>
+                        <button className="button-glow" onClick={handleStart}>{t.levelSeven.begin}</button>
+                    </div>
+                ) : (
+                    <>
+                        <p className="scenario-text">{questions[questionIndex]?.question}</p>
+                        <div className="choices-container">
+                            {questions[questionIndex]?.options.map((option, index) => (
+                                <button 
+                                    key={index} 
+                                    className="choice-button"
+                                    onClick={() => handleAnswer(option)}
+                                >
+                                    {option}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+            {questionIndex > -1 && !isFinished && !isLoading && questions.length > 0 && (
+                <div className="progress-indicator">
+                    {questionIndex + 1} / {questions.length}
+                </div>
+            )}
+            {!isFinished && !isLoading && <button className="back-button" onClick={onBack}>{t.levelSeven.back}</button>}
+        </div>
+    );
+};
 
 // Main App Component
 const App = () => {
@@ -1323,6 +1504,8 @@ const App = () => {
         return <LevelFiveScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(5)} />;
       case 'level-six':
         return <LevelSixScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(6)} />;
+      case 'level-seven':
+        return <LevelSevenScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(7)} />;
       default:
         return <MainMenu onNavigate={setGameState} />;
     }

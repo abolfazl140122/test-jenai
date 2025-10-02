@@ -652,9 +652,15 @@
             cursor: default;
             opacity: 0.7;
         }
+        .result-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
         .result-container p, .result-container h2 {
             font-size: 1.5rem;
-            margin-bottom: 30px;
+            margin: 0;
             color: #ffc2c2;
         }
          .result-container .success-message {
@@ -663,6 +669,7 @@
         }
         .result-container .button-glow {
             font-size: 1.2rem;
+            margin-top: 10px;
         }
         .consequence-text, .system-voice {
             font-style: italic;
@@ -869,6 +876,53 @@
         .level-six-screen .progress-indicator {
             color: #b19cd9;
             text-shadow: 0 0 8px #4b0082;
+        }
+
+        /* Level Seven: Heart of the Machine Styles */
+        .level-seven-screen.page-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 250%;
+            height: 250%;
+            margin-top: -125%;
+            margin-left: -125%;
+            background-image:
+                radial-gradient(circle at center, rgba(0, 255, 255, 0.15) 0%, transparent 30%),
+                repeating-conic-gradient(rgba(75, 0, 130, 0.2) 0% 0.5%, transparent 0.5% 5%);
+            animation: vortex 80s linear infinite;
+            z-index: 0;
+        }
+        .level-seven-screen .scenario-container {
+            border-color: #00ffff;
+            box-shadow: 0 0 25px #00ffff, inset 0 0 15px rgba(0, 255, 255, 0.4);
+        }
+        .level-seven-screen .scenario-text {
+            color: #e0e0e0;
+        }
+        .level-seven-screen .choice-button {
+            border-color: #4b0082;
+            color: #b19cd9;
+            text-shadow: 0 0 5px #4b0082;
+        }
+        .level-seven-screen .choice-button:hover:not(:disabled) {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ffff;
+            color: #fff;
+            box-shadow: 0 0 15px #00ffff;
+        }
+        .level-seven-screen .ai-response-box.analysis {
+            color: #00ffff;
+            border-color: #00ffff;
+            text-shadow: 0 0 8px #00ffff;
+            font-weight: bold;
+            font-size: 1.2em;
+            line-height: 1.7;
+        }
+        .level-seven-screen .progress-indicator {
+            color: #00ffff;
+            text-shadow: 0 0 8px #00ffff;
         }
     </style>
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
