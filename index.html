@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -644,27 +643,6 @@
             transform: scale(1.03);
             box-shadow: 0 0 20px #ff4d4d;
         }
-        .choice-button.hidden-option {
-            border-color: #ffaa00;
-            color: #ffaa00;
-            animation: tapGlow 2s infinite ease-in-out;
-        }
-        .choice-button.whisper-option {
-            border-color: #00ffff;
-            color: #00ffff;
-            text-shadow: 0 0 8px #00ffff;
-        }
-        .choice-button.imitate-option {
-            border-color: #9400d3;
-            color: #c8a2c8;
-            text-shadow: 0 0 8px #9400d3;
-        }
-        .choice-button.shatter-option {
-            border-color: #ffffff;
-            color: #ffffff;
-            text-shadow: 0 0 15px #ffffff;
-            animation: tapGlow 1.5s infinite ease-in-out;
-        }
         .choice-button:disabled {
             cursor: default;
             opacity: 0.7;
@@ -676,6 +654,7 @@
         }
          .result-container .success-message {
             color: #00ff00;
+            text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
         }
         .result-container .button-glow {
             font-size: 1.2rem;
@@ -699,18 +678,6 @@
             text-shadow: 0 0 8px #00ffff;
             margin-bottom: 20px;
             animation: textReveal 1s ease-out;
-        }
-        .revealed-text {
-             font-style: italic;
-             color: #ff4d4d;
-             text-shadow: 0 0 8px #ff0000;
-             margin-top: 15px;
-             font-size: 1.2rem;
-             animation: textReveal 1.5s ease-out;
-             border: 1px dashed #b40000;
-             padding: 10px;
-             border-radius: 5px;
-             background: rgba(50,0,0,0.2);
         }
         .system-voice {
             color: #b40000; /* Darker red */
@@ -773,12 +740,16 @@
             backdrop-filter: blur(3px);
             position: relative;
         }
+        .ability-button.whisper { border-color: #00ffff; color: #00ffff; }
+        .ability-button.whisper:hover:not(:disabled) { background-color: rgba(0, 255, 255, 0.3); box-shadow: 0 0 15px #00ffff; }
+        .ability-button.imitate { border-color: #9400d3; color: #c8a2c8; }
+        .ability-button.imitate:hover:not(:disabled) { background-color: rgba(148, 0, 211, 0.3); box-shadow: 0 0 15px #9400d3; }
         .ability-uses {
             position: absolute;
             bottom: -5px;
             right: -5px;
             background: #000;
-            border: 1px solid #ff0000;
+            border: 1px solid currentColor;
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -801,28 +772,24 @@
             cursor: not-allowed;
             filter: grayscale(1);
         }
-        .blackout-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            color: #ff0000;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            z-index: 100;
-            padding: 20px;
-            box-sizing: border-box;
-            animation: fadeIn 2s ease-out;
+        .ai-response-box {
+            font-style: italic;
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px dashed;
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+            animation: textReveal 1s ease-out;
         }
-        .blackout-screen p {
-            font-size: clamp(1.5rem, 5vw, 2.5rem);
-            animation: neonGlow 3s infinite ease-in-out;
-            line-height: 1.5;
+        .ai-response-box.whisper {
+            color: #00ffff;
+            border-color: #00ffff;
+            text-shadow: 0 0 8px #00ffff;
+        }
+        .ai-response-box.imitate {
+            color: #c8a2c8;
+            border-color: #9400d3;
+            text-shadow: 0 0 8px #9400d3;
         }
     </style>
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
@@ -833,7 +800,8 @@
   "imports": {
     "react/": "https://aistudiocdn.com/react@^19.1.1/",
     "react": "https://aistudiocdn.com/react@^19.1.1",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/"
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.21.0"
   }
 }
 </script>

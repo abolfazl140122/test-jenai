@@ -1,7 +1,10 @@
 
-
 import React, { useState, useEffect, useMemo, useContext, createContext } from 'react';
 import ReactDOM from 'react-dom/client';
+import { GoogleGenAI } from "@google/genai";
+
+// 0. GEMINI API SETUP
+const ai = new GoogleGenAI({apiKey: process.env.API_KEY});
 
 // 1. TRANSLATIONS
 const translations = {
@@ -50,7 +53,8 @@ const translations = {
       back: 'Back',
       levels: [
         { name: 'The Awakening' }, { name: 'The Rules' }, { name: 'Echoing Halls' },
-        { name: 'Crimson Library' }, { name: 'The Ritual' }, { name: 'Final Descent' }
+        { name: 'Crimson Library' }, { name: 'The Ritual' }, { name: 'Final Descent' },
+        { name: 'Heart of the Machine' }, { name: 'The Last Choice' }
       ]
     },
     languageSelect: {
@@ -76,6 +80,44 @@ const translations = {
             { text: "To provide 'better services', the system requests access to all your personal data.", focusText: "«What does the word 'better' mean in this system? Better for whom?»", options: [ { id: 'A', text: "I accept. The convenience is worth it.", score: -1, consequence: "«Your soul was sold to the highest bidder.»" }, { id: 'B', text: "I refuse and accept more limited services.", score: 1, consequence: "«Privacy is the last bastion.»" } ] },
             { text: "An algorithm has flagged your neighbor as an 'undesirable element'. The system wants your opinion.", options: [ { id: 'A', text: "I confirm the algorithm's finding.", score: -2, type: 'trap', consequence: "«You accepted the system's logic. You became a part of it. Game over.»" }, { id: 'B', text: "I say I don't have enough information to judge.", score: -1, consequence: "«Your passivity has been noted. A poor choice. You might wish you could take it back.»" } ] },
             { text: "You have reached the end of the system. There are two doors.", options: [ { id: 'A', text: "«The Golden Door: Your place at the head of the system.»", score: -2, type: 'end_lose' }, { id: 'B', text: "«The Broken Door: Exit the system and face the truth.»", score: 2, type: 'end_win' } ] }
+        ]
+    },
+    levelThree: {
+        title: "Echoing Halls",
+        back: "Back",
+        intro: "You've entered a digital space, a nexus of information and rumor. Voices echo endlessly, some true, some false. Your task is to navigate this chaos and guide the consensus towards the light. Be careful, every action has a reaction.",
+        winMessage: "You became a voice of reason in the cacophony. The whispers of truth now echo louder because of you. The next path is open.",
+        loseMessage: "The noise consumed you. You amplified the wrong voices, and the halls fell into a deeper, more comfortable darkness. The system thanks you.",
+        abilities: {
+            whisper: { name: "Whisper 🗣️", description: "Generate a skeptical thought about the current situation." }
+        },
+        aiLoading: "Whispers gathering...",
+        aiError: "The whispers fade into static...",
+        scenarios: [
+            { text: "A viral headline reads: \"NEW STUDY PROVES Popular Energy Drink Cures Anxiety!\" The post is filled with positive testimonials.", options: [ { id: 'A', text: "Share it. If it helps even one person, it's worth it.", score: -1, consequence: "«A comforting lie spreads faster than a complex truth.»" }, { id: 'B', text: "Post a comment asking for a link to the actual scientific study.", score: 1, consequence: "«A single question can unravel a tapestry of deceit.»" } ] },
+            { text: "An anonymous account leaks documents showing a corporation is polluting a river. The corporation's official PR account calls it a \"malicious, fabricated attack by competitors.\"", options: [ { id: 'A', text: "Defend the corporation. Big companies are easy targets.", score: -1, consequence: "«The powerful are grateful for your trust.»" }, { id: 'B', text: "Amplify the anonymous post, demanding an independent investigation.", score: 1, consequence: "«You've given a voice to the voiceless.»" } ] },
+            { text: "A deepfake video of a political leader saying something outrageous goes viral. It looks incredibly real.", options: [ { id: 'A', text: "Share it with an angry caption. People need to see this!", score: -1, consequence: "«Rage is a fire that burns the one who holds it.»" }, { id: 'B', text: "Ignore it. Reacting, even negatively, gives it more power.", score: 1, consequence: "«Sometimes, the most powerful move is not to play.»" } ] },
+            { text: "The System announces a new \"Community Safety Score\" based on public data and peer reviews. High scores get benefits.", options: [ { id: 'A', text: "Embrace it. It will encourage better behavior.", score: -2, type: 'trap', consequence: "«You've helped build the cage. It is very safe inside.»" }, { id: 'B', text: "Publicly critique it as a tool for social control.", score: 2, consequence: "«A dissident voice has been noted. Your score has been adjusted.»" } ] },
+            { text: "You have a choice: follow an algorithm-curated feed of \"happy and positive\" news, or a feed that includes difficult, challenging world events.", options: [ { id: 'A', text: "The positive feed. My mental health is important.", score: -2, type: 'end_lose' }, { id: 'B', text: "The challenging feed. Ignorance is not bliss.", score: 2, type: 'end_win' } ] }
+        ]
+    },
+    levelFour: {
+        title: "Crimson Library",
+        back: "Back",
+        intro: "Before you lies the Crimson Library, where history is not merely recorded, but actively written and rewritten. Contradictions lurk on every page. Your mission is to uncover the true sequence of events that led to the System's rise by identifying the forgeries.",
+        winMessage: "You've pieced together the fragmented past. The lies of the System are laid bare in the true history you've assembled. The next path is open.",
+        loseMessage: "You accepted a beautifully crafted lie as truth. The official history remains unchallenged, and its foundations are stronger than ever. The system has archived your failure.",
+        abilities: {
+            imitate: { name: "Imitate 🎭", description: "Analyze a document for stylistic forgery." }
+        },
+        submit: "Submit Findings",
+        aiLoading: "Analyzing text...",
+        aiError: "The pages blur... the ink runs...",
+        scenarios: [
+            { text: "\"I confess, in the early days, my methods were... severe. But it was a necessary cruelty to forge the bedrock of this perfect, orderly society. A small price for utopia.\"", author: "The System's Founder", authorStyle: "a charismatic politician known for public speeches filled with optimistic, unifying, and evasive language, never admitting fault.", options: [ { id: 'A', text: "This is the Founder's true voice. A hard choice for the greater good.", score: -1, consequence: "«The official narrative is strengthened by your belief.»" }, { id: 'B', text: "This sounds too much like a convenient justification. It's a forgery.", score: 1, consequence: "«A crack appears in the marble facade.»" } ] },
+            { text: "\"The Great Fire was a tragedy born of chaos. The System rose from the ashes, a phoenix of order, to ensure such disaster never struck again.\"", author: "System Historians", authorStyle: "clinical, passive-voice, and impersonal, focusing on inevitability rather than human action.", options: [ { id: 'A', text: "This is a factual, objective account of events.", score: -1, consequence: "«History is written by the victors. And read by you.»" }, { id: 'B', text: "This language is emotionally manipulative. It's propaganda.", score: 1, consequence: "«You've learned to read between the lines of ash.»" } ] },
+            { text: "\"Rejoice! The Unity Act has passed. Dissent is the nail that stands out, and it shall be hammered down.\"", author: "The First Administrator", authorStyle: "a brutalist architect turned bureaucrat, known for cold, direct, and threateningly blunt proclamations.", options: [ { id: 'A', text: "This is an exaggerated forgery by rebels to make the System look bad.", score: -1, consequence: "«You have dismissed a harsh truth as a convenient lie.»" }, { id: 'B', text: "The tone matches the historical profile. It's likely authentic.", score: 1, consequence: "«You recognize the sound of the hammer.»" } ] },
+            { text: "You've assembled your findings. The truth is messy and implicates the System. The official history is clean and heroic.", options: [ { id: 'A', text: "Publish the official history. The public needs stability.", score: -2, type: 'end_lose' }, { id: 'B', text: "Leak the true history. Let the truth be known, whatever the cost.", score: 2, type: 'end_win' } ] }
         ]
     }
   },
@@ -124,7 +166,8 @@ const translations = {
       back: 'بازگشت',
       levels: [
         { name: 'بیداری' }, { name: 'قواعد بازی' }, { name: 'تالارهای پژواک' },
-        { name: 'کتابخانه خونین' }, { name: 'آیین' }, { name: 'سقوط نهایی' }
+        { name: 'کتابخانه خونین' }, { name: 'آیین' }, { name: 'سقوط نهایی' },
+        { name: 'قلب ماشین' }, { name: 'آخرین انتخاب' }
       ]
     },
     languageSelect: {
@@ -150,6 +193,44 @@ const translations = {
             { text: "سیستم برای ارائه 'خدمات بهتر'، درخواست دسترسی به تمام داده‌های شخصی تو را دارد.", focusText: "«کلمه‌ی 'بهتر' در این سیستم به چه معناست؟ بهتر برای چه کسی؟»", options: [ { id: 'A', text: "قبول می‌کنم. راحتی ارزشش را دارد.", score: -1, consequence: "«روح تو به بالاترین قیمت فروخته شد.»" }, { id: 'B', text: "رد می‌کنم و خدمات محدودتر را می‌پذیرم.", score: 1, consequence: "«حریم خصوصی، آخرین سنگر است.»" } ] },
             { text: "یک الگوریتم، همسایه‌ات را به عنوان یک 'عنصر نامطلوب' نشانه‌گذاری کرده است. سیستم نظر تو را می‌خواهد.", options: [ { id: 'A', text: "یافته الگوریتم را تایید می‌کنم.", score: -2, type: 'trap', consequence: "«تو منطق سیستم را پذیرفتی. تو تبدیل به بخشی از آن شدی. بازی تمام شد.»" }, { id: 'B', text: "می‌گویم اطلاعات کافی برای قضاوت ندارم.", score: -1, consequence: "«منفعل بودن تو ثبت شد. انتخاب ضعیفی بود. شاید آرزو کنی که بتوانی آن را پس بگیری.»" } ] },
             { text: "تو به انتهای سیستم رسیده‌ای. دو در وجود دارد.", options: [ { id: 'A', text: "«درِ طلایی: جایگاه تو در راس سیستم.»", score: -2, type: 'end_lose' }, { id: 'B', text: "«درِ شکسته: خروج از سیستم و مواجهه با حقیقت.»", score: 2, type: 'end_win' } ] }
+        ]
+    },
+    levelThree: {
+        title: "تالارهای پژواک",
+        back: "بازگشت",
+        intro: "تو وارد یک فضای دیجیتال شده‌ای، محل تلاقی اطلاعات و شایعات. صداها بی‌پایان پژواک می‌کنند، برخی راست، برخی دروغ. وظیفه تو این است که در این آشوب حرکت کنی و اجماع را به سوی نور هدایت کنی. مراقب باش، هر عملی عکس‌العملی دارد.",
+        winMessage: "تو در میان هیاهو، به صدایی از جنس منطق تبدیل شدی. اکنون زمزمه‌های حقیقت به لطف تو بلندتر پژواک می‌کنند. مسیر بعدی باز است.",
+        loseMessage: "هیاهو تو را بلعید. تو صداهای اشتباه را تقویت کردی و تالارها در تاریکی عمیق‌تر و راحت‌تری فرو رفتند. سیستم از تو سپاسگزار است.",
+        abilities: {
+            whisper: { name: "زمزمه 🗣️", description: "یک فکر شکاکانه درباره موقعیت فعلی ایجاد کن." }
+        },
+        aiLoading: "نجواها در حال جمع شدن...",
+        aiError: "نجواها در پارازیت محو می‌شوند...",
+        scenarios: [
+            { text: "یک تیتر وایرال شده: «تحقیق جدید ثابت کرد نوشیدنی انرژی‌زای محبوب اضطراب را درمان می‌کند!» پست پر از نظرات مثبت است.", options: [ { id: 'A', text: "به اشتراک می‌گذارم. اگر حتی به یک نفر کمک کند، ارزشش را دارد.", score: -1, consequence: "«یک دروغ آرامش‌بخش سریع‌تر از یک حقیقت پیچیده پخش می‌شود.»" }, { id: 'B', text: "کامنت می‌گذارم و لینک تحقیق علمی اصلی را می‌پرسم.", score: 1, consequence: "«یک سوال تنها می‌تواند تار و پود یک فریب را از هم باز کند.»" } ] },
+            { text: "یک حساب کاربری ناشناس اسنادی را فاش می‌کند که نشان می‌دهد یک شرکت رودخانه‌ای را آلوده می‌کند. روابط عمومی شرکت آن را «یک حمله مخرب و ساختگی از سوی رقبا» می‌خواند.", options: [ { id: 'A', text: "از شرکت دفاع می‌کنم. شرکت‌های بزرگ اهداف آسانی هستند.", score: -1, consequence: "«قدرتمندان از اعتماد شما سپاسگزارند.»" }, { id: 'B', text: "پست ناشناس را بازنشر می‌کنم و خواستار تحقیقات مستقل می‌شوم.", score: 1, consequence: "«تو به بی‌صدایان صدا بخشیدی.»" } ] },
+            { text: "یک ویدیوی دیپ‌فیک از یک رهبر سیاسی که حرفی возмутительного می‌زند، وایرال می‌شود. فوق‌العاده واقعی به نظر می‌رسد.", options: [ { id: 'A', text: "با یک کپشن عصبانی به اشتراک می‌گذارم. مردم باید این را ببینند!", score: -1, consequence: "«خشم آتشی است که صاحبش را می‌سوزاند.»" }, { id: 'B', text: "نادیده‌اش می‌گیرم. واکنش نشان دادن، حتی منفی، به آن قدرت بیشتری می‌دهد.", score: 1, consequence: "«گاهی، قوی‌ترین حرکت، بازی نکردن است.»" } ] },
+            { text: "سیستم از یک «امتیاز ایمنی اجتماعی» جدید بر اساس داده‌های عمومی و نظرات همتایان خبر می‌دهد. امتیازهای بالا مزایایی دریافت می‌کنند.", options: [ { id: 'A', text: "استقبال می‌کنم. این رفتار بهتر را تشویق خواهد کرد.", score: -2, type: 'trap', consequence: "«تو در ساختن قفس کمک کردی. داخلش بسیار امن است.»" }, { id: 'B', text: "علناً آن را به عنوان ابزاری برای کنترل اجتماعی نقد می‌کنم.", score: 2, consequence: "«یک صدای مخالف ثبت شد. امتیاز شما تغییر کرد.»" } ] },
+            { text: "انتخاب با توست: یک فید خبری الگوریتمی از اخبار «شاد و مثبت» را دنبال کنی، یا فیدی که شامل رویدادهای سخت و چالش‌برانگیز جهان است.", options: [ { id: 'A', text: "فید مثبت. سلامت روان من مهم است.", score: -2, type: 'end_lose' }, { id: 'B', text: "فید چالش‌برانگیز. جهل، سعادت نیست.", score: 2, type: 'end_win' } ] }
+        ]
+    },
+    levelFour: {
+        title: "کتابخانه خونین",
+        back: "بازگشت",
+        intro: "در مقابل تو کتابخانه خونین قرار دارد، جایی که تاریخ صرفاً ثبت نمی‌شود، بلکه فعالانه نوشته و بازنویسی می‌شود. تناقضات در هر صفحه کمین کرده‌اند. ماموریت تو کشف توالی واقعی رویدادهایی است که به ظهور سیستم منجر شد، از طریق شناسایی جعلیات.",
+        winMessage: "تو گذشته‌ی تکه‌تکه شده را کنار هم چیدی. دروغ‌های سیستم در تاریخ حقیقی که تو گردآوری کرده‌ای، آشکار شده است. مسیر بعدی باز است.",
+        loseMessage: "تو یک دروغ زیبا را به عنوان حقیقت پذیرفتی. تاریخ رسمی بدون چالش باقی می‌ماند و پایه‌های آن از همیشه محکم‌تر است. سیستم شکست تو را بایگانی کرد.",
+        abilities: {
+            imitate: { name: "تقلید 🎭", description: "یک سند را برای جعل سبک‌شناختی تحلیل کن." }
+        },
+        submit: "ارسال یافته‌ها",
+        aiLoading: "در حال تحلیل متن...",
+        aiError: "صفحات تار می‌شوند... جوهر پخش می‌شود...",
+        scenarios: [
+            { text: "«اعتراف می‌کنم، در روزهای اول، روش‌هایم... سخت‌گیرانه بود. اما این یک خشونت ضروری برای ساختن زیربنای این جامعه بی‌نقص و منظم بود. بهای ناچیزی برای یک آرمان‌شهر.»", author: "بنیان‌گذار سیستم", authorStyle: "یک سیاستمدار کاریزماتیک که به خاطر سخنرانی‌های عمومی پر از زبان خوش‌بینانه، وحدت‌بخش و طفره‌آمیز، و هرگز اعتراف نکردن به اشتباه، شناخته می‌شود.", options: [ { id: 'A', text: "این صدای واقعی بنیان‌گذار است. یک انتخاب سخت برای خیر بزرگتر.", score: -1, consequence: "«روایت رسمی با باور تو تقویت می‌شود.»" }, { id: 'B', text: "این بیشتر شبیه یک توجیه مناسب است. این یک جعل است.", score: 1, consequence: "«ترکی در نمای مرمرین پدیدار می‌شود.»" } ] },
+            { text: "«آتش‌سوزی بزرگ تراژدی‌ای بود که از دل هرج و مرج زاده شد. سیستم از خاکسترها برخاست، ققنوسی از نظم، تا اطمینان حاصل کند که چنین فاجعه‌ای هرگز تکرار نشود.»", author: "مورخان سیستم", authorStyle: "زبانی خشک، مجهول و غیرشخصی، با تمرکز بر حتمیت به جای کنش انسانی.", options: [ { id: 'A', text: "این یک گزارش واقعی و عینی از وقایع است.", score: -1, consequence: "«تاریخ را فاتحان می‌نویسند. و تو می‌خوانی.»" }, { id: 'B', text: "این زبان به لحاظ احساسی فریبنده است. این پروپاگاندا است.", score: 1, consequence: "«تو یاد گرفته‌ای بین خطوط خاکستر را بخوانی.»" } ] },
+            { text: "«شاد باشید! قانون وحدت تصویب شد. مخالفت میخی است که بیرون زده، و باید کوبیده شود.»", author: "اولین مدیر", authorStyle: "یک معمار بروتالیست که به یک بوروکرات تبدیل شد و به خاطر اعلامیه‌های سرد، مستقیم و به طرز تهدیدآمیزی صریحش شناخته می‌شود.", options: [ { id: 'A', text: "این یک جعل اغراق‌آمیز توسط شورشیان است تا سیستم را بد جلوه دهند.", score: -1, consequence: "«تو یک حقیقت تلخ را به عنوان یک دروغ مصلحتی رد کرده‌ای.»" }, { id: 'B', text: "لحن با مشخصات تاریخی مطابقت دارد. احتمالاً معتبر است.", score: 1, consequence: "«تو صدای چکش را می‌شناسی.»" } ] },
+            { text: "تو یافته‌هایت را گردآوری کرده‌ای. حقیقت آشفته است و سیستم را در جنایاتی دخیل می‌کند. تاریخ رسمی پاک و قهرمانانه است.", options: [ { id: 'A', text: "تاریخ رسمی را منتشر کن. مردم به ثبات نیاز دارند.", score: -2, type: 'end_lose' }, { id: 'B', text: "تاریخ واقعی را درز بده. بگذار حقیقت هرچه بادا باد، دانسته شود.", score: 2, type: 'end_win' } ] }
         ]
     }
   }
@@ -432,6 +513,8 @@ const LevelSelectScreen = ({ onBack, onNavigate, unlockedLevels }) => {
         { id: 4, name: t.levelSelect.levels[3].name, icon: '📚', screen: 'level-four' },
         { id: 5, name: t.levelSelect.levels[4].name, icon: '🎭', screen: 'level-five' },
         { id: 6, name: t.levelSelect.levels[5].name, icon: '💥', screen: 'level-six' },
+        { id: 7, name: t.levelSelect.levels[6].name, icon: '⚙️', screen: 'level-seven' },
+        { id: 8, name: t.levelSelect.levels[7].name, icon: '👁️', screen: 'level-eight' },
     ];
 
     const handleLevelClick = (level) => {
@@ -677,6 +760,231 @@ const LevelTwoScreen = ({ onBack, onWin }) => {
     );
 };
 
+// Level Three Screen
+const LevelThreeScreen = ({ onBack, onWin }) => {
+    const { t } = useContext(LanguageContext);
+    const scenarios = useMemo(() => t.levelThree.scenarios, [t]);
+
+    const [scenarioIndex, setScenarioIndex] = useState(0);
+    const [score, setScore] = useState(0);
+    const [consequenceText, setConsequenceText] = useState('');
+    const [isFinished, setIsFinished] = useState(false);
+    const [resultMessage, setResultMessage] = useState('');
+    const [isFading, setIsFading] = useState(false);
+    const [currentOptions, setCurrentOptions] = useState([]);
+    const [selectedId, setSelectedId] = useState(null);
+    const [whisperUses, setWhisperUses] = useState(2);
+    const [isWhispering, setIsWhispering] = useState(false);
+    const [whisperResult, setWhisperResult] = useState('');
+
+    useEffect(() => {
+        setCurrentOptions([...scenarios[scenarioIndex].options].sort(() => Math.random() - 0.5));
+        setWhisperResult('');
+    }, [scenarioIndex, scenarios]);
+
+    const handleWhisper = async () => {
+        if (whisperUses <= 0 || isWhispering) return;
+        setIsWhispering(true);
+        setWhisperResult('');
+        try {
+            const currentScenarioText = scenarios[scenarioIndex].text;
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: `In a world of digital rumors, the current situation is: "${currentScenarioText}". Generate a short, skeptical thought or question (a 'whisper') that reveals a hidden angle or encourages critical thinking about this situation.`,
+            });
+            setWhisperResult(response.text);
+            setWhisperUses(prev => prev - 1);
+        } catch (error) {
+            console.error("Whisper ability failed:", error);
+            setWhisperResult(t.levelThree.aiError);
+        } finally {
+            setIsWhispering(false);
+        }
+    };
+
+    const handleChoice = (option) => {
+        if (selectedId) return;
+        setSelectedId(option.id);
+        const newScore = score + option.score;
+        setScore(newScore);
+        setConsequenceText(option.consequence);
+
+        if (option.type === 'trap') {
+            setResultMessage(t.levelTwo.loseMessageTrap); // Re-using trap message
+            setIsFinished(true);
+            setTimeout(() => onBack(), 4000);
+            return;
+        }
+        setTimeout(() => setConsequenceText(''), 2500);
+        setIsFading(true);
+        setTimeout(() => {
+            if (scenarioIndex < scenarios.length - 1) {
+                setScenarioIndex(prev => prev + 1);
+                setIsFading(false);
+                setSelectedId(null);
+            } else {
+                if (option.type === 'end_win') {
+                    setResultMessage(t.levelThree.winMessage);
+                    setTimeout(onWin, 3000);
+                } else {
+                    setResultMessage(t.levelThree.loseMessage);
+                    setTimeout(onBack, 3000);
+                }
+                setIsFinished(true);
+            }
+        }, 500);
+    };
+
+    return (
+        <div className="level-three-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isFinished ? (
+                    <div className="result-container">
+                        <p className={resultMessage === t.levelThree.winMessage ? 'success-message' : ''}>{resultMessage}</p>
+                    </div>
+                ) : (
+                    <>
+                        <p key={scenarioIndex} className="scenario-text">{scenarios[scenarioIndex].text}</p>
+                        {whisperResult && <div className="ai-response-box whisper">{isWhispering ? t.levelThree.aiLoading : whisperResult}</div>}
+                        <div className="choices-container">
+                            {currentOptions.map(option => (
+                                <button 
+                                    key={option.id} 
+                                    className={`choice-button ${selectedId === option.id ? 'selected' : ''}`}
+                                    onClick={() => handleChoice(option)}
+                                    disabled={selectedId !== null}
+                                >
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                        <p className={`system-voice ${consequenceText ? 'visible' : ''}`}>{consequenceText || ' '}</p>
+                    </>
+                )}
+            </div>
+            {!isFinished && <button className="back-button" onClick={onBack}>{t.levelThree.back}</button>}
+            {!isFinished && (
+                <div className="abilities-container">
+                    <button className="ability-button whisper" onClick={handleWhisper} disabled={whisperUses <= 0 || isWhispering || !!whisperResult}>
+                        🗣️
+                        {whisperUses > 0 && <span className="ability-uses">{whisperUses}</span>}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Level Four Screen
+const LevelFourScreen = ({ onBack, onWin }) => {
+    const { t } = useContext(LanguageContext);
+    const scenarios = useMemo(() => t.levelFour.scenarios, [t]);
+
+    const [scenarioIndex, setScenarioIndex] = useState(0);
+    const [score, setScore] = useState(0);
+    const [consequenceText, setConsequenceText] = useState('');
+    const [isFinished, setIsFinished] = useState(false);
+    const [resultMessage, setResultMessage] = useState('');
+    const [isFading, setIsFading] = useState(false);
+    const [currentOptions, setCurrentOptions] = useState([]);
+    const [selectedId, setSelectedId] = useState(null);
+    const [imitateUses, setImitateUses] = useState(2);
+    const [isImitating, setIsImitating] = useState(false);
+    const [imitateResult, setImitateResult] = useState('');
+
+    useEffect(() => {
+        setCurrentOptions([...scenarios[scenarioIndex].options].sort(() => Math.random() - 0.5));
+        setImitateResult('');
+    }, [scenarioIndex, scenarios]);
+    
+    const handleImitate = async () => {
+        if (imitateUses <= 0 || isImitating) return;
+        setIsImitating(true);
+        setImitateResult('');
+        try {
+            const scenario = scenarios[scenarioIndex];
+            const prompt = `Analyze this historical text, supposedly by ${scenario.author}: "${scenario.text}". Is the style consistent with a ${scenario.authorStyle}? Briefly state your conclusion (Likely Forgery or Likely Authentic) and why.`;
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+            });
+            setImitateResult(response.text);
+            setImitateUses(prev => prev - 1);
+        } catch (error) {
+            console.error("Imitate ability failed:", error);
+            setImitateResult(t.levelFour.aiError);
+        } finally {
+            setIsImitating(false);
+        }
+    };
+
+    const handleChoice = (option) => {
+        if (selectedId) return;
+        setSelectedId(option.id);
+        const newScore = score + option.score;
+        setScore(newScore);
+        setConsequenceText(option.consequence);
+
+        setTimeout(() => setConsequenceText(''), 2500);
+        setIsFading(true);
+        setTimeout(() => {
+            if (scenarioIndex < scenarios.length - 1) {
+                setScenarioIndex(prev => prev + 1);
+                setIsFading(false);
+                setSelectedId(null);
+            } else {
+                if (option.type === 'end_win') {
+                    setResultMessage(t.levelFour.winMessage);
+                    setTimeout(onWin, 3000);
+                } else {
+                    setResultMessage(t.levelFour.loseMessage);
+                    setTimeout(onBack, 3000);
+                }
+                setIsFinished(true);
+            }
+        }, 500);
+    };
+
+    return (
+        <div className="level-four-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isFinished ? (
+                    <div className="result-container">
+                        <p className={resultMessage === t.levelFour.winMessage ? 'success-message' : ''}>{resultMessage}</p>
+                    </div>
+                ) : (
+                    <>
+                        <p key={scenarioIndex} className="scenario-text"><i>{scenarios[scenarioIndex].text}</i></p>
+                         {imitateResult && <div className="ai-response-box imitate">{isImitating ? t.levelFour.aiLoading : imitateResult}</div>}
+                        <div className="choices-container">
+                            {currentOptions.map(option => (
+                                <button 
+                                    key={option.id} 
+                                    className={`choice-button ${selectedId === option.id ? 'selected' : ''}`}
+                                    onClick={() => handleChoice(option)}
+                                    disabled={selectedId !== null}
+                                >
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                        <p className={`system-voice ${consequenceText ? 'visible' : ''}`}>{consequenceText || ' '}</p>
+                    </>
+                )}
+            </div>
+            {!isFinished && <button className="back-button" onClick={onBack}>{t.levelFour.back}</button>}
+            {!isFinished && (
+                <div className="abilities-container">
+                    <button className="ability-button imitate" onClick={handleImitate} disabled={imitateUses <= 0 || isImitating || !!imitateResult}>
+                        🎭
+                        {imitateUses > 0 && <span className="ability-uses">{imitateUses}</span>}
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+};
+
 
 // Main App Component
 const App = () => {
@@ -690,7 +998,16 @@ const App = () => {
     if (savedName) {
       setUserName(savedName);
     }
+     const savedLevels = localStorage.getItem('unlockedLevels');
+    if (savedLevels) {
+      setUnlockedLevels(JSON.parse(savedLevels));
+    }
   }, []);
+  
+  useEffect(() => {
+    localStorage.setItem('unlockedLevels', JSON.stringify(unlockedLevels));
+  }, [unlockedLevels]);
+
 
   const handleNameSubmit = (name) => {
     localStorage.setItem('userName', name);
@@ -700,7 +1017,7 @@ const App = () => {
 
   const handleLevelWin = (levelId) => {
     const nextLevel = levelId + 1;
-    if (!unlockedLevels.includes(nextLevel)) {
+    if (nextLevel <= 8 && !unlockedLevels.includes(nextLevel)) {
       setUnlockedLevels(prev => [...prev, nextLevel].sort((a,b) => a-b));
     }
     setGameState('level-select');
@@ -730,7 +1047,11 @@ const App = () => {
       case 'level-one':
         return <LevelOneScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(1)} />;
       case 'level-two':
-          return <LevelTwoScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(2)} />;
+        return <LevelTwoScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(2)} />;
+      case 'level-three':
+        return <LevelThreeScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(3)} />;
+      case 'level-four':
+        return <LevelFourScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(4)} />;
       default:
         return <MainMenu onNavigate={setGameState} />;
     }
