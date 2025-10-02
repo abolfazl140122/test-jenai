@@ -192,6 +192,11 @@
             50% { transform: scale(1.05); filter: grayscale(0%); } 
             100% { transform: scale(1); filter: grayscale(20%); } 
         }
+        @keyframes vortex {
+            from { transform: rotate(0deg) scale(1.5); }
+            to { transform: rotate(360deg) scale(1.5); }
+        }
+
 
         /* Grain Overlay */
         .grain-overlay::after {
@@ -824,6 +829,46 @@
         body[dir="rtl"] .progress-indicator {
             right: auto;
             left: 20px;
+        }
+
+        /* Level Six: Final Descent Styles */
+        .level-six-screen.page-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200%;
+            height: 200%;
+            margin-top: -100%;
+            margin-left: -100%;
+            background: radial-gradient(circle, rgba(20, 0, 40, 0.5) 0%, transparent 60%);
+            animation: vortex 60s linear infinite;
+            z-index: 0;
+        }
+        .level-six-screen .scenario-container {
+            border-color: #4b0082; /* Indigo */
+            box-shadow: 0 0 25px #4b0082, inset 0 0 15px rgba(75, 0, 130, 0.5);
+        }
+        .level-six-screen .choice-button {
+            border-color: #4b0082;
+            color: #b19cd9; /* Light pastel purple */
+            text-shadow: 0 0 5px #4b0082;
+        }
+        .level-six-screen .choice-button:hover:not(:disabled) {
+            background: rgba(75, 0, 130, 0.3);
+            border-color: #b19cd9;
+            color: #fff;
+            box-shadow: 0 0 15px #b19cd9;
+        }
+        .level-six-screen .ai-response-box.analysis {
+            color: #b19cd9;
+            border-color: #4b0082;
+            text-shadow: 0 0 8px #4b0082;
+            font-weight: bold;
+        }
+        .level-six-screen .progress-indicator {
+            color: #b19cd9;
+            text-shadow: 0 0 8px #4b0082;
         }
     </style>
     <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>

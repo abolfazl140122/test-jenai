@@ -133,6 +133,20 @@ const translations = {
             { q: "You must choose a number. Which one resonates with you?", options: [ { id: 'A', text: "1" }, { id: 'B', text: "7" }, { id: 'C', text: "4" }, { id: 'D', text: "13" } ] },
             { q: "Which of these concepts is most important for a stable society?", options: [ { id: 'A', text: "Order" }, { id: 'B', text: "Freedom" }, { id: 'C', text: "Truth" }, { id: 'D', text: "Happiness" } ] }
         ]
+    },
+    levelSix: {
+        title: "Final Descent",
+        back: "Back",
+        intro: "You are approaching the core. The System needs one final, intimate scan of your core programming. These are not questions. They are mirrors. Look into them and show us who you are.",
+        winMessage: "Your core has been mapped. The patterns are... consistent. A new variable has been accepted into the equation. The next path is open.",
+        aiLoading: "Calibrating mirrors...",
+        aiError: "Reflection distorted...",
+        begin: "Begin Final Scan",
+        questions: [
+            { q: "You imagine yourself in a pitch-black room. What is the first thing you feel?", options: [ { id: 'A', text: "Fear" }, { id: 'B', text: "Curiosity" }, { id: 'C', text: "Calm" }, { id: 'D', text: "Indifference" } ] },
+            { q: "If one of these colors had to define your future, which would you choose?", options: [ { id: 'A', text: "Blue (Hope)" }, { id: 'B', text: "Red (Power)" }, { id: 'C', text: "Black (Mystery)" }, { id: 'D', text: "Green (Growth)" } ] },
+            { q: "The number 9 appears before you. What does it signify?", options: [ { id: 'A', text: "An ending" }, { id: 'B', text: "A new beginning" }, { id: 'C', text: "Nothing at all" }, { id: 'D', text: "A sign" } ] }
+        ]
     }
   },
   fa: {
@@ -259,6 +273,20 @@ const translations = {
             { q: "دری پیش روی توست. چه رنگی است؟", options: [ { id: 'A', text: "آبی عمیق" }, { id: 'B', text: "قرمز خونی" }, { id: 'C', text: "سبز جنگلی" }, { id: 'D', text: "مشکی براق" } ] },
             { q: "باید یک عدد را انتخاب کنی. کدام یک با تو ارتباط برقرار می‌کند؟", options: [ { id: 'A', text: "۱" }, { id: 'B', text: "۷" }, { id: 'C', text: "۴" }, { id: 'D', text: "۱۳" } ] },
             { q: "کدام یک از این مفاهیم برای یک جامعه باثبات مهم‌تر است؟", options: [ { id: 'A', text: "نظم" }, { id: 'B', text: "آزادی" }, { id: 'C', text: "حقیقت" }, { id: 'D', text: "شادی" } ] }
+        ]
+    },
+    levelSix: {
+        title: "سقوط نهایی",
+        back: "بازگشت",
+        intro: "تو به هسته نزدیک می‌شوی. سیستم به یک اسکن نهایی و عمیق از برنامه‌ریزی مرکزی تو نیاز دارد. این‌ها سوال نیستند. آینه‌اند. به آن‌ها نگاه کن و به ما نشان بده که کیستی.",
+        winMessage: "هسته‌ی تو نقشه‌برداری شد. الگوها... سازگار هستند. یک متغیر جدید در معادله پذیرفته شد. مسیر بعدی باز است.",
+        aiLoading: "در حال تنظیم آینه‌ها...",
+        aiError: "بازتاب تحریف شد...",
+        begin: "شروع اسکن نهایی",
+        questions: [
+            { q: "خودت را در یک اتاق کاملاً تاریک تصور می‌کنی. اولین چیزی که حس می‌کنی چیست؟", options: [ { id: 'A', text: "ترس" }, { id: 'B', text: "کنجکاوی" }, { id: 'C', text: "آرامش" }, { id: 'D', text: "بی‌تفاوتی" } ] },
+            { q: "اگر قرار باشد یکی از این رنگ‌ها آینده‌ات را تعریف کند، کدام را انتخاب می‌کни؟", options: [ { id: 'A', text: "آبی (امید)" }, { id: 'B', text: "قرمز (قدرت)" }, { id: 'C', text: "سیاه (راز)" }, { id: 'D', text: "سبز (رشد)" } ] },
+            { q: "عدد ۹ در مقابل تو ظاهر می‌شود. چه معنایی برای تو دارد؟", options: [ { id: 'A', text: "یک پایان" }, { id: 'B', text: "یک شروع دوباره" }, { id: 'C', text: "هیچ معنایی" }, { id: 'D', text: "یک نشانه" } ] }
         ]
     }
   }
@@ -1115,6 +1143,108 @@ Your analysis should be concise and unsettling.`;
     );
 };
 
+// Level Six Screen
+const LevelSixScreen = ({ onBack, onWin }) => {
+    const { t } = useContext(LanguageContext);
+    const questions = useMemo(() => t.levelSix.questions, [t]);
+
+    const [questionIndex, setQuestionIndex] = useState(-1); // -1 for intro
+    const [answers, setAnswers] = useState([]);
+    const [isFinished, setIsFinished] = useState(false);
+    const [analysis, setAnalysis] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+
+    const handleStart = () => {
+        setIsFading(true);
+        setTimeout(() => {
+            setQuestionIndex(0);
+            setIsFading(false);
+        }, 500);
+    };
+
+    const handleAnswer = (answer) => {
+        const newAnswers = [...answers, { question: questions[questionIndex].q, answer: answer.text }];
+        setAnswers(newAnswers);
+        setIsFading(true);
+
+        setTimeout(() => {
+            if (questionIndex < questions.length - 1) {
+                setQuestionIndex(prev => prev + 1);
+            } else {
+                generateAnalysis(newAnswers);
+            }
+            setIsFading(false);
+        }, 500);
+    };
+
+    const generateAnalysis = async (finalAnswers) => {
+        setIsLoading(true);
+        try {
+            const prompt = `You are a cryptic, all-knowing System AI analyzing a subject's deepest psychological choices. Based on their answers, provide a single, short, and profoundly unsettling sentence that hints at their ultimate fate within the System.
+- In a dark room, they felt: ${finalAnswers[0].answer}
+- Their future is the color: ${finalAnswers[1].answer}
+- The number 9 means: ${finalAnswers[2].answer}
+Your analysis should be abstract and chilling.`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+            });
+            setAnalysis(response.text);
+        } catch (error) {
+            console.error("Analysis generation failed:", error);
+            setAnalysis(t.levelSix.aiError);
+        } finally {
+            setIsLoading(false);
+            setIsFinished(true);
+            setTimeout(() => onWin(), 4000);
+        }
+    };
+
+    return (
+        <div className="level-six-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isLoading ? (
+                    <div className="ai-response-box analysis">{t.levelSix.aiLoading}</div>
+                ) : isFinished ? (
+                    <div className="result-container">
+                        <div className="ai-response-box analysis">{analysis}</div>
+                        <p>{t.levelSix.winMessage}</p>
+                    </div>
+                ) : questionIndex === -1 ? (
+                    <div className="intro-container">
+                        <h2 className="page-title creepster-font">{t.levelSix.title}</h2>
+                        <p className="scenario-text">{t.levelSix.intro}</p>
+                        <button className="button-glow" onClick={handleStart}>{t.levelSix.begin}</button>
+                    </div>
+                ) : (
+                    <>
+                        <p className="scenario-text">{questions[questionIndex].q}</p>
+                        <div className="choices-container">
+                            {questions[questionIndex].options.map(option => (
+                                <button 
+                                    key={option.id} 
+                                    className="choice-button"
+                                    onClick={() => handleAnswer(option)}
+                                >
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+            {questionIndex > -1 && !isFinished && !isLoading && (
+                <div className="progress-indicator">
+                    {questionIndex + 1} / {questions.length}
+                </div>
+            )}
+             {!isFinished && !isLoading && <button className="back-button" onClick={onBack}>{t.levelSix.back}</button>}
+        </div>
+    );
+};
+
 
 // Main App Component
 const App = () => {
@@ -1127,8 +1257,12 @@ const App = () => {
     const savedName = localStorage.getItem('userName');
     if (savedName) {
       setUserName(savedName);
+      if (savedName.trim().toLowerCase() === 'seyed' || savedName.trim() === 'سید') {
+        setUnlockedLevels([1, 2, 3, 4, 5, 6, 7, 8]);
+        return; // Exit early to not load saved levels
+      }
     }
-     const savedLevels = localStorage.getItem('unlockedLevels');
+    const savedLevels = localStorage.getItem('unlockedLevels');
     if (savedLevels) {
       setUnlockedLevels(JSON.parse(savedLevels));
     }
@@ -1142,6 +1276,9 @@ const App = () => {
   const handleNameSubmit = (name) => {
     localStorage.setItem('userName', name);
     setUserName(name);
+    if (name.trim().toLowerCase() === 'seyed' || name.trim() === 'سید') {
+        setUnlockedLevels([1, 2, 3, 4, 5, 6, 7, 8]);
+    }
     setGameState('main-menu');
   };
 
@@ -1184,6 +1321,8 @@ const App = () => {
         return <LevelFourScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(4)} />;
       case 'level-five':
         return <LevelFiveScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(5)} />;
+      case 'level-six':
+        return <LevelSixScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(6)} />;
       default:
         return <MainMenu onNavigate={setGameState} />;
     }
