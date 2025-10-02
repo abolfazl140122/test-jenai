@@ -43,7 +43,6 @@ const translations = {
         { name: 'Seyed Abbas Sajjadi', role: 'Lead Coder' },
         { name: 'Ali Babaei', role: 'Graphic Developer & Idea Person' },
       ],
-      line2: 'Powered by Gemini AI.',
       back: 'Back',
     },
     levelSelect: {
@@ -118,7 +117,6 @@ const translations = {
         { name: 'سید عباس سجادی', role: 'کد نویسی ارشد' },
         { name: 'علی بابایی', role: 'توسعه دهنده گرافیک و ایده پرداز' },
       ],
-      line2: 'قدرت گرفته از هوش مصنوعی Gemini.',
       back: 'بازگشت',
     },
     levelSelect: {
@@ -418,7 +416,6 @@ const CreditsScreen = ({ onBack }) => {
                     </div>
                 ))}
             </div>
-            <p className="gemini-credit">{t.credits.line2}</p>
         </div>
         <button className="back-button" onClick={onBack}>{t.credits.back}</button>
     </div>
