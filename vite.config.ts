@@ -9,6 +9,12 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    // Set the base path for deployment. For GitHub Pages, a relative path is needed
+    // to ensure all assets (JS, CSS, images) are loaded correctly.
+    base: './',
+    build: {
+      outDir: 'dist',
+    },
     define: {
       // Make process.env.API_KEY available in the client code.
       // Vite performs a direct string replacement, so we need to stringify the value.
