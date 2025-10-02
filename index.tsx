@@ -119,6 +119,20 @@ const translations = {
             { text: "\"Rejoice! The Unity Act has passed. Dissent is the nail that stands out, and it shall be hammered down.\"", author: "The First Administrator", authorStyle: "a brutalist architect turned bureaucrat, known for cold, direct, and threateningly blunt proclamations.", options: [ { id: 'A', text: "This is an exaggerated forgery by rebels to make the System look bad.", score: -1, consequence: "«You have dismissed a harsh truth as a convenient lie.»" }, { id: 'B', text: "The tone matches the historical profile. It's likely authentic.", score: 1, consequence: "«You recognize the sound of the hammer.»" } ] },
             { text: "You've assembled your findings. The truth is messy and implicates the System. The official history is clean and heroic.", options: [ { id: 'A', text: "Publish the official history. The public needs stability.", score: -2, type: 'end_lose' }, { id: 'B', text: "Leak the true history. Let the truth be known, whatever the cost.", score: 2, type: 'end_win' } ] }
         ]
+    },
+    levelFive: {
+        title: "The Ritual",
+        back: "Back",
+        intro: "The System requires a psychological evaluation to ensure... compatibility. Your responses will be archived. Do not attempt to deceive us. We will know.",
+        winMessage: "Your psychological profile has been archived. You are... predictable. The next path is open.",
+        aiLoading: "Analyzing psychometric data...",
+        aiError: "Cognitive dissonance detected...",
+        begin: "Begin",
+        questions: [
+            { q: "A door stands before you. What color is it?", options: [ { id: 'A', text: "Deep Blue" }, { id: 'B', text: "Blood Red" }, { id: 'C', text: "Forest Green" }, { id: 'D', text: "Glossy Black" } ] },
+            { q: "You must choose a number. Which one resonates with you?", options: [ { id: 'A', text: "1" }, { id: 'B', text: "7" }, { id: 'C', text: "4" }, { id: 'D', text: "13" } ] },
+            { q: "Which of these concepts is most important for a stable society?", options: [ { id: 'A', text: "Order" }, { id: 'B', text: "Freedom" }, { id: 'C', text: "Truth" }, { id: 'D', text: "Happiness" } ] }
+        ]
     }
   },
   fa: {
@@ -126,7 +140,7 @@ const translations = {
     tapToStart: 'برای شروع ضربه بزنید',
     intro_panel: {
         title: "به مغاک خوش آمدید",
-        description: "این بازی صرفاً برای سرگرمی نیست؛ سفری است به اعماق آگاهی اجتماعی. ما به کاوش حقایق پنهان، مبارزات نادیده گرفته شده، و انتخاب‌هایی می‌پردازیم که آینده جمعی ما را شکل می‌دهند. مسیر پیش رو، ادراک شما از واقعیت را به چالش خواهد کشید.",
+        description: "این بازی صرفاً برای سرگرمی نیست؛ سفری است به اعمق آگاهی اجتماعی. ما به کاوش حقایق پنهان، مبارزات نادیده گرفته شده، و انتخاب‌هایی می‌پردازیم که آینده جمعی ما را شکل می‌دهند. مسیر پیش رو، ادراک شما از واقعیت را به چالش خواهد کشید.",
         agree_button: "می‌پذیرم و موافقم"
     },
     sabtName: {
@@ -231,6 +245,20 @@ const translations = {
             { text: "«آتش‌سوزی بزرگ تراژدی‌ای بود که از دل هرج و مرج زاده شد. سیستم از خاکسترها برخاست، ققنوسی از نظم، تا اطمینان حاصل کند که چنین فاجعه‌ای هرگز تکرار نشود.»", author: "مورخان سیستم", authorStyle: "زبانی خشک، مجهول و غیرشخصی، با تمرکز بر حتمیت به جای کنش انسانی.", options: [ { id: 'A', text: "این یک گزارش واقعی و عینی از وقایع است.", score: -1, consequence: "«تاریخ را فاتحان می‌نویسند. و تو می‌خوانی.»" }, { id: 'B', text: "این زبان به لحاظ احساسی فریبنده است. این پروپاگاندا است.", score: 1, consequence: "«تو یاد گرفته‌ای بین خطوط خاکستر را بخوانی.»" } ] },
             { text: "«شاد باشید! قانون وحدت تصویب شد. مخالفت میخی است که بیرون زده، و باید کوبیده شود.»", author: "اولین مدیر", authorStyle: "یک معمار بروتالیست که به یک بوروکرات تبدیل شد و به خاطر اعلامیه‌های سرد، مستقیم و به طرز تهدیدآمیزی صریحش شناخته می‌شود.", options: [ { id: 'A', text: "این یک جعل اغراق‌آمیز توسط شورشیان است تا سیستم را بد جلوه دهند.", score: -1, consequence: "«تو یک حقیقت تلخ را به عنوان یک دروغ مصلحتی رد کرده‌ای.»" }, { id: 'B', text: "لحن با مشخصات تاریخی مطابقت دارد. احتمالاً معتبر است.", score: 1, consequence: "«تو صدای چکش را می‌شناسی.»" } ] },
             { text: "تو یافته‌هایت را گردآوری کرده‌ای. حقیقت آشفته است و سیستم را در جنایاتی دخیل می‌کند. تاریخ رسمی پاک و قهرمانانه است.", options: [ { id: 'A', text: "تاریخ رسمی را منتشر کن. مردم به ثبات نیاز دارند.", score: -2, type: 'end_lose' }, { id: 'B', text: "تاریخ واقعی را درز بده. بگذار حقیقت هرچه بادا باد، دانسته شود.", score: 2, type: 'end_win' } ] }
+        ]
+    },
+    levelFive: {
+        title: "آیین",
+        back: "بازگشت",
+        intro: "سیستم برای اطمینان از... سازگاری، به یک ارزیابی روانشناختی نیاز دارد. پاسخ‌های شما بایگانی خواهد شد. سعی نکنید ما را فریب دهید. ما خواهیم فهمید.",
+        winMessage: "پروفایل روانشناختی شما بایگانی شد. شما... قابل پیش‌بینی هستید. مسیر بعدی باز است.",
+        aiLoading: "در حال تحلیل داده‌های روان‌سنجی...",
+        aiError: "ناهماهنگی شناختی شناسایی شد...",
+        begin: "شروع",
+        questions: [
+            { q: "دری پیش روی توست. چه رنگی است؟", options: [ { id: 'A', text: "آبی عمیق" }, { id: 'B', text: "قرمز خونی" }, { id: 'C', text: "سبز جنگلی" }, { id: 'D', text: "مشکی براق" } ] },
+            { q: "باید یک عدد را انتخاب کنی. کدام یک با تو ارتباط برقرار می‌کند؟", options: [ { id: 'A', text: "۱" }, { id: 'B', text: "۷" }, { id: 'C', text: "۴" }, { id: 'D', text: "۱۳" } ] },
+            { q: "کدام یک از این مفاهیم برای یک جامعه باثبات مهم‌تر است؟", options: [ { id: 'A', text: "نظم" }, { id: 'B', text: "آزادی" }, { id: 'C', text: "حقیقت" }, { id: 'D', text: "شادی" } ] }
         ]
     }
   }
@@ -985,6 +1013,108 @@ const LevelFourScreen = ({ onBack, onWin }) => {
     );
 };
 
+// Level Five Screen
+const LevelFiveScreen = ({ onBack, onWin }) => {
+    const { t } = useContext(LanguageContext);
+    const questions = useMemo(() => t.levelFive.questions, [t]);
+
+    const [questionIndex, setQuestionIndex] = useState(-1); // -1 for intro
+    const [answers, setAnswers] = useState([]);
+    const [isFinished, setIsFinished] = useState(false);
+    const [analysis, setAnalysis] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [isFading, setIsFading] = useState(false);
+
+    const handleStart = () => {
+        setIsFading(true);
+        setTimeout(() => {
+            setQuestionIndex(0);
+            setIsFading(false);
+        }, 500);
+    };
+
+    const handleAnswer = (answer) => {
+        const newAnswers = [...answers, { question: questions[questionIndex].q, answer: answer.text }];
+        setAnswers(newAnswers);
+        setIsFading(true);
+
+        setTimeout(() => {
+            if (questionIndex < questions.length - 1) {
+                setQuestionIndex(prev => prev + 1);
+            } else {
+                generateAnalysis(newAnswers);
+            }
+            setIsFading(false);
+        }, 500);
+    };
+
+    const generateAnalysis = async (finalAnswers) => {
+        setIsLoading(true);
+        try {
+            const prompt = `You are a cold, analytical AI from a dystopian system. Based on this psychological profile, provide a single, short, judgmental sentence about the person.
+- Question 1: ${finalAnswers[0].question} / Answer: ${finalAnswers[0].answer}
+- Question 2: ${finalAnswers[1].question} / Answer: ${finalAnswers[1].answer}
+- Question 3: ${finalAnswers[2].question} / Answer: ${finalAnswers[2].answer}
+Your analysis should be concise and unsettling.`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: prompt,
+            });
+            setAnalysis(response.text);
+        } catch (error) {
+            console.error("Analysis generation failed:", error);
+            setAnalysis(t.levelFive.aiError);
+        } finally {
+            setIsLoading(false);
+            setIsFinished(true);
+            setTimeout(() => onWin(), 4000);
+        }
+    };
+
+    return (
+        <div className="level-five-screen page-container">
+            <div className={`scenario-container ${isFading ? 'fade-out' : ''}`}>
+                {isLoading ? (
+                    <div className="ai-response-box analysis">{t.levelFive.aiLoading}</div>
+                ) : isFinished ? (
+                    <div className="result-container">
+                        <div className="ai-response-box analysis">{analysis}</div>
+                        <p>{t.levelFive.winMessage}</p>
+                    </div>
+                ) : questionIndex === -1 ? (
+                    <div className="intro-container">
+                        <h2 className="page-title creepster-font">{t.levelFive.title}</h2>
+                        <p className="scenario-text">{t.levelFive.intro}</p>
+                        <button className="button-glow" onClick={handleStart}>{t.levelFive.begin}</button>
+                    </div>
+                ) : (
+                    <>
+                        <p className="scenario-text">{questions[questionIndex].q}</p>
+                        <div className="choices-container">
+                            {questions[questionIndex].options.map(option => (
+                                <button 
+                                    key={option.id} 
+                                    className="choice-button"
+                                    onClick={() => handleAnswer(option)}
+                                >
+                                    {option.text}
+                                </button>
+                            ))}
+                        </div>
+                    </>
+                )}
+            </div>
+            {questionIndex > -1 && !isFinished && !isLoading && (
+                <div className="progress-indicator">
+                    {questionIndex + 1} / {questions.length}
+                </div>
+            )}
+             {!isFinished && !isLoading && <button className="back-button" onClick={onBack}>{t.levelFive.back}</button>}
+        </div>
+    );
+};
+
 
 // Main App Component
 const App = () => {
@@ -1052,6 +1182,8 @@ const App = () => {
         return <LevelThreeScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(3)} />;
       case 'level-four':
         return <LevelFourScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(4)} />;
+      case 'level-five':
+        return <LevelFiveScreen onBack={() => setGameState('level-select')} onWin={() => handleLevelWin(5)} />;
       default:
         return <MainMenu onNavigate={setGameState} />;
     }
